@@ -20,8 +20,8 @@ proc where*[T](self: Observable[T]; op: ((T)->bool)): Observable[T] =
     discard self.subscribe(
       onNext = (proc(v: T): void =
       if op(v): subject.onNext(v)),
-      onError = subject.onError,
-      onCompleted = subject.onCompleted)
+      onError = (proc(e: Error): void = subject.onError(e)),
+      onCompleted = (proc(): void = subject.onCompleted()))
   return subject.observable
 
 proc select*[T, S](self: Observable[T]; op: ((T)->S)): Observable[S] =

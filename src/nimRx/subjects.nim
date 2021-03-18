@@ -50,3 +50,8 @@ template subscribe*[T](self: Subject[T]; onNext: fn[T];
     onError: fe = doNothing[Error]; onCompleted: fc = doNothing): Disposable[T] =
   self.observable.subscribe(onNext, onError, onCompleted)
 
+template subscribeBlock*(self: Subject[Unit]; action: untyped): Disposable[Unit] =
+  self.subscribe(proc(_: Unit) =
+    action
+  )
+
