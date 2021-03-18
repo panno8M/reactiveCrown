@@ -41,6 +41,9 @@ template onError*[T](subject: Subject[T]; e: Error): void =
 template onCompleted*[T](subject: Subject[T]): void =
   subject.observer.onCompleted()
 
+template onNext*(subject: Subject[Unit]): void =
+  subject.onNext(unitDefault())
+
 template subscribe*[T](self: Subject[T]; observer: Observer[T]): Disposable[T] =
   self.observable.subscribe(observer)
 template subscribe*[T](self: Subject[T]; onNext: fn[T];

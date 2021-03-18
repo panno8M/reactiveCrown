@@ -2,8 +2,9 @@
 import nimRx/[gameObject]
 
 type
+  Unit* = ref object
   # TODO: define error type
-  Error* = object
+  Error* = ref object
     msg: string
 
   fn[T] = proc(v: T): void
@@ -25,6 +26,8 @@ type
 
 proc doNothing[T](v: T): void = discard
 proc doNothing(): void = discard
+
+proc unitDefault*(): Unit = new Unit
 
 proc newError*(msg: string): Error =
   Error(msg: msg)
