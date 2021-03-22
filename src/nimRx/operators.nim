@@ -34,6 +34,25 @@ proc select*[T, S](self: Observable[T]; op: ((T)->S)): Observable[S] =
       onCompleted = (proc(): void = subject.onCompleted()))
   return subject.observable
 
+proc buffer*[T](self: Observable[T]; count: int; skip: int = 0): Observable[seq[T]] =
+  let
+    skip = if skip == 0: count else: skip
+    subject = newSubject[seq[T]]()
+  var
+    cache = newSeq[T]()
+
+  subject.observable.onSubscribe = proc(observer: Observer[seq[T]]) =
+    discard self.subscribe(
+      onNext = (proc(v: T): void =
+      cache.add(v)
+      if cache.len == count:
+        subject.onNext(cache)
+        cache = cache[skip..cache.high]
+      ),
+      onError = (proc(e: Error): void = subject.onError(e)),
+      onCompleted = (proc(): void = subject.onCompleted()))
+  return subject.observable
+
 ## *onError handlings =====================================================================
 proc retry*[T](self: Observable[T]): Observable[T] =
   let

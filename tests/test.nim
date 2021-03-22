@@ -98,6 +98,34 @@ suite "core":
 
       check results == @["10", "20"]
 
+    test "buffer":
+      var results1 = newSeq[string]()
+      var results2 = newSeq[string]()
+      let subject = newSubject[int]()
+      discard subject.observable
+        .buffer(3, 1)
+        .subscribe(
+          onNext = proc(v: seq[int]): void = results1.add($v),
+          onError = proc(e: Error): void = results1.add($e),
+          onCompleted = proc(): void = results1.add($true))
+      discard subject.observable
+        .buffer(2)
+        .subscribe(
+          onNext = proc(v: seq[int]): void = results2.add($v),
+          onError = proc(e: Error): void = results2.add($e),
+          onCompleted = proc(): void = results2.add($true))
+
+      subject.onNext(1)
+      subject.onNext(2)
+      subject.onNext(3)
+      subject.onNext(4)
+      subject.onNext(5)
+      subject.onNext(6)
+
+      check results1 == @[$(@[1, 2, 3]), $(@[2, 3, 4]), $(@[3, 4, 5]), $(@[4, 5, 6])]
+      check results2 == @[$(@[1, 2]), $(@[3, 4]), $(@[5, 6])]
+
+
     test "concat":
       var results = newSeq[string]()
       let
