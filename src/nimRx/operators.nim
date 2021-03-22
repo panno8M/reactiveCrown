@@ -1,5 +1,5 @@
 import sugar, sequtils
-import nimRx/[core, subjects]
+import nimRx/[core, subjects, utils]
 
 ## *factories ===========================================================================
 proc Return*[T](v: T): Observable[T] =
@@ -111,3 +111,21 @@ proc repeat*[T](self: Observable[T]; times: Natural): Observable[T] =
   self.concat(sequtils.repeat(self, times - 1))
 proc repeat*[T](v: T; times: Natural): Observable[T] =
   Return(v).repeat(times)
+
+
+## *value dump =====================================================
+proc dump*[T](self: Observable[T]): Observable[T] =
+  let subject = newSubject[T]()
+  subject.observable.onSubscribe = proc(observer: Observer[T]) =
+    discard self.subscribe(
+    onNext = (proc(v: T): void =
+      log v
+      subject.onNext(v)),
+    onError = (proc(e: Error): void =
+      log e
+      subject.onError(e)),
+    onCompleted = (proc(): void =
+      log "complete!"
+      subject.onCompleted()))
+
+  return subject.observable
