@@ -141,6 +141,24 @@ suite "core":
       check results1 == @[$(@[1, 2, 3]), $(@[2, 3, 4]), $(@[3, 4, 5]), $(@[4, 5, 6])]
       check results2 == @[$(@[1, 2]), $(@[3, 4]), $(@[5, 6])]
 
+    test "zip":
+      var results = newSeq[string]()
+      let
+        subject1 = newSubject[int]()
+        subject2 = newSubject[float]()
+      discard zip(subject1.observable, subject2.observable).subscribe(
+        onNext = (proc(v: tuple[l: int; r: float]) = results.add($v)),
+        onError = proc(e: Error): void = results.add($e),
+        onCompleted = proc(): void = results.add($true))
+
+      subject1.onNext(1)
+      subject1.onNext(2)
+      subject1.onNext(3)
+      subject2.onNext(1f)
+      subject2.onNext(2f)
+      subject2.onNext(3f)
+
+      check results == @[$(l: 1, r: 1f), $(l: 2, r: 2f), $(l: 3, r: 3f)]
 
     test "concat":
       var results = newSeq[string]()

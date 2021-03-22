@@ -53,6 +53,37 @@ proc buffer*[T](self: Observable[T]; count: int; skip: int = 0): Observable[seq[
       onCompleted = (proc(): void = subject.onCompleted()))
   return subject.observable
 
+proc zip*[TLeft, TRight](self: Observable[TLeft]; target: Observable[
+    TRight]): Observable[tuple[l: TLeft; r: TRight]] =
+  type TResult = tuple[l: TLeft; r: TRight]
+  let subject = newSubject[TResult]()
+  var
+    cache: tuple[left: seq[TLeft]; right: seq[TRight]] =
+      (newSeq[TLeft](), newSeq[TRight]())
+  proc issue(): void =
+    if 1 <= cache.left.len and 1 <= cache.right.len:
+      subject.onNext((cache.left[0], cache.right[0]))
+      cache.left = cache.left[1..cache.left.high]
+      cache.right = cache.right[1..cache.right.high]
+  proc issue(v: TLeft): void =
+    cache.left.add(v)
+    issue()
+  proc issue(v: TRight): void =
+    cache.right.add(v)
+    issue()
+  subject.observable.onSubscribe = proc(observer: Observer[TResult]) =
+    discard self.subscribe(
+      onNext = (proc(v: TLeft): void = v.issue()),
+      onError = (proc(e: Error): void = subject.onError(e)),
+      onCompleted = (proc(): void = subject.onCompleted()),
+    )
+    discard target.subscribe(
+      onNext = (proc(v: TRight): void = v.issue()),
+      onError = (proc(e: Error): void = subject.onError(e)),
+      onCompleted = (proc(): void = subject.onCompleted()),
+    )
+  return subject.observable
+
 ## *onError handlings =====================================================================
 proc retry*[T](self: Observable[T]): Observable[T] =
   let
