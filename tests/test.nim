@@ -98,6 +98,22 @@ suite "core":
 
       check results == @["10", "20"]
 
+    test "select":
+      var results = newSeq[string]()
+      let subject = newSubject[int]()
+      discard subject.observable
+        .select(proc(v: int): float = toFloat(v * v))
+        .subscribe(
+          onNext = proc(v: float): void = results.add($v),
+          onError = proc(e: Error): void = results.add($e),
+          onCompleted = proc(): void = results.add($true))
+
+      subject.onNext(1)
+      subject.onNext(2)
+      subject.onNext(3)
+
+      check results == @[$1.0f, $4.0f, $9.0f]
+
     test "buffer":
       var results1 = newSeq[string]()
       var results2 = newSeq[string]()
