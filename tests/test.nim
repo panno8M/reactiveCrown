@@ -141,7 +141,7 @@ suite "core":
       check results1 == @[$(@[1, 2, 3]), $(@[2, 3, 4]), $(@[3, 4, 5]), $(@[4, 5, 6])]
       check results2 == @[$(@[1, 2]), $(@[3, 4]), $(@[5, 6])]
 
-    test "zip":
+    test "zip[TLeft, TRight]":
       var results = newSeq[string]()
       let
         subject1 = newSubject[int]()
@@ -159,6 +159,33 @@ suite "core":
       subject2.onNext(3f)
 
       check results == @[$(l: 1, r: 1f), $(l: 2, r: 2f), $(l: 3, r: 3f)]
+
+    test "zip[T]":
+      var results = newSeq[string]()
+      let
+        subject1 = newSubject[int]()
+        subject2 = newSubject[int]()
+        subject3 = newSubject[int]()
+      discard subject1.observable.zip(subject2.observable,
+          subject3.observable).subscribe(
+        onNext = proc(v: seq[int]): void = results.add($v),
+        onError = proc(e: Error): void = results.add($e),
+        onCompleted = proc(): void = results.add($true))
+
+      subject1.onNext 1
+      subject1.onNext 10
+      subject2.onNext 2
+      subject3.onNext 3
+      subject2.onNext 20
+      subject2.onCompleted()
+      subject3.onNext 30
+      subject1.onNext 100
+      subject2.onNext 200
+      subject3.onNext 300
+      subject3.onError newError("Error")
+      subject3.onNext 3000
+
+      check results == @[$(@[1, 2, 3]), $(@[10, 20, 30]), "Error"]
 
     test "concat":
       var results = newSeq[string]()

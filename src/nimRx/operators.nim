@@ -84,6 +84,35 @@ proc zip*[TLeft, TRight](self: Observable[TLeft]; target: Observable[
     )
   return subject.observable
 
+proc zip*[T](self: Observable[T]; targets: varargs[Observable[T]]):
+                                                              Observable[seq[T]] =
+  let
+    subject = newSubject[seq[T]]()
+    targets = block:
+      var ts = newSeq[Observable[T]](targets.len + 1)
+      ts[0] = self
+      for i in 0..targets.high: ts[i + 1] = targets[i]
+      ts
+  var
+    cache = newSeq[seq[T]](targets.len)
+  for i in 0..cache.high: cache[i] = newSeq[T]()
+
+  # If we put it directly in the "for" statement,
+  # the values from all Observables will go into cache[seq.high]
+  proc issue(target: Observable[T]; i: int) =
+    discard target.subscribe(
+      proc(v: T) =
+      cache[i].add(v)
+      if cache.filterIt(it.len == 0).len == 0:
+        subject.onNext(cache.mapIt(it[0]))
+        cache = cache.mapIt(it[1..it.high]),
+      proc(e: Error) = subject.onError(e),
+      proc() = discard)
+  subject.observable.onSubscribe = proc(observer: Observer[seq[T]]) =
+    for i, target in targets:
+      target.issue(i)
+  return subject.observable
+
 ## *onError handlings =====================================================================
 proc retry*[T](self: Observable[T]): Observable[T] =
   let
