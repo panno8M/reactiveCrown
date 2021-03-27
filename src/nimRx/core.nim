@@ -1,5 +1,4 @@
 # import sugar, sequtils, strformat, strutils
-import nimRx/[gameObject]
 
 type
   Unit* = ref object
@@ -11,11 +10,11 @@ type
   fe = proc(e: Error): void
   fc = proc(): void
 
-  Observer*[T] = ref object of gameObject
+  Observer*[T] = ref object of RootObj
     onNext*: fn[T]
     onError*: fe
     onCompleted*: fc
-  Observable*[T] = ref object of gameObject
+  Observable*[T] = ref object of RootObj
     observers*: seq[Observer[T]]
     onSubscribe*: fn[Observer[T]]
     completed*: bool

@@ -1,4 +1,4 @@
-import nimRx/[core, gameObject]
+import nimRx/[core]
 
 type
   fn[T] = proc(v: T): void
@@ -8,7 +8,7 @@ proc doNothing[T](v: T): void = discard
 proc doNothing(): void = discard
 ## *Subject =============================================================================
 type
-  Subject*[T] = ref object of gameObject
+  Subject*[T] = ref object of RootObj
     observer*: Observer[T]
     observable*: Observable[T]
 
