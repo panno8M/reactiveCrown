@@ -2,190 +2,207 @@ import sugar, sequtils
 import nimRx/[core, subjects, utils]
 
 ## *factories ===========================================================================
-proc Return*[T](v: T): Observable[T] =
-  newObservable[T](onSubscribe = proc(observer: Observer[T]): void =
-    observer.onNext(v)
-    observer.onCompleted())
-proc Range*[T](s: seq[T]): Observable[T] =
+proc returnThat*[T](v: T): Observable[T] =
   newObservable[T](proc(observer: Observer[T]) =
-    for v in s:
-      observer.onNext(v)
-    observer.onCompleted())
+    observer.onNext v
+    observer.onCompleted()
+  )
+proc range*[T: Ordinal](start: T; count: Natural): Observable[T] =
+  newObservable[T](proc(observer: Observer[T]) =
+    for i in 0..<count: observer.onNext start.succ(i)
+    observer.onCompleted()
+  )
+
+## *Cold -> Hot converter ===============================================================
+
 
 ## *filters =============================================================================
-proc where*[T](self: Observable[T]; op: ((T)->bool)): Observable[T] =
-  let subject = newSubject[T]()
+proc where*[T](upstream: Observable[T]; op: ((T)->bool)): Observable[T] =
+  let observable = newObservable[T]()
+  result = observable
 
-  subject.observable.onSubscribe = proc(observer: Observer[T]) =
-    discard self.subscribe(
-      onNext = (proc(v: T): void =
-      if op(v): subject.onNext(v)),
-      onError = (proc(e: Error): void = subject.onError(e)),
-      onCompleted = (proc(): void = subject.onCompleted()))
-  return subject.observable
+  observable.onSubscribe = proc() =
+    discard upstream.subscribe(
+      (v: T) => (if op(v): observable.execOnNext v),
+      observable.mkExecOnError,
+      observable.mkExecOnCompleted,
+    )
 
-proc select*[T, S](self: Observable[T]; op: ((T)->S)): Observable[S] =
-  let subject = newSubject[S]()
+proc select*[T, S](upstream: Observable[T]; op: ((T)->S)): Observable[S] =
+  let observable = newObservable[S]()
+  result = observable
 
-  subject.observable.onSubscribe = proc(observer: Observer[S]) =
-    discard self.subscribe(
-      onNext = (proc(v: T): void = subject.onNext(op v)),
-      onError = (proc(e: Error): void = subject.onError(e)),
-      onCompleted = (proc(): void = subject.onCompleted()))
-  return subject.observable
+  observable.onSubscribe = proc() =
+    discard upstream.subscribe(
+      (v: T) => (observable.execOnNext(op(v))),
+      observable.mkExecOnError,
+      observable.mkExecOnCompleted,
+    )
 
-proc buffer*[T](self: Observable[T]; count: int; skip: int = 0): Observable[seq[T]] =
+proc buffer*[T](upstream: Observable[T]; count: Natural; skip: Natural = 0):
+                                                                Observable[seq[T]] =
   let
     skip = if skip == 0: count else: skip
-    subject = newSubject[seq[T]]()
-  var
-    cache = newSeq[T]()
+    observable = newObservable[seq[T]]()
+  result = observable
+  var cache = newSeq[T]()
 
-  subject.observable.onSubscribe = proc(observer: Observer[seq[T]]) =
-    discard self.subscribe(
-      onNext = (proc(v: T): void =
-      cache.add(v)
-      if cache.len == count:
-        subject.onNext(cache)
-        cache = cache[skip..cache.high]
+  observable.onSubscribe = proc() =
+    discard upstream.subscribe(
+      (proc(v: T) =
+        cache.add(v)
+        if cache.len == count:
+          observable.execOnNext(cache)
+          cache = cache[skip..cache.high]
       ),
-      onError = (proc(e: Error): void = subject.onError(e)),
-      onCompleted = (proc(): void = subject.onCompleted()))
-  return subject.observable
-
-proc zip*[TLeft, TRight](self: Observable[TLeft]; target: Observable[
-    TRight]): Observable[tuple[l: TLeft; r: TRight]] =
-  type TResult = tuple[l: TLeft; r: TRight]
-  let subject = newSubject[TResult]()
-  var
-    cache: tuple[left: seq[TLeft]; right: seq[TRight]] =
-      (newSeq[TLeft](), newSeq[TRight]())
-  proc issue(): void =
-    if 1 <= cache.left.len and 1 <= cache.right.len:
-      subject.onNext((cache.left[0], cache.right[0]))
-      cache.left = cache.left[1..cache.left.high]
-      cache.right = cache.right[1..cache.right.high]
-  proc issue(v: TLeft): void =
-    cache.left.add(v)
-    issue()
-  proc issue(v: TRight): void =
-    cache.right.add(v)
-    issue()
-  subject.observable.onSubscribe = proc(observer: Observer[TResult]) =
-    discard self.subscribe(
-      onNext = (proc(v: TLeft): void = v.issue()),
-      onError = (proc(e: Error): void = subject.onError(e)),
-      onCompleted = (proc(): void = subject.onCompleted()),
+      observable.mkExecOnError,
+      observable.mkExecOnCompleted,
     )
-    discard target.subscribe(
-      onNext = (proc(v: TRight): void = v.issue()),
-      onError = (proc(e: Error): void = subject.onError(e)),
-      onCompleted = (proc(): void = subject.onCompleted()),
-    )
-  return subject.observable
 
-proc zip*[T](self: Observable[T]; targets: varargs[Observable[T]]):
+proc zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
+                                                  Observable[tuple[l: Tl; r: Tr]] =
+  type T = tuple[l: Tl; r: Tr]
+  let observable = newObservable[T]()
+  result = observable
+  var cache: tuple[l: seq[Tl]; r: seq[Tr]] = (newSeq[Tl](), newSeq[Tr]())
+  proc tryOnNext() =
+    if 1 <= cache.l.len and 1 <= cache.r.len:
+      observable.execOnNext((cache.l[0], cache.r[0]))
+      cache.l = cache.l[1..cache.l.high]
+      cache.r = cache.r[1..cache.r.high]
+  observable.onSubscribe = proc() =
+    discard tl.subscribe(
+      (proc(v: Tl) =
+        cache.l.add(v)
+        tryOnNext()
+      ),
+      observable.mkExecOnError,
+      observable.mkExecOnCompleted,
+    )
+    discard tr.subscribe(
+      (proc(v: Tr) =
+        cache.r.add(v)
+        tryOnNext()
+      ),
+      observable.mkExecOnError,
+      observable.mkExecOnCompleted,
+    )
+
+proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
                                                               Observable[seq[T]] =
   let
-    subject = newSubject[seq[T]]()
-    targets = block:
-      var ts = newSeq[Observable[T]](targets.len + 1)
-      ts[0] = self
-      for i in 0..targets.high: ts[i + 1] = targets[i]
-      ts
-  var
-    cache = newSeq[seq[T]](targets.len)
-  for i in 0..cache.high: cache[i] = newSeq[T]()
+    targets = concat(@[upstream], @targets)
+    observable = newObservable[seq[T]]()
+  result = observable
+  var cache = newSeq[seq[T]](targets.len).mapIt(newSeq[T]())
 
-  # If we put it directly in the "for" statement,
-  # the values from all Observables will go into cache[seq.high]
-  proc issue(target: Observable[T]; i: int) =
+  # Is this statement put directly in the for statement on onSubscribe,
+  # the values from all observables will go into cache[seq.high].
+  proc tryOnNext(target: Observable[T]; i: int) =
     discard target.subscribe(
-      proc(v: T) =
-      cache[i].add(v)
-      if cache.filterIt(it.len == 0).len == 0:
-        subject.onNext(cache.mapIt(it[0]))
-        cache = cache.mapIt(it[1..it.high]),
-      proc(e: Error) = subject.onError(e),
-      proc() = discard)
-  subject.observable.onSubscribe = proc(observer: Observer[seq[T]]) =
+      (proc(v: T) =
+        cache[i].add(v)
+        if cache.filterIt(it.len == 0).len == 0:
+          observable.execOnNext cache.mapIt(it[0])
+          cache = cache.mapIt(it[1..it.high])
+      ),
+      observable.mkExecOnError,
+    )
+  observable.onSubscribe = proc() =
     for i, target in targets:
-      target.issue(i)
-  return subject.observable
+      tryOnNext(target, i)
 
 ## *onError handlings =====================================================================
-proc retry*[T](self: Observable[T]): Observable[T] =
+proc retry*[T](upstream: Observable[T]): Observable[T] =
   let
-    subject = newSubject[T]()
-    self = self
-  proc newRetryOsr[T](): Observer[T] =
+    # NOTE without this assignment, the upstream variable in retryConnection called later is not found.
+    # This reason seems because a immutable argument cannot be a variable in closure.
+    upstream = upstream
+    observable = newObservable[T]()
+  result = observable
+  proc retryConnection[T](): Observer[T] =
     newObserver[T](
-      onNext = proc(v: T): void = subject.onNext(v),
-      onError = proc(e: Error): void = discard self.subscribe(newRetryOsr[T]()),
-      onCompleted = proc(): void = subject.onCompleted())
+      observable.mkExecOnNext,
+      (e: Error) => (discard upstream.subscribe retryConnection[T]()),
+      observable.mkExecOnCompleted,
+    )
 
-  subject.observable.onSubscribe = proc(observer: Observer[T]) =
-    discard self.subscribe(newRetryOsr[T]())
-  return subject.observable
+  observable.onSubscribe = proc() =
+    discard upstream.subscribe retryConnection[T]()
 
 ## *onCompleted handlings ===============================================================
-proc concat*[T](self: Observable[T]; ts: varargs[Observable[T]]):
-                                                                  Observable[T] =
-  let
-    subject = newSubject[T]()
+proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
+                                                                Observable[T] =
+  let observable = newObservable[T]()
+  result = observable
   var
+    targets = @targets
     count = 0
-    targets = newSeq[Observable[T]](ts.len)
-  for i, v in ts: targets[i] = v
 
   proc nextTarget(): Observable[T] =
     result = targets[count]
     inc count
 
-  proc newConcatOsr[T](): Observer[T] =
+  proc concatConnection[T](): Observer[T] =
     newObserver[T](
-      onNext = proc(v: T): void = subject.onNext(v),
-      onError = proc(e: Error): void = subject.onError(e),
-      onCompleted = proc(): void =
-      if count < targets.len:
-        discard nextTarget().subscribe(newConcatOsr[T]())
-      else:
-        subject.onCompleted())
-
-  subject.observable.onSubscribe = proc(observer: Observer[T]) =
-    discard self.subscribe(newConcatOsr[T]())
-  return subject.observable
-
-proc repeat*[T](self: Observable[T]): Observable[T] =
-  let subject = newSubject[T]()
-  proc newRepeatOsr[T](): Observer[T] =
-    newObserver[T](
-      onNext = proc(v: T): void = subject.onNext(v),
-      onError = proc(e: Error): void = subject.onError(e),
-      onCompleted = proc(): void = self.subscribe(newRepeatOsr[T]())
+      observable.mkExecOnNext,
+      observable.mkExecOnError,
+      (proc() =
+        if count < targets.len:
+          discard nextTarget().subscribe concatConnection[T]()
+        else:
+          observable.execOnCompleted()),
     )
-  subject.observable.onSubscribe = proc(observer: Observer[T]) =
-    discard self.subscribe(newRepeatOsr[T]())
-  return subject.observable
-proc repeat*[T](self: Observable[T]; times: Natural): Observable[T] =
-  self.concat(sequtils.repeat(self, times - 1))
+  observable.onSubscribe = proc() =
+    discard upstream.subscribe concatConnection[T]()
+
+proc repeat*[T](upstream: Observable[T]): Observable[T] =
+  let observable = newObservable[T]()
+  result = observable
+  proc repeatConnection[T](observer: Observer[T]): Observer[T] =
+    newObserver[T](
+      observer.onNext,
+      observer.onError,
+      () => (discard upstream.subscribe observer.repeatConnection()),
+    )
+  observable.onSubscribe = proc() =
+    discard upstream.subscribe observable.observer.repeatConnection()
+proc repeat*[T](upstream: Observable[T]; times: Natural): Observable[T] =
+  upstream.concat(sequtils.repeat(upstream, times-1))
 proc repeat*[T](v: T; times: Natural): Observable[T] =
-  Return(v).repeat(times)
+  returnThat(v).repeat(times)
 
 
 ## *value dump =====================================================
-proc dump*[T](self: Observable[T]): Observable[T] =
-  let subject = newSubject[T]()
-  subject.observable.onSubscribe = proc(observer: Observer[T]) =
-    discard self.subscribe(
-    onNext = (proc(v: T): void =
-      log v
-      subject.onNext(v)),
-    onError = (proc(e: Error): void =
-      log e
-      subject.onError(e)),
-    onCompleted = (proc(): void =
-      log "complete!"
-      subject.onCompleted()))
 
-  return subject.observable
+proc doThat*[T](upstream: Observable[T]; op: (T)->void): Observable[T] =
+  let observable = newObservable[T]()
+  result = observable
+  observable.onSubscribe = proc() =
+    discard upstream.subscribe(
+      (proc(v: T) =
+        op(v)
+        observable.execOnNext(v)
+      ),
+      observable.mkExecOnError,
+      observable.mkExecOnCompleted,
+    )
+
+proc dump*[T](upstream: Observable[T]): Observable[T] =
+  let observable = newObservable[T]()
+  result = observable
+  observable.onSubscribe = proc() =
+    discard upstream.subscribe(
+      (proc(v: T) =
+        log v
+        observable.execOnNext(v)
+      ),
+      (proc(e: Error) =
+        log e
+        observable.execOnError(e)
+      ),
+      (proc() =
+        log "complete!"
+        observable.execOnCompleted()
+      )
+    )

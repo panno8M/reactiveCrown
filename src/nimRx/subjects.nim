@@ -1,9 +1,6 @@
+import sugar, sequtils
 import nimRx/[core]
 
-type
-  fn[T] = proc(v: T): void
-  fe = proc(e: Error): void
-  fc = proc(): void
 proc doNothing[T](v: T): void = discard
 proc doNothing(): void = discard
 ## *Subject =============================================================================
@@ -14,8 +11,7 @@ type
 
 proc newSubject*[T](): Subject[T] =
   let subject = Subject[T](observable: newObservable[T]())
-  subject.observable = newObservable[T](
-    proc(observer: Observer[T]): void =
+  subject.observable = newObservable[T](proc(observer: Observer[T]) =
     if subject.observable.completed:
       for obs in subject.observable.observers: obs.onCompleted())
   subject.observer = newObserver[T](
@@ -24,10 +20,10 @@ proc newSubject*[T](): Subject[T] =
       for obs in subject.observable.observers: obs.onNext(v)),
     (proc(e: Error): void =
       if subject.observable.completed: return
-      var s = newSeq[Observer[T]](subject.observable.observers.len)
-      for i, v in subject.observable.observers: s[i] = v
+      var s = subject.observable.observers
       subject.observable.observers.setLen(0)
-      for obs in s: obs.onError(e)),
+      s.apply((x: Observer[T]) => x.onError(e))
+    ),
     (proc(): void =
       for obs in subject.observable.observers: obs.onCompleted()
       subject.observable.observers.setLen(0)
@@ -44,10 +40,13 @@ template onCompleted*[T](subject: Subject[T]): void =
 template onNext*(subject: Subject[Unit]): void =
   subject.onNext(unitDefault())
 
-template subscribe*[T](self: Subject[T]; observer: Observer[T]): Disposable[T] =
+proc subscribe*[T](self: Subject[T]; observer: Observer[T]): Disposable[T] =
   self.observable.subscribe(observer)
-template subscribe*[T](self: Subject[T]; onNext: fn[T];
-    onError: fe = doNothing[Error]; onCompleted: fc = doNothing): Disposable[T] =
+proc subscribe*[T](self: Subject[T];
+    onNext: (T)->void;
+    onError: (Error)->void = doNothing[Error];
+    onCompleted: ()->void = doNothing):
+        Disposable[T] =
   self.observable.subscribe(onNext, onError, onCompleted)
 
 template subscribeBlock*(self: Subject[Unit]; action: untyped): Disposable[Unit] =
