@@ -12,8 +12,8 @@ type
     onCompleted*: ()->void
   Observable*[T] = ref object of RootObj
     observers*: seq[Observer[T]]
-    onSubscribeFactory*: (Observer[T])->void
-    onSubscribe*: ()->void
+    observableFactory*: ()->Observable[T]
+    onSubscribe*: (Observer[T])->void
     completed*: bool
   Disposable*[T] = ref object of RootObj
     observable: Observable[T]
@@ -36,10 +36,7 @@ proc newDisposable*[T](observable: Observable[T]; observer: Observer[T]):
 proc dispose*[T](self: Disposable[T]) =
   if self.isDisposed or self.observable.observers.len == 0: return
 
-  for i, observer in self.observable.observers:
-    if observer == self.observer:
-      self.observable.observers.del(i)
-      break
+  self.observable.observers.keepIf(v => v != self.observer)
 
   self.isDisposed = true
 
@@ -51,20 +48,30 @@ proc newObserver*[T](onNext: (T)->void;
   Observer[T](onNext: onNext, onError: onError, onCompleted: onCompleted)
 
 ## *Observable ==========================================================================
-proc newObservable*[T](onSubscribeFactory: (Observer[T])->void): Observable[T] =
+proc newObservableWithFactory*[T](factory: ()->Observable[T]): Observable[T] =
   Observable[T](
     observers: newSeq[Observer[T]](),
-    onSubscribeFactory: onSubscribeFactory,
+    observableFactory: factory,
     onSubscribe: doNothing,
   )
-proc newObservable*[T](): Observable[T] = newObservable[T](nil)
+proc newObservable*[T](): Observable[T] =
+  Observable[T](
+    observers: newSeq[Observer[T]](),
+    onSubscribe: doNothing,
+  )
+
+proc setOnSubscribe*[T](self: Observable[T]; onSubscribe: (Observer[T])->void) =
+  self.onSubscribe = onSubscribe
+proc setOnSubscribe*[T](self: Observable[T]; onSubscribe: ()->void) =
+  self.onSubscribe = (o: Observer[T]) => onSubscribe()
+
 
 template execOnNext*[T](self: Observable[T]; v: T) =
-  self.observers.apply((observer: Observer[T]) => observer.onNext(v))
+  self.observers.apply((o: Observer[T]) => o.onNext(v))
 template execOnError*[T](self: Observable[T]; e: Error) =
-  self.observers.apply((observer: Observer[T]) => observer.onError(e))
+  self.observers.apply((o: Observer[T]) => o.onError(e))
 template execOnCompleted*[T](self: Observable[T]) =
-  self.observers.apply((observer: Observer[T]) => observer.onCompleted())
+  self.observers.apply((o: Observer[T]) => o.onCompleted())
 proc mkExecOnNext*[T](self: Observable[T]): (T)->void =
   return proc(v: T) = self.execOnNext(v)
 proc mkExecOnError*[T](self: Observable[T]): (Error)->void =
@@ -76,10 +83,11 @@ proc mkExecOnCompleted*[T](self: Observable[T]): ()->void =
 proc subscribe*[T](self: Observable[T]; observer: Observer[T]): Disposable[T] =
   self.observers.add(observer)
 
-  if self.onSubscribeFactory != nil: self.onSubscribeFactory(observer)
-  else: self.onSubscribe()
-
-  newDisposable[T](self, observer)
+  if self.observableFactory != nil:
+    return self.observableFactory().subscribe(observer)
+  else:
+    self.onSubscribe(observer)
+    return newDisposable[T](self, observer)
 
 template subscribe*[T](self: Observable[T];
     onNext: (T)->void;

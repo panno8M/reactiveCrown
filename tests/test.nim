@@ -34,17 +34,6 @@ suite "core":
         "4".newError.oem,
         5.onm]
 
-  test "observable: can create and call onSubscribe":
-    var results = newSeq[string]()
-    const osm = "onSubscribe()"
-    proc os[T](observer: Observer[T]): void = results.add(osm)
-    let
-      observable1 = newObservable[int](os[int])
-      observable2 = newObservable[int]()
-
-    observable1.onSubscribeFactory(newObserver((i: int) => (discard)))
-    observable2.onSubscribe()
-    check results == @[osm]
 
   test "disposable: can create and dispose":
     proc doNothing[T](v: T): void = discard
@@ -61,11 +50,10 @@ suite "core":
   test "complex dispose":
     let subject = newSubject[int]()
     var results = newSeq[string]()
-    var disposable = subject.observable
-      .select(i => i.toFloat())
-      .buffer(2, 1)
-      .subscribe(
-        (v: seq[float]) => results.add($v),
+    let where = subject.observable.where(i => i mod 2 == 1)
+    let select = where.select(i => i.toFloat())
+    let disposable = select.subscribe(
+        (v: float) => results.add($v),
         (e: Error) => results.add($e),
         () => results.add($true),
       )
@@ -75,10 +63,30 @@ suite "core":
     subject.onNext 3
     disposable.dispose()
     subject.onNext 4
+    let whereDisposable = where.subscribe(
+        (v: int) => results.add($v),
+        (e: Error) => results.add($e),
+        () => results.add($true),
+      )
     subject.onNext 5
+    whereDisposable.dispose()
     subject.onNext 6
+    discard select.subscribe(
+        (v: float) => results.add($v),
+        (e: Error) => results.add($e),
+        () => results.add($true),
+      )
+    discard select.subscribe(
+        (v: float) => results.add($v),
+        (e: Error) => results.add($e),
+        () => results.add($true),
+      )
+    subject.onNext 7
+    subject.onNext 8
+    subject.onNext 9
 
-    check results == [$(@[1f, 2f]), $(@[2f, 3f])]
+
+    check results == @[$1f, $3f, $5, $7f, $7f, $9f, $9f]
 
 
   test "complex work":
@@ -315,12 +323,53 @@ suite "observable/factory":
 
     check results == @[$alpha, $beta, $gamma, $true, "a", "b", "c", $true]
 
-# suite "temp":
-#   let observable = range(1, 10)
-#     .doThat((v: int) => echo v)
-#   discard observable.subscribe(
-#       (v: int) => (echo "A!")
-#     )
-#   discard observable.subscribe(
-#       (v: int) => (echo "B!")
-#     )
+suite "Cold->Hot Conversion":
+  test "can publish & connect":
+    var results = newSeq[string]()
+    let r = range(0, 3)
+      .select(i => i*2)
+      .doThat((v: int) => results.add($v & ":(upstream)"))
+      .publish()
+    discard r.subscribe(
+      (v: int) => results.add($v & ":(1)"),
+      (e: Error) => results.add($e),
+      () => results.add($true),
+    )
+    discard r.subscribe(
+      (v: int) => results.add($v & ":(2)"),
+      (e: Error) => results.add($e),
+      () => results.add($true),
+    )
+    discard r.connect()
+
+    check results == @[
+      "0:(upstream)", "0:(1)", "0:(2)",
+      "2:(upstream)", "2:(1)", "2:(2)",
+      "4:(upstream)", "4:(1)", "4:(2)",
+      $true, $true,
+    ]
+  test "can dispose and reconnect the connection":
+    var results = newSeq[string]()
+    let subject = newSubject[int]()
+    let observable = subject.observable
+      .select(v => toFloat(v))
+      .publish()
+
+    discard observable.subscribe(
+      proc(v: float) = results.add($v),
+      (e: Error) => results.add($e),
+      () => results.add($true),
+    )
+    subject.onNext 1
+    subject.onNext 2
+    let disposable = observable.connect()
+    subject.onNext 3
+    subject.onNext 4
+    disposable.dispose()
+    subject.onNext 5
+    subject.onNext 6
+    discard observable.connect()
+    subject.onNext 7
+    subject.onNext 8
+
+    check results == @[$3f, $4f, $7f, $8f]

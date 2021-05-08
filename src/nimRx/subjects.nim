@@ -10,14 +10,16 @@ type
     observable*: Observable[T]
 
 proc newSubject*[T](): Subject[T] =
-  let subject = Subject[T](observable: newObservable[T]())
-  subject.observable = newObservable[T](proc(observer: Observer[T]) =
+  let subject = Subject[T]()
+  subject.observable = newObservable[T]()
+  subject.observable.setOnSubscribe proc() =
     if subject.observable.completed:
-      for obs in subject.observable.observers: obs.onCompleted())
+      subject.observable.execOnCompleted()
   subject.observer = newObserver[T](
     (proc(v: T): void =
       if subject.observable.completed: return
-      for obs in subject.observable.observers: obs.onNext(v)),
+      subject.observable.execOnNext(v)
+    ),
     (proc(e: Error): void =
       if subject.observable.completed: return
       var s = subject.observable.observers
@@ -25,7 +27,7 @@ proc newSubject*[T](): Subject[T] =
       s.apply((x: Observer[T]) => x.onError(e))
     ),
     (proc(): void =
-      for obs in subject.observable.observers: obs.onCompleted()
+      subject.observable.execOnCompleted()
       subject.observable.observers.setLen(0)
       subject.observable.completed = true))
   return subject
