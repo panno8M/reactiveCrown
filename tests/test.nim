@@ -1,38 +1,56 @@
 import unittest
-import sugar
+import sugar, strformat
 import nimRx
+
+let testError = newError "Error"
+template onNextMsg[T](r: var seq[string];
+    prefix, suffix: string = ""): proc(v: T) =
+  ((v: T) => r.add prefix & $v & suffix)
+template onErrorMsg(r: var seq[string];
+    prefix, suffix: string = ""): (Error->void) =
+  ((e: Error) => r.add prefix & $e & suffix)
+template onCompletedMsg(r: var seq[string];
+    prefix, suffix: string = ""): (()->void) =
+  (() => r.add prefix & "#" & suffix)
+template testObserver[T](r: var seq[string];
+    prefix, suffix: string = ""): Observer[T] = newObserver[T](
+ onNextMsg[T](r, prefix, suffix),
+ onErrorMsg(r, prefix, suffix),
+ onCompletedMsg(r, prefix, suffix),
+)
 
 suite "core":
   test "observer: can create and call onNext, onError, onCompleted":
     var results = newSeq[string]()
-    proc onm(v: int): string = "onNext(" & $v & ")"
-    proc oem(v: Error): string = "onError(" & $v & ")"
-    const ocm = "onCompleted()"
-    proc on(v: int): void = results.add(onm v)
-    proc oe(e: Error): void = results.add(oem e)
-    proc oc(): void = results.add(ocm)
+    proc onm(v: int): string = &"onNext({v})"
+    proc oem(v: Error): string = &"onError({v})"
+    const ocm = "#"
+    proc on(v: int): void = results.add onm(v)
+    proc oe(e: Error): void = results.add oem(e)
+    proc oc(): void = results.add ocm
     let
       observer1 = newObserver[int](on, oe, oc)
       observer2 = newObserver[int](on, oe)
       observer3 = newObserver[int](on)
 
-    observer1.onNext(1)
-    observer1.onError(newError("2"))
+    observer1.onNext 1
+    observer1.onError newError("2")
     observer1.onCompleted()
-    observer2.onNext(3)
-    observer2.onError(newError("4"))
+    observer2.onNext 3
+    observer2.onError newError("4")
     observer2.onCompleted()
-    observer3.onNext(5)
-    observer3.onError(newError("6"))
+    observer3.onNext 5
+    observer3.onError newError("6")
     observer3.onCompleted()
 
     check results == @[
         1.onm,
-        "2".newError.oem,
+        newError("2").oem,
         ocm,
         3.onm,
-        "4".newError.oem,
-        5.onm]
+        newError("4").oem,
+        5.onm,
+      ]
 
 
   test "disposable: can create and dispose":
@@ -52,35 +70,19 @@ suite "core":
     var results = newSeq[string]()
     let where = subject.observable.where(i => i mod 2 == 1)
     let select = where.select(i => i.toFloat())
-    let disposable = select.subscribe(
-        (v: float) => results.add($v),
-        (e: Error) => results.add($e),
-        () => results.add($true),
-      )
+    let disposable = select.subscribe testObserver[float](results)
 
     subject.onNext 1
     subject.onNext 2
     subject.onNext 3
     disposable.dispose()
     subject.onNext 4
-    let whereDisposable = where.subscribe(
-        (v: int) => results.add($v),
-        (e: Error) => results.add($e),
-        () => results.add($true),
-      )
+    let whereDisposable = where.subscribe testObserver[int](results)
     subject.onNext 5
     whereDisposable.dispose()
     subject.onNext 6
-    discard select.subscribe(
-        (v: float) => results.add($v),
-        (e: Error) => results.add($e),
-        () => results.add($true),
-      )
-    discard select.subscribe(
-        (v: float) => results.add($v),
-        (e: Error) => results.add($e),
-        () => results.add($true),
-      )
+    discard select.subscribe testObserver[float](results)
+    discard select.subscribe testObserver[float](results)
     subject.onNext 7
     subject.onNext 8
     subject.onNext 9
@@ -92,16 +94,8 @@ suite "core":
   test "complex work":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.subscribe(
-      (v: int) => results.add "1:" & $v,
-      (e: Error) => results.add "1:" & $e,
-      () => results.add "1:" & $true,
-    )
-    let disposable = subject.subscribe(
-      (v: int) => results.add "2:" & $v,
-      (e: Error) => results.add "2:" & $e,
-      () => results.add "2:" & $true,
-    )
+    discard subject.subscribe testObserver[int](results, prefix = "1:")
+    let disposable = subject.subscribe testObserver[int](results, prefix = "2:")
 
     subject.onNext 10
     disposable.dispose()
@@ -109,7 +103,7 @@ suite "core":
     subject.onCompleted()
     subject.onNext 30
 
-    check results == @["1:10", "2:10", "1:20", "1:true"]
+    check results == @["1:10", "2:10", "1:20", "1:#"]
 
 suite "observable/operator":
   test "where":
@@ -117,11 +111,7 @@ suite "observable/operator":
     let subject = newSubject[int]()
     discard subject.observable
       .where(v => v != 2)
-      .subscribe(
-        (v: int) => results.add($v),
-        (e: Error) => results.add($e),
-        () => results.add($true),
-      )
+      .subscribe testObserver[int](results)
 
     subject.onNext 1
     subject.onNext 2
@@ -134,11 +124,7 @@ suite "observable/operator":
     let subject = newSubject[int]()
     discard subject.observable
       .select(v => toFloat(v*v))
-      .subscribe(
-        (v: float) => results.add($v),
-        (e: Error) => results.add($e),
-        () => results.add($true),
-      )
+      .subscribe testObserver[float](results)
 
     subject.onNext 1
     subject.onNext 2
@@ -153,18 +139,10 @@ suite "observable/operator":
     let subject = newSubject[int]()
     discard subject.observable
       .buffer(3, 1)
-      .subscribe(
-        (v: seq[int]) => results1.add($v),
-        (e: Error) => results1.add($e),
-        () => results1.add($true),
-      )
+      .subscribe testObserver[seq[int]](results1)
     discard subject.observable
       .buffer(2)
-      .subscribe(
-        (v: seq[int]) => results2.add($v),
-        (e: Error) => results2.add($e),
-        () => results2.add($true),
-      )
+      .subscribe testObserver[seq[int]](results2)
 
     subject.onNext 1
     subject.onNext 2
@@ -185,11 +163,7 @@ suite "observable/operator":
         subject1.observable,
         subject2.observable,
       )
-      .subscribe(
-         (v: tuple[l: int; r: float]) => results.add($v),
-         (e: Error) => results.add($e),
-         () => results.add($true),
-      )
+      .subscribe testObserver[tuple[l: int; r: float]](results)
 
     subject1.onNext 1
     subject1.onNext 2
@@ -211,11 +185,7 @@ suite "observable/operator":
         subject2.observable,
         subject3.observable,
       )
-      .subscribe(
-        (v: seq[int]) => results.add($v),
-        (e: Error) => results.add($e),
-        () => results.add($true),
-      )
+      .subscribe testObserver[seq[int]](results)
 
     subject1.onNext 1
     subject1.onNext 10
@@ -227,10 +197,10 @@ suite "observable/operator":
     subject1.onNext 100
     subject2.onNext 200
     subject3.onNext 300
-    subject3.onError newError("Error")
+    subject3.onError testError
     subject3.onNext 3000
 
-    check results == @[$(@[1, 2, 3]), $(@[10, 20, 30]), "Error"]
+    check results == @[$(@[1, 2, 3]), $(@[10, 20, 30]), $testError]
 
   test "concat  [T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[T]":
     var results = newSeq[string]()
@@ -245,11 +215,7 @@ suite "observable/operator":
         subject3.observable,
         subject4.observable,
       )
-      .subscribe(
-        (v: int) => results.add($v),
-        (e: Error) => results.add($e),
-        () => results.add($true),
-      )
+      .subscribe testObserver[int](results)
 
     subject1.onNext 1
     subject2.onNext 10
@@ -265,18 +231,14 @@ suite "observable/operator":
     subject4.onNext 6
     subject4.onCompleted()
 
-    check results == @["1", "2", "3", "4", "5", "6", "true"]
+    check results == @[$1, $2, $3, $4, $5, $6, "#"]
 
   test "retry  [T](upstream: Observable[T]): Observable[T]":
     var results = newSeq[string]()
     let subject = newSubject[int]()
     discard subject.observable
       .retry()
-      .subscribe(
-        (v: int) => results.add($v),
-        (e: Error) => results.add($e),
-        () => results.add($true),
-      )
+      .subscribe testObserver[int](results)
 
     subject.onNext 10
     subject.onError newError("Error")
@@ -288,65 +250,41 @@ suite "observable/factory":
 
   test "returnThat  [T](v: T): Observable[T]":
     var results = newSeq[string]()
-    discard returnThat(100).subscribe(
-      (v: int) => results.add($v),
-      (e: Error) => results.add($e),
-      () => results.add($true),
-    )
+    discard returnThat(100).subscribe testObserver[int](results)
 
-    check results == @[$100, $true]
+    check results == @[$100, "#"]
 
   test "repeat  [T](v: T; times: Natural): Observable[T]":
     var results = newSeq[string]()
-    discard repeat(5, 3).subscribe(
-      (v: int) => results.add($v),
-      (e: Error) => results.add($e),
-      () => results.add($true),
-    )
+    discard repeat(5, 3).subscribe testObserver[int](results)
 
-    check results == @[$5, $5, $5, $true]
+    check results == @[$5, $5, $5, "#"]
 
   test "range  [T: Ordinal](start: T; count: Natural): Observable[T]":
-    type tempenum = enum
+    type Tempenum = enum
       alpha, beta, gamma
     var results = newSeq[string]()
-    discard range(alpha, 3).subscribe(
-      (v: tempenum) => results.add($v),
-      (e: Error) => results.add($e),
-      () => results.add($true),
-    )
-    discard range('a', 3).subscribe(
-      (v: char) => results.add($v),
-      (e: Error) => results.add($e),
-      () => results.add($true),
-    )
+    discard range(alpha, 3).subscribe testObserver[Tempenum](results)
+    discard range('a', 3).subscribe testObserver[char](results)
 
-    check results == @[$alpha, $beta, $gamma, $true, "a", "b", "c", $true]
+    check results == @[$alpha, $beta, $gamma, "#", "a", "b", "c", "#"]
 
 suite "Cold->Hot Conversion":
   test "can publish & connect":
     var results = newSeq[string]()
     let r = range(0, 3)
       .select(i => i*2)
-      .doThat((v: int) => results.add($v & ":(upstream)"))
+      .doThat((v: int) => results.add &"upstream:{v}")
       .publish()
-    discard r.subscribe(
-      (v: int) => results.add($v & ":(1)"),
-      (e: Error) => results.add($e),
-      () => results.add($true),
-    )
-    discard r.subscribe(
-      (v: int) => results.add($v & ":(2)"),
-      (e: Error) => results.add($e),
-      () => results.add($true),
-    )
+    discard r.subscribe testObserver[int](results, prefix = "1:")
+    discard r.subscribe testObserver[int](results, prefix = "2:")
     discard r.connect()
 
     check results == @[
-      "0:(upstream)", "0:(1)", "0:(2)",
-      "2:(upstream)", "2:(1)", "2:(2)",
-      "4:(upstream)", "4:(1)", "4:(2)",
-      $true, $true,
+      "upstream:0", "1:0", "2:0",
+      "upstream:2", "1:2", "2:2",
+      "upstream:4", "1:4", "2:4",
+      "1:#", "2:#",
     ]
   test "can dispose and reconnect the connection":
     var results = newSeq[string]()
@@ -354,12 +292,7 @@ suite "Cold->Hot Conversion":
     let observable = subject.observable
       .select(v => toFloat(v))
       .publish()
-
-    discard observable.subscribe(
-      proc(v: float) = results.add($v),
-      (e: Error) => results.add($e),
-      () => results.add($true),
-    )
+    discard observable.subscribe testObserver[float](results)
     subject.onNext 1
     subject.onNext 2
     let disposable = observable.connect()
