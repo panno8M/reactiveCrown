@@ -62,31 +62,42 @@ suite "core":
     check results == @["1:10", "2:10", "1:20", "1:#"]
 
 suite "observable/operator":
-  test "where":
+  test "where  [T](upstream:Observable[T]; op: (T)->bool): Observable[T]":
     var results = newSeq[string]()
-    let subject = newSubject[int]()
-    discard subject.asObservable
-      .where(v => v != 2)
-      .subscribe testObserver[int](results)
+    let
+      subject = newSubject[int]()
+      where = subject.asObservable.where(v => v mod 2 == 1)
+      disposable1 = where.subscribe testObserver[int](results)
 
     subject.onNext 1
+    let disposable2 = where.subscribe testObserver[int](results)
     subject.onNext 2
     subject.onNext 3
+    disposable1.dispose()
+    subject.onNext 4
+    subject.onNext 5
+    disposable2.dispose()
+    subject.onNext 6
+    subject.onNext 7
 
-    check results == @[$1, $3]
+    check results == @[$1, $3, $3, $5]
 
   test "select  [T, S](upstream: Observable[T]; op: (T)->S): Observable[S]":
     var results = newSeq[string]()
-    let subject = newSubject[int]()
-    discard subject.asObservable
-      .select(v => toFloat(v*v))
-      .subscribe testObserver[float](results)
+    let
+      subject = newSubject[int]()
+      select = subject.asObservable.select(v => toFloat(v*v))
+      disposable1 = select.subscribe testObserver[float](results)
 
     subject.onNext 1
+    let disposable2 = select.subscribe testObserver[float](results)
     subject.onNext 2
+    disposable1.dispose()
     subject.onNext 3
+    disposable2.dispose()
+    subject.onNext 4
 
-    check results == @[$1f, $4f, $9f]
+    check results == @[$1f, $4f, $4f, $9f]
 
   test "buffer  [T](upstream: Observable[T]; count: Natural; skip: Natural = 0): Observable[seq[T]]":
     var

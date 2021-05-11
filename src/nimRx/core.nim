@@ -13,9 +13,11 @@ type
   Observable*[T] = ref object of RootObj
     observers*: seq[Observer[T]]
     observableFactory: ()->Observable[T]
-    onSubscribe*: (Observer[T])->void
+    onSubscribe*: Observer[T]->IDisposable
     completed: bool
-  Disposable*[T] = ref object of RootObj
+  IDisposable* = object
+    dispose*: ()->void
+  Disposable*[T] = ref object
     observable: Observable[T]
     observer: Observer[T]
     isDisposed: bool
@@ -33,13 +35,17 @@ proc newDisposable*[T](observable: Observable[T]; observer: Observer[T]):
                                                                           Disposable[T] =
   result = Disposable[T](observable: observable, observer: observer)
 
-proc dispose*[T](self: Disposable[T]) =
-  if self.isDisposed or self.observable.observers.len == 0: return
+proc toDisposable*[T](self: Disposable[T]): IDisposable =
+  var self = self
+  IDisposable(dispose: proc(): void =
+    if self.isDisposed or self.observable.observers.len == 0:
+      return
+    self.observable.observers.keepIf(v => v != self.observer)
+    self.isDisposed = true
+  )
 
-  self.observable.observers.keepIf(v => v != self.observer)
-
-  self.isDisposed = true
-
+template combineDisposables*(disposables: varargs[IDisposable]): IDisposable =
+  IDisposable(dispose: () => disposables.apply(it => it.dispose()))
 
 ## *Observer ============================================================================
 proc newObserver*[T](onNext: (T)->void;
@@ -52,17 +58,16 @@ proc newObservableFactory*[T](factory: ()->Observable[T]): Observable[T] =
   Observable[T](
     observers: newSeq[Observer[T]](),
     observableFactory: factory,
-    onSubscribe: doNothing,
   )
 proc newObservable*[T](): Observable[T] =
   Observable[T](
     observers: newSeq[Observer[T]](),
-    onSubscribe: doNothing,
   )
 
-proc setOnSubscribe*[T](self: Observable[T]; onSubscribe: (Observer[T])->void) =
+proc setOnSubscribe*[T](self: Observable[T];
+    onSubscribe: Observer[T]->IDisposable) =
   self.onSubscribe = onSubscribe
-proc setOnSubscribe*[T](self: Observable[T]; onSubscribe: ()->void) =
+proc setOnSubscribe*[T](self: Observable[T]; onSubscribe: ()->IDisposable) =
   self.onSubscribe = (o: Observer[T]) => onSubscribe()
 
 proc isCompleted*[T](self: Observable[T]): bool = self.completed
@@ -88,22 +93,22 @@ proc addObserver*[T](self: Observable[T]; observer: Observer[T]) =
 proc setObserver*[T](self: Observable[T]; observer: Observer[T]) =
   if self.observers.len != 1: self.observers.setLen(1)
   self.observers[0] = observer
-proc subscribe*[T](self: Observable[T]; observer: Observer[T]): Disposable[T] =
+
+proc subscribe*[T](self: Observable[T]; observer: Observer[T]): IDisposable =
   self.addObserver observer
 
   if self.observableFactory != nil:
     return self.observableFactory().subscribe(observer)
   else:
-    self.onSubscribe(observer)
-    return newDisposable[T](self, observer)
+    return self.onSubscribe(observer)
 
 template subscribe*[T](self: Observable[T];
     onNext: (T)->void;
     onError: (Error)->void = doNothing[Error];
-    onCompleted: ()->void = doNothing): Disposable[T] =
+    onCompleted: ()->void = doNothing): IDisposable =
   self.subscribe(newObserver(onNext, onError, onCompleted))
 
-template subscribeBlock*(self: Observable[Unit]; action: untyped): Disposable[Unit] =
+template subscribeBlock*(self: Observable[Unit]; action: untyped): IDisposable =
   self.subscribe(onNext = proc(_: Unit) =
     action
   )

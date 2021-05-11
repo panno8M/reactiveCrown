@@ -14,9 +14,10 @@ proc asObservable*[T](self: Subject[T]): Observable[T] = self.observable
 proc newSubject*[T](): Subject[T] =
   let subject = Subject[T]()
   subject.observable = newObservable[T]()
-  subject.observable.setOnSubscribe proc() =
+  subject.observable.setOnSubscribe proc(o: Observer[T]): IDisposable =
     if subject.observable.isCompleted:
       subject.observable.execOnCompleted()
+    newDisposable(subject.observable, o).toDisposable()
   subject.observer = newObserver[T](
     (proc(v: T): void =
       if subject.observable.isCompleted: return
@@ -46,13 +47,13 @@ template onCompleted*[T](subject: Subject[T]): void =
 template onNext*(subject: Subject[Unit]): void =
   subject.onNext(unitDefault())
 
-proc subscribe*[T](self: Subject[T]; observer: Observer[T]): Disposable[T] =
+template subscribe*[T](self: Subject[T]; observer: Observer[T]): IDisposable =
   self.observable.subscribe(observer)
-proc subscribe*[T](self: Subject[T];
+template subscribe*[T](self: Subject[T];
     onNext: (T)->void;
     onError: (Error)->void = doNothing[Error];
     onCompleted: ()->void = doNothing):
-        Disposable[T] =
+        IDisposable =
   self.observable.subscribe(onNext, onError, onCompleted)
 
 template subscribeBlock*(self: Subject[Unit]; action: untyped): Disposable[Unit] =

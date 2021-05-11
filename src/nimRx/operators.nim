@@ -6,30 +6,34 @@ proc returnThat*[T](v: T): Observable[T] =
   newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
-    observable.setOnSubscribe proc(observer: Observer[T]) =
+    observable.setOnSubscribe proc(observer: Observer[T]): IDisposable =
       observer.onNext v
       observer.onCompleted()
+      newDisposable(observable, observer).toDisposable()
 
 proc range*[T: Ordinal](start: T; count: Natural): Observable[T] =
   newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
-    observable.setOnSubscribe proc(observer: Observer[T]) =
+    observable.setOnSubscribe proc(observer: Observer[T]): IDisposable =
       for i in 0..<count:
         observer.onNext start.succ(i)
       observer.onCompleted()
+      newDisposable(observable, observer).toDisposable()
 
 ## *Cold -> Hot converter ===============================================================
 type ConnectableObservable[T] = ref object of Observable[T]
   upstream: Observable[T]
 proc publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
-  ConnectableObservable[T](
-    onSubscribe: (observer: Observer[T]) => (discard),
+  let observable = ConnectableObservable[T](
     upstream: upstream,
   )
+  observable.setOnSubscribe proc(observer: Observer[T]): IDisposable =
+    newDisposable(observable, observer).toDisposable()
+  return observable
 
 
-proc connect*[T](self: ConnectableObservable[T]): Disposable[T] =
+proc connect*[T](self: ConnectableObservable[T]): IDisposable =
   let observable = self
   result = observable.upstream.subscribe(
     observable.mkExecOnNext,
@@ -42,8 +46,8 @@ proc where*[T](upstream: Observable[T]; op: ((T)->bool)): Observable[T] =
   newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
-    observable.setOnSubscribe proc() =
-      discard upstream.subscribe(
+    observable.setOnSubscribe proc(): IDisposable =
+      upstream.subscribe(
         (v: T) => (if op(v): observable.execOnNext v),
         observable.mkExecOnError,
         observable.mkExecOnCompleted,
@@ -53,8 +57,8 @@ proc select*[T, S](upstream: Observable[T]; op: ((T)->S)): Observable[S] =
   newObservableFactory proc(): Observable[S] =
     let observable = newObservable[S]()
     result = observable
-    observable.setOnSubscribe proc() =
-      discard upstream.subscribe(
+    observable.setOnSubscribe proc(): IDisposable =
+      upstream.subscribe(
         (v: T) => (observable.execOnNext(op(v))),
         observable.mkExecOnError,
         observable.mkExecOnCompleted,
@@ -68,8 +72,8 @@ proc buffer*[T](upstream: Observable[T]; count: Natural; skip: Natural = 0):
     result = observable
     var cache = newSeq[T]()
 
-    observable.setOnSubscribe proc() =
-      discard upstream.subscribe(
+    observable.setOnSubscribe proc(): IDisposable =
+      upstream.subscribe(
         (proc(v: T) =
           cache.add(v)
           if cache.len == count:
@@ -92,8 +96,9 @@ proc zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
         observable.execOnNext((cache.l[0], cache.r[0]))
         cache.l = cache.l[1..cache.l.high]
         cache.r = cache.r[1..cache.r.high]
-    observable.setOnSubscribe proc() =
-      discard tl.subscribe(
+    observable.setOnSubscribe proc(): IDisposable =
+      var disposables = newSeq[IDisposable](2)
+      disposables[0] = tl.subscribe(
         (proc(v: Tl) =
           cache.l.add(v)
           tryOnNext()
@@ -101,7 +106,7 @@ proc zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
         observable.mkExecOnError,
         observable.mkExecOnCompleted,
       )
-      discard tr.subscribe(
+      disposables[1] = tr.subscribe(
         (proc(v: Tr) =
           cache.r.add(v)
           tryOnNext()
@@ -109,6 +114,7 @@ proc zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
         observable.mkExecOnError,
         observable.mkExecOnCompleted,
       )
+      combineDisposables(disposables)
 
 proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
                                                               Observable[seq[T]] =
@@ -120,8 +126,8 @@ proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
 
     # Is this statement put directly in the for statement on onSubscribe,
     # the values from all observables will go into cache[seq.high].
-    proc tryOnNext(target: Observable[T]; i: int) =
-      discard target.subscribe(
+    proc tryExecute(target: Observable[T]; i: int): IDisposable =
+      target.subscribe(
         (proc(v: T) =
           cache[i].add(v)
           if cache.filterIt(it.len == 0).len == 0:
@@ -130,9 +136,11 @@ proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
         ),
         observable.mkExecOnError,
       )
-    observable.setOnSubscribe proc() =
+    observable.setOnSubscribe proc(): IDisposable =
+      var disposables = newSeq[IDisposable](targets.len)
       for i, target in targets:
-        tryOnNext(target, i)
+        disposables[i] = tryExecute(target, i)
+      combineDisposables(disposables)
 
 ## *onError handlings =====================================================================
 proc retry*[T](upstream: Observable[T]): Observable[T] =
@@ -142,15 +150,17 @@ proc retry*[T](upstream: Observable[T]): Observable[T] =
   newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
+    var resultDisposable: IDisposable
     proc retryConnection[T](): Observer[T] =
       newObserver[T](
         observable.mkExecOnNext,
-        (e: Error) => (discard upstream.subscribe retryConnection[T]()),
+        (e: Error) => (resultDisposable = upstream.subscribe retryConnection[T]()),
         observable.mkExecOnCompleted,
       )
 
-    observable.setOnSubscribe proc() =
-      discard upstream.subscribe retryConnection[T]()
+    observable.setOnSubscribe proc(): IDisposable =
+      resultDisposable = upstream.subscribe retryConnection[T]()
+      IDisposable(dispose: () => resultDisposable.dispose())
 
 ## *onCompleted handlings ===============================================================
 proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
@@ -160,6 +170,7 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
   newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
+    var resultDisposable: IDisposable
 
     proc nextTarget(): Observable[T] =
       result = targets[count]
@@ -170,12 +181,13 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
         observable.mkExecOnError,
         (proc() =
           if count < targets.len:
-            discard nextTarget().subscribe concatConnection[T]()
+            resultDisposable = nextTarget().subscribe concatConnection[T]()
           else:
             observable.execOnCompleted()),
       )
-    observable.setOnSubscribe proc() =
-      discard upstream.subscribe concatConnection[T]()
+    observable.setOnSubscribe proc(): IDisposable =
+      resultDisposable = upstream.subscribe concatConnection[T]()
+      IDisposable(dispose: () => resultDisposable.dispose())
 
 proc repeat*[T](upstream: Observable[T]): Observable[T] =
   newObservableFactory proc(): Observable[T] =
@@ -201,8 +213,8 @@ proc doThat*[T](upstream: Observable[T]; op: (T)->void): Observable[T] =
   newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
-    observable.setOnSubscribe proc() =
-      discard upstream.subscribe(
+    observable.setOnSubscribe proc(): IDisposable =
+      upstream.subscribe(
         (proc(v: T) =
           op(v)
           observable.execOnNext(v)
