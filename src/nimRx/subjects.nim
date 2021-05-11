@@ -6,22 +6,24 @@ proc doNothing(): void = discard
 ## *Subject =============================================================================
 type
   Subject*[T] = ref object of RootObj
-    observer*: Observer[T]
-    observable*: Observable[T]
+    observer: Observer[T]
+    observable: Observable[T]
+
+proc asObservable*[T](self: Subject[T]): Observable[T] = self.observable
 
 proc newSubject*[T](): Subject[T] =
   let subject = Subject[T]()
   subject.observable = newObservable[T]()
   subject.observable.setOnSubscribe proc() =
-    if subject.observable.completed:
+    if subject.observable.isCompleted:
       subject.observable.execOnCompleted()
   subject.observer = newObserver[T](
     (proc(v: T): void =
-      if subject.observable.completed: return
+      if subject.observable.isCompleted: return
       subject.observable.execOnNext(v)
     ),
     (proc(e: Error): void =
-      if subject.observable.completed: return
+      if subject.observable.isCompleted: return
       var s = subject.observable.observers
       subject.observable.observers.setLen(0)
       s.apply((x: Observer[T]) => x.onError(e))
@@ -29,7 +31,9 @@ proc newSubject*[T](): Subject[T] =
     (proc(): void =
       subject.observable.execOnCompleted()
       subject.observable.observers.setLen(0)
-      subject.observable.completed = true))
+      subject.observable.setAsCompleted()
+    ),
+  )
   return subject
 
 template onNext*[T](subject: Subject[T]; v: T): void =

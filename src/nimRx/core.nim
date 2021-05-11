@@ -12,9 +12,9 @@ type
     onCompleted*: ()->void
   Observable*[T] = ref object of RootObj
     observers*: seq[Observer[T]]
-    observableFactory*: ()->Observable[T]
+    observableFactory: ()->Observable[T]
     onSubscribe*: (Observer[T])->void
-    completed*: bool
+    completed: bool
   Disposable*[T] = ref object of RootObj
     observable: Observable[T]
     observer: Observer[T]
@@ -48,7 +48,7 @@ proc newObserver*[T](onNext: (T)->void;
   Observer[T](onNext: onNext, onError: onError, onCompleted: onCompleted)
 
 ## *Observable ==========================================================================
-proc newObservableWithFactory*[T](factory: ()->Observable[T]): Observable[T] =
+proc newObservableFactory*[T](factory: ()->Observable[T]): Observable[T] =
   Observable[T](
     observers: newSeq[Observer[T]](),
     observableFactory: factory,
@@ -65,6 +65,9 @@ proc setOnSubscribe*[T](self: Observable[T]; onSubscribe: (Observer[T])->void) =
 proc setOnSubscribe*[T](self: Observable[T]; onSubscribe: ()->void) =
   self.onSubscribe = (o: Observer[T]) => onSubscribe()
 
+proc isCompleted*[T](self: Observable[T]): bool = self.completed
+proc setAsCompleted*[T](self: Observable[T]) = self.completed = true
+
 
 template execOnNext*[T](self: Observable[T]; v: T) =
   self.observers.apply((o: Observer[T]) => o.onNext(v))
@@ -80,8 +83,13 @@ proc mkExecOnCompleted*[T](self: Observable[T]): ()->void =
   return proc() = self.execOnCompleted()
 
 
-proc subscribe*[T](self: Observable[T]; observer: Observer[T]): Disposable[T] =
+proc addObserver*[T](self: Observable[T]; observer: Observer[T]) =
   self.observers.add(observer)
+proc setObserver*[T](self: Observable[T]; observer: Observer[T]) =
+  if self.observers.len != 1: self.observers.setLen(1)
+  self.observers[0] = observer
+proc subscribe*[T](self: Observable[T]; observer: Observer[T]): Disposable[T] =
+  self.addObserver observer
 
   if self.observableFactory != nil:
     return self.observableFactory().subscribe(observer)

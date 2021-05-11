@@ -20,55 +20,11 @@ template testObserver[T](r: var seq[string];
 )
 
 suite "core":
-  test "observer: can create and call onNext, onError, onCompleted":
-    var results = newSeq[string]()
-    proc onm(v: int): string = &"onNext({v})"
-    proc oem(v: Error): string = &"onError({v})"
-    const ocm = "#"
-    proc on(v: int): void = results.add onm(v)
-    proc oe(e: Error): void = results.add oem(e)
-    proc oc(): void = results.add ocm
-    let
-      observer1 = newObserver[int](on, oe, oc)
-      observer2 = newObserver[int](on, oe)
-      observer3 = newObserver[int](on)
-
-    observer1.onNext 1
-    observer1.onError newError("2")
-    observer1.onCompleted()
-    observer2.onNext 3
-    observer2.onError newError("4")
-    observer2.onCompleted()
-    observer3.onNext 5
-    observer3.onError newError("6")
-    observer3.onCompleted()
-
-    check results == @[
-        1.onm,
-        newError("2").oem,
-        ocm,
-        3.onm,
-        newError("4").oem,
-        5.onm,
-      ]
-
-
-  test "disposable: can create and dispose":
-    proc doNothing[T](v: T): void = discard
-    let
-      observable = newObservable[int]()
-      target = newObserver[int](doNothing)
-    observable.observers.add target
-    let
-      disposable = newDisposable[int](observable, target)
-    check observable.observers.len == 1
-    disposable.dispose()
-    check observable.observers.len == 0
 
   test "complex dispose":
     let subject = newSubject[int]()
     var results = newSeq[string]()
-    let where = subject.observable.where(i => i mod 2 == 1)
+    let where = subject.asObservable.where(i => i mod 2 == 1)
     let select = where.select(i => i.toFloat())
     let disposable = select.subscribe testObserver[float](results)
 
@@ -109,7 +65,7 @@ suite "observable/operator":
   test "where":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.observable
+    discard subject.asObservable
       .where(v => v != 2)
       .subscribe testObserver[int](results)
 
@@ -122,7 +78,7 @@ suite "observable/operator":
   test "select  [T, S](upstream: Observable[T]; op: (T)->S): Observable[S]":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.observable
+    discard subject.asObservable
       .select(v => toFloat(v*v))
       .subscribe testObserver[float](results)
 
@@ -137,10 +93,10 @@ suite "observable/operator":
       results1 = newSeq[string]()
       results2 = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.observable
+    discard subject.asObservable
       .buffer(3, 1)
       .subscribe testObserver[seq[int]](results1)
-    discard subject.observable
+    discard subject.asObservable
       .buffer(2)
       .subscribe testObserver[seq[int]](results2)
 
@@ -160,8 +116,8 @@ suite "observable/operator":
       subject1 = newSubject[int]()
       subject2 = newSubject[float]()
     discard zip(
-        subject1.observable,
-        subject2.observable,
+        subject1.asObservable,
+        subject2.asObservable,
       )
       .subscribe testObserver[tuple[l: int; r: float]](results)
 
@@ -181,9 +137,9 @@ suite "observable/operator":
       subject2 = newSubject[int]()
       subject3 = newSubject[int]()
     discard zip(
-        subject1.observable,
-        subject2.observable,
-        subject3.observable,
+        subject1.asObservable,
+        subject2.asObservable,
+        subject3.asObservable,
       )
       .subscribe testObserver[seq[int]](results)
 
@@ -210,10 +166,10 @@ suite "observable/operator":
       subject3 = newSubject[int]()
       subject4 = newSubject[int]()
     discard concat(
-        subject1.observable,
-        subject2.observable,
-        subject3.observable,
-        subject4.observable,
+        subject1.asObservable,
+        subject2.asObservable,
+        subject3.asObservable,
+        subject4.asObservable,
       )
       .subscribe testObserver[int](results)
 
@@ -236,7 +192,7 @@ suite "observable/operator":
   test "retry  [T](upstream: Observable[T]): Observable[T]":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.observable
+    discard subject.asObservable
       .retry()
       .subscribe testObserver[int](results)
 
@@ -289,7 +245,7 @@ suite "Cold->Hot Conversion":
   test "can dispose and reconnect the connection":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    let observable = subject.observable
+    let observable = subject.asObservable
       .select(v => toFloat(v))
       .publish()
     discard observable.subscribe testObserver[float](results)

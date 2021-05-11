@@ -3,7 +3,7 @@ import nimRx/[core, subjects, utils]
 
 ## *factories ===========================================================================
 proc returnThat*[T](v: T): Observable[T] =
-  newObservableWithFactory proc(): Observable[T] =
+  newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
     observable.setOnSubscribe proc(observer: Observer[T]) =
@@ -11,7 +11,7 @@ proc returnThat*[T](v: T): Observable[T] =
       observer.onCompleted()
 
 proc range*[T: Ordinal](start: T; count: Natural): Observable[T] =
-  newObservableWithFactory proc(): Observable[T] =
+  newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
     observable.setOnSubscribe proc(observer: Observer[T]) =
@@ -23,15 +23,10 @@ proc range*[T: Ordinal](start: T; count: Natural): Observable[T] =
 type ConnectableObservable[T] = ref object of Observable[T]
   upstream: Observable[T]
 proc publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
-  var subject = newSubject[T]()
-  var c = new ConnectableObservable[T]
-  c.observers = subject.observable.observers
-  c.observableFactory = subject.observable.observableFactory
-  c.onSubscribe = subject.observable.onSubscribe
-  c.completed = subject.observable.completed
-  c.upstream = upstream
-  subject.observable = Observable[T](c)
-  return c
+  ConnectableObservable[T](
+    onSubscribe: (observer: Observer[T]) => (discard),
+    upstream: upstream,
+  )
 
 
 proc connect*[T](self: ConnectableObservable[T]): Disposable[T] =
@@ -44,7 +39,7 @@ proc connect*[T](self: ConnectableObservable[T]): Disposable[T] =
 
 ## *filters =============================================================================
 proc where*[T](upstream: Observable[T]; op: ((T)->bool)): Observable[T] =
-  newObservableWithFactory proc(): Observable[T] =
+  newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
     observable.setOnSubscribe proc() =
@@ -55,7 +50,7 @@ proc where*[T](upstream: Observable[T]; op: ((T)->bool)): Observable[T] =
       )
 
 proc select*[T, S](upstream: Observable[T]; op: ((T)->S)): Observable[S] =
-  newObservableWithFactory proc(): Observable[S] =
+  newObservableFactory proc(): Observable[S] =
     let observable = newObservable[S]()
     result = observable
     observable.setOnSubscribe proc() =
@@ -68,7 +63,7 @@ proc select*[T, S](upstream: Observable[T]; op: ((T)->S)): Observable[S] =
 proc buffer*[T](upstream: Observable[T]; count: Natural; skip: Natural = 0):
                                                                 Observable[seq[T]] =
   let skip = if skip == 0: count else: skip
-  newObservableWithFactory proc(): Observable[seq[T]] =
+  newObservableFactory proc(): Observable[seq[T]] =
     let observable = newObservable[seq[T]]()
     result = observable
     var cache = newSeq[T]()
@@ -88,7 +83,7 @@ proc buffer*[T](upstream: Observable[T]; count: Natural; skip: Natural = 0):
 proc zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
                                                   Observable[tuple[l: Tl; r: Tr]] =
   type T = tuple[l: Tl; r: Tr]
-  newObservableWithFactory proc(): Observable[T] =
+  newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
     var cache: tuple[l: seq[Tl]; r: seq[Tr]] = (newSeq[Tl](), newSeq[Tr]())
@@ -118,7 +113,7 @@ proc zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
 proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
                                                               Observable[seq[T]] =
   let targets = concat(@[upstream], @targets)
-  newObservableWithFactory proc(): Observable[seq[T]] =
+  newObservableFactory proc(): Observable[seq[T]] =
     let observable = newObservable[seq[T]]()
     result = observable
     var cache = newSeq[seq[T]](targets.len).mapIt(newSeq[T]())
@@ -144,7 +139,7 @@ proc retry*[T](upstream: Observable[T]): Observable[T] =
   # NOTE without this assignment, the upstream variable in retryConnection called later is not found.
   # ...I do not know why. :-(
   let upstream = upstream
-  newObservableWithFactory proc(): Observable[T] =
+  newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
     proc retryConnection[T](): Observer[T] =
@@ -162,7 +157,7 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
                                                                 Observable[T] =
   var count = 0
   let targets = @targets
-  newObservableWithFactory proc(): Observable[T] =
+  newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
 
@@ -183,7 +178,7 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
       discard upstream.subscribe concatConnection[T]()
 
 proc repeat*[T](upstream: Observable[T]): Observable[T] =
-  newObservableWithFactory proc(): Observable[T] =
+  newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
     proc repeatConnection[T](observer: Observer[T]): Observer[T] =
@@ -203,7 +198,7 @@ template repeat*[T](v: T; times: Natural): Observable[T] =
 ## *value dump =====================================================
 
 proc doThat*[T](upstream: Observable[T]; op: (T)->void): Observable[T] =
-  newObservableWithFactory proc(): Observable[T] =
+  newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
     observable.setOnSubscribe proc() =
@@ -217,7 +212,7 @@ proc doThat*[T](upstream: Observable[T]; op: (T)->void): Observable[T] =
       )
 
 proc dump*[T](upstream: Observable[T]): Observable[T] =
-  newObservableWithFactory proc(): Observable[T] =
+  newObservableFactory proc(): Observable[T] =
     let observable = newObservable[T]()
     result = observable
     observable.onSubscribe = proc() =
