@@ -1,38 +1,57 @@
 import sugar, sequtils
 import nimRx/[core]
 
-proc doNothing[T](v: T): void = discard
-proc doNothing(): void = discard
 ## *Subject =============================================================================
 type
   Subject*[T] = ref object of RootObj
     ober: Observer[T]
-    oble: Observable[T]
+    iObservable: IObservable[T]
+    observers: seq[Observer[T]]
+    isCompleted: bool
 
-proc asObservable*[T](self: Subject[T]): Observable[T] = self.oble
+proc asObservable*[T](self: Subject[T]): IObservable[T] = self.iObservable
+
+template execOnNext[T](self: Subject[T]; v: T) =
+  if self.asObservable.hasAnyObservers():
+    self.observers.apply((it: Observer[T]) => it.onNext(v))
+# template execOnError[T](self: Subject[T]; e: Error) =
+#   if self.asObservable.hasAnyObservers():
+#     self.observers.apply((it: Observer[T]) => it.onError(e))
+template execOnCompleted[T](self: Subject[T]) =
+  if self.asObservable.hasAnyObservers():
+    self.observers.apply((it: Observer[T]) => it.onCompleted())
+
+proc addObserver[T](self: Subject[T]; ober: Observer[T]) =
+  self.observers.add ober
 
 proc newSubject*[T](): Subject[T] =
-  let subject = Subject[T]()
-  subject.oble = newObservable[T]()
-  subject.oble.setOnSubscribe proc(o: Observer[T]): IDisposable =
-    if subject.oble.isCompleted:
-      subject.oble.execOnCompleted()
-    newSubscription(subject.oble.asObservable, o).asDisposable()
+  let subject = Subject[T](
+    observers: newSeq[Observer[T]](),
+  )
+  subject.iObservable = IObservable[T](
+    hasAnyObservers: () => subject.observers.len != 0,
+    removeObserver: (o: Observer[T]) => subject.observers.keepIf(v => v != o),
+  )
+  subject.iObservable.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+    subject.addobserver ober
+    if subject.isCompleted:
+      subject.execOnCompleted()
+    newSubscription(subject.asObservable, ober).asDisposable()
   subject.ober = newObserver[T](
     (proc(v: T): void =
-      if subject.oble.isCompleted: return
-      subject.oble.execOnNext(v)
+      if subject.isCompleted: return
+      subject.execOnNext(v)
     ),
     (proc(e: Error): void =
-      if subject.oble.isCompleted: return
-      var s = subject.oble.observers
-      subject.oble.observers.setLen(0)
+      if subject.isCompleted: return
+      var s = subject.observers
+      subject.observers.setLen(0)
       s.apply((x: Observer[T]) => x.onError(e))
     ),
     (proc(): void =
-      subject.oble.execOnCompleted()
-      subject.oble.observers.setLen(0)
-      subject.oble.setAsCompleted()
+      subject.execOnCompleted()
+      subject.observers.setLen(0)
+      subject.isCompleted = true
     ),
   )
   return subject
@@ -46,18 +65,3 @@ template onCompleted*[T](subject: Subject[T]): void =
 
 template onNext*(subject: Subject[Unit]): void =
   subject.onNext(unitDefault())
-
-template subscribe*[T](self: Subject[T]; observer: Observer[T]): IDisposable =
-  self.oble.subscribe(observer)
-template subscribe*[T](self: Subject[T];
-    onNext: (T)->void;
-    onError: (Error)->void = doNothing[Error];
-    onCompleted: ()->void = doNothing):
-        IDisposable =
-  self.observable.subscribe(onNext, onError, onCompleted)
-
-template subscribeBlock*(self: Subject[Unit]; action: untyped): IDisposable =
-  self.subscribe(proc(_: Unit) =
-    action
-  )
-

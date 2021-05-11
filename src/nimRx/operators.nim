@@ -1,244 +1,304 @@
 import sugar, sequtils
 import nimRx/[core, subjects, utils]
 
-## *factories ===========================================================================
-proc returnThat*[T](v: T): Observable[T] =
-  newObservableFactory proc(): Observable[T] =
-    let oble = newObservable[T]()
-    result = oble
-    oble.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+type
+  SingleObservable[T] = ref object
+    iObservable: IObservable[T]
+    observer: Observer[T]
+  ObservableFactory[T] = ref object
+    iObservable: IObservable[T]
+    generate: ()->IObservable[T]
+
+proc asObservable*[T](self: SingleObservable[T]): IObservable[T] =
+  self.iObservable
+proc asObservable*[T](self: ObservableFactory[T]): IObservable[T] =
+  self.iObservable
+
+template execOnNext[T](self: SingleObservable[T]; v: T) =
+  if self.asObservable.hasAnyObservers(): self.observer.onNext(v)
+template execOnError[T](self: SingleObservable[T]; e: Error) =
+  if self.asObservable.hasAnyObservers(): self.observer.onError(e)
+template execOnCompleted[T](self: SingleObservable[T]) =
+  if self.asObservable.hasAnyObservers(): self.observer.onCompleted()
+proc mkExecOnNext[T](self: SingleObservable[T]): (T)->void =
+  return proc(v: T) = self.execOnNext(v)
+proc mkExecOnError[T](self: SingleObservable[T]): (Error)->void =
+  return proc(e: Error) = self.execOnError(e)
+proc mkExecOnCompleted[T](self: SingleObservable[T]): ()->void =
+  return proc() = self.execOnCompleted()
+
+proc addObserver[T](self: SingleObservable[T]; ober: Observer[T]) =
+  self.observer = ober
+proc newSingleObservable[T](): SingleObservable[T] =
+  let observable = new SingleObservable[T]
+  observable.iObservable = IObservable[T](
+    hasAnyObservers: () => observable.observer != nil,
+    removeObserver: (o: Observer[T]) =>
+      (if observable.observer == o: observable.observer = nil),
+  )
+  return observable
+
+proc newObservableFactory[T](generate: ()->IObservable[T]): ObservableFactory[T] =
+  let factory = ObservableFactory[T](generate: generate)
+  factory.iObservable = IObservable[T](
+    onSubscribe: proc(observer: Observer[T]): IDisposable = factory.generate().subscribe(observer)
+  )
+  return factory
+
+template combineDisposables(disposables: varargs[IDisposable]): IDisposable =
+  IDisposable(
+    dispose: () => @disposables.apply((it: IDisposable) => it.dispose())
+  )
+
+# factories ===========================================================================
+proc returnThat*[T](v: T): IObservable[T] =
+  asObservable newObservableFactory proc(): IObservable[T] =
+    let oble = newSingleObservable[T]()
+    result = oble.asObservable
+    result.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+      oble.addObserver ober
       ober.onNext v
       ober.onCompleted()
       newSubscription(oble.asObservable, ober).asDisposable
 
-proc range*[T: Ordinal](start: T; count: Natural): Observable[T] =
-  newObservableFactory proc(): Observable[T] =
-    let oble = newObservable[T]()
-    result = oble
-    oble.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+proc range*[T: Ordinal](start: T; count: Natural): IObservable[T] =
+  asObservable newObservableFactory proc(): IObservable[T] =
+    let oble = newSingleObservable[T]()
+    result = oble.asObservable
+    result.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+      oble.addObserver ober
       for i in 0..<count:
         ober.onNext start.succ(i)
       ober.onCompleted()
       newSubscription(oble.asObservable, ober).asDisposable
 
-## *Cold -> Hot converter ===============================================================
-type ConnectableObservable[T] = ref object of Observable[T]
-  upstream: Observable[T]
-proc publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
+# Cold -> Hot converter ===============================================================
+type ConnectableObservable[T] = ref object
+  subject: Subject[T]
+  upstream: IObservable[T]
+proc asObservable*[T](self: ConnectableObservable[T]): IObservable[T] =
+  self.subject.asObservable
+proc publish*[T](upstream: IObservable[T]): ConnectableObservable[T] =
   let oble = ConnectableObservable[T](
+    subject: newSubject[T](),
     upstream: upstream,
   )
-  oble.setOnSubscribe proc(ober: Observer[T]): IDisposable =
-    newSubscription(oble.asObservable, ober).asDisposable
   return oble
 
-
 proc connect*[T](self: ConnectableObservable[T]): IDisposable =
-  let observable = self
-  result = observable.upstream.subscribe(
-    observable.mkExecOnNext,
-    observable.mkExecOnError,
-    observable.mkExecOnCompleted,
+  self.upstream.subscribe(
+    (v: T) => self.subject.onNext(v),
+    (e: Error) => self.subject.onError(e),
+    () => self.subject.onCompleted(),
   )
 
-## *filters =============================================================================
-proc where*[T](upstream: Observable[T]; op: ((T)->bool)): Observable[T] =
-  newObservableFactory proc(): Observable[T] =
-    let observable = newObservable[T]()
-    result = observable
-    observable.setOnSubscribe proc(): IDisposable =
+# filters =============================================================================
+proc where*[T](upstream: IObservable[T]; op: ((T)->bool)): IObservable[T] =
+  asObservable newObservableFactory proc(): IObservable[T] =
+    let oble = newSingleObservable[T]()
+    result = oble.asObservable
+    result.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+      oble.addObserver ober
       upstream.subscribe(
-        (v: T) => (if op(v): observable.execOnNext v),
-        observable.mkExecOnError,
-        observable.mkExecOnCompleted,
+        (v: T) => (if op(v): oble.execOnNext v),
+        oble.mkExecOnError,
+        oble.mkExecOnCompleted,
       )
 
-proc select*[T, S](upstream: Observable[T]; op: ((T)->S)): Observable[S] =
-  newObservableFactory proc(): Observable[S] =
-    let observable = newObservable[S]()
-    result = observable
-    observable.setOnSubscribe proc(): IDisposable =
+proc select*[T, S](upstream: IObservable[T]; op: ((T)->S)): IObservable[S] =
+  asObservable newObservableFactory proc(): IObservable[S] =
+    let oble = newSingleObservable[S]()
+    result = oble.asObservable
+    result.setOnSubscribe proc(ober: Observer[S]): IDisposable =
+      oble.addObserver ober
       upstream.subscribe(
-        (v: T) => (observable.execOnNext(op(v))),
-        observable.mkExecOnError,
-        observable.mkExecOnCompleted,
+        (v: T) => (oble.execOnNext op(v)),
+        oble.mkExecOnError,
+        oble.mkExecOnCompleted,
       )
 
-proc buffer*[T](upstream: Observable[T]; count: Natural; skip: Natural = 0):
-                                                                Observable[seq[T]] =
+proc buffer*[T](upstream: IObservable[T]; count: Natural; skip: Natural = 0):
+                                                                IObservable[seq[T]] =
   let skip = if skip == 0: count else: skip
-  newObservableFactory proc(): Observable[seq[T]] =
-    let observable = newObservable[seq[T]]()
-    result = observable
+  asObservable newObservableFactory proc(): IObservable[seq[T]] =
+    let oble = newSingleObservable[seq[T]]()
+    result = oble.asObservable
     var cache = newSeq[T]()
 
-    observable.setOnSubscribe proc(): IDisposable =
+    result.setOnSubscribe proc(ober: Observer[seq[T]]): IDisposable =
+      oble.addObserver ober
       upstream.subscribe(
         (proc(v: T) =
           cache.add(v)
           if cache.len == count:
-            observable.execOnNext(cache)
+            oble.execOnNext(cache)
             cache = cache[skip..cache.high]
         ),
-        observable.mkExecOnError,
-        observable.mkExecOnCompleted,
+        oble.mkExecOnError,
+        oble.mkExecOnCompleted,
       )
 
-proc zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
-                                                  Observable[tuple[l: Tl; r: Tr]] =
+proc zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
+                                                  IObservable[tuple[l: Tl; r: Tr]] =
   type T = tuple[l: Tl; r: Tr]
-  newObservableFactory proc(): Observable[T] =
-    let observable = newObservable[T]()
-    result = observable
+  asObservable newObservableFactory proc(): IObservable[T] =
+    let oble = newSingleObservable[T]()
+    result = oble.asObservable
     var cache: tuple[l: seq[Tl]; r: seq[Tr]] = (newSeq[Tl](), newSeq[Tr]())
     proc tryOnNext() =
       if 1 <= cache.l.len and 1 <= cache.r.len:
-        observable.execOnNext((cache.l[0], cache.r[0]))
+        oble.execOnNext((cache.l[0], cache.r[0]))
         cache.l = cache.l[1..cache.l.high]
         cache.r = cache.r[1..cache.r.high]
-    observable.setOnSubscribe proc(): IDisposable =
-      var disposables = newSeq[IDisposable](2)
-      disposables[0] = tl.subscribe(
-        (proc(v: Tl) =
-          cache.l.add(v)
-          tryOnNext()
+    result.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+      oble.addObserver ober
+      let disposables = @[
+        tl.subscribe(
+          (proc(v: Tl) =
+            cache.l.add(v)
+            tryOnNext()
+          ),
+          oble.mkExecOnError,
+          oble.mkExecOnCompleted,
         ),
-        observable.mkExecOnError,
-        observable.mkExecOnCompleted,
-      )
-      disposables[1] = tr.subscribe(
-        (proc(v: Tr) =
-          cache.r.add(v)
-          tryOnNext()
+        tr.subscribe(
+          (proc(v: Tr) =
+            cache.r.add(v)
+            tryOnNext()
+          ),
+          oble.mkExecOnError,
+          oble.mkExecOnCompleted,
         ),
-        observable.mkExecOnError,
-        observable.mkExecOnCompleted,
-      )
+      ]
       combineDisposables(disposables)
 
-proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
-                                                              Observable[seq[T]] =
+proc zip*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
+                                                              IObservable[seq[T]] =
   let targets = concat(@[upstream], @targets)
-  newObservableFactory proc(): Observable[seq[T]] =
-    let observable = newObservable[seq[T]]()
-    result = observable
-    var cache = newSeq[seq[T]](targets.len).mapIt(newSeq[T]())
+  asObservable newObservableFactory proc(): IObservable[seq[T]] =
+    let oble = newSingleObservable[seq[T]]()
+    result = oble.asObservable
+    var cache = newSeqWith(targets.len, newSeq[T]())
 
     # Is this statement put directly in the for statement on onSubscribe,
-    # the values from all observables will go into cache[seq.high].
-    proc tryExecute(target: Observable[T]; i: int): IDisposable =
+    # the values from all obles will go into cache[seq.high].
+    proc tryExecute(target: IObservable[T]; i: int): IDisposable =
       target.subscribe(
         (proc(v: T) =
           cache[i].add(v)
           if cache.filterIt(it.len == 0).len == 0:
-            observable.execOnNext cache.mapIt(it[0])
+            oble.execOnNext cache.mapIt(it[0])
             cache = cache.mapIt(it[1..it.high])
         ),
-        observable.mkExecOnError,
+        oble.mkExecOnError,
       )
-    observable.setOnSubscribe proc(): IDisposable =
+    result.setOnSubscribe proc(ober: Observer[seq[T]]): IDisposable =
+      oble.addObserver ober
       var disposables = newSeq[IDisposable](targets.len)
       for i, target in targets:
         disposables[i] = tryExecute(target, i)
       combineDisposables(disposables)
 
-## *onError handlings =====================================================================
-proc retry*[T](upstream: Observable[T]): Observable[T] =
+
+# onError handlings =====================================================================
+proc retry*[T](upstream: IObservable[T]): IObservable[T] =
   # NOTE without this assignment, the upstream variable in retryConnection called later is not found.
   # ...I do not know why. :-(
   let upstream = upstream
-  newObservableFactory proc(): Observable[T] =
-    let observable = newObservable[T]()
-    result = observable
-    var resultDisposable: IDisposable
+  asObservable newObservableFactory proc(): IObservable[T] =
+    let oble = newSingleObservable[T]()
+    result = oble.asObservable
     proc retryConnection[T](): Observer[T] =
       newObserver[T](
-        observable.mkExecOnNext,
-        (e: Error) => (resultDisposable = upstream.subscribe retryConnection[T]()),
-        observable.mkExecOnCompleted,
+        oble.mkExecOnNext,
+        (e: Error) => (discard upstream.subscribe retryConnection[T]()),
+        oble.mkExecOnCompleted,
       )
 
-    observable.setOnSubscribe proc(): IDisposable =
-      resultDisposable = upstream.subscribe retryConnection[T]()
-      IDisposable(dispose: () => resultDisposable.dispose())
+    oble.asObservable.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+      oble.addObserver ober
+      return upstream.subscribe retryConnection[T]()
 
-## *onCompleted handlings ===============================================================
-proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
-                                                                Observable[T] =
+# onCompleted handlings ===============================================================
+proc concat*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
+                                                                IObservable[T] =
   var count = 0
   let targets = @targets
-  newObservableFactory proc(): Observable[T] =
-    let observable = newObservable[T]()
-    result = observable
+  asObservable newObservableFactory proc(): IObservable[T] =
+    let oble = newSingleObservable[T]()
+    result = oble.asObservable
     var resultDisposable: IDisposable
 
-    proc nextTarget(): Observable[T] =
+    proc nextTarget(): IObservable[T] =
       result = targets[count]
       inc count
     proc concatConnection[T](): Observer[T] =
       newObserver[T](
-        observable.mkExecOnNext,
-        observable.mkExecOnError,
+        oble.mkExecOnNext,
+        oble.mkExecOnError,
         (proc() =
           if count < targets.len:
             resultDisposable = nextTarget().subscribe concatConnection[T]()
           else:
-            observable.execOnCompleted()),
+            oble.execOnCompleted()),
       )
-    observable.setOnSubscribe proc(): IDisposable =
+    oble.asObservable.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+      oble.addObserver ober
       resultDisposable = upstream.subscribe concatConnection[T]()
       IDisposable(dispose: () => resultDisposable.dispose())
 
-proc repeat*[T](upstream: Observable[T]): Observable[T] =
-  newObservableFactory proc(): Observable[T] =
-    let observable = newObservable[T]()
-    result = observable
-    proc repeatConnection[T](observer: Observer[T]): Observer[T] =
+proc repeat*[T](upstream: IObservable[T]): IObservable[T] =
+  newObservableFactory proc(): IObservable[T] =
+    let oble = newSingleObservable[T]()
+    result = oble.asObservable
+    proc repeatConnection[T](ober: Observer[T]): Observer[T] =
       newObserver[T](
-        observer.onNext,
-        observer.onError,
-        () => (discard upstream.subscribe observer.repeatConnection()),
+        ober.onNext,
+        ober.onError,
+        () => (discard upstream.subscribe ober.repeatConnection()),
       )
-    observable.onSubscribe = proc() =
-      discard upstream.subscribe observable.observer.repeatConnection()
-proc repeat*[T](upstream: Observable[T]; times: Natural): Observable[T] =
+    result.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+      oble.addObserver ober
+      return upstream.subscribe repeatConnection(ober)
+proc repeat*[T](upstream: IObservable[T]; times: Natural): IObservable[T] =
   upstream.concat(sequtils.repeat(upstream, times-1))
-template repeat*[T](v: T; times: Natural): Observable[T] =
+template repeat*[T](v: T; times: Natural): IObservable[T] =
   returnThat(v).repeat(times)
 
 
-## *value dump =====================================================
+# value dump =====================================================
 
-proc doThat*[T](upstream: Observable[T]; op: (T)->void): Observable[T] =
-  newObservableFactory proc(): Observable[T] =
-    let observable = newObservable[T]()
-    result = observable
-    observable.setOnSubscribe proc(): IDisposable =
+proc doThat*[T](upstream: IObservable[T]; op: (T)->void): IObservable[T] =
+  asObservable newObservableFactory proc(): IObservable[T] =
+    let oble = newSingleObservable[T]()
+    result = oble.asObservable
+    result.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+      oble.addObserver ober
       upstream.subscribe(
         (proc(v: T) =
           op(v)
-          observable.execOnNext(v)
+          oble.execOnNext(v)
         ),
-        observable.mkExecOnError,
-        observable.mkExecOnCompleted,
+        oble.mkExecOnError,
+        oble.mkExecOnCompleted,
       )
 
-proc dump*[T](upstream: Observable[T]): Observable[T] =
-  newObservableFactory proc(): Observable[T] =
-    let observable = newObservable[T]()
-    result = observable
-    observable.onSubscribe = proc() =
-      discard upstream.subscribe(
+proc dump*[T](upstream: IObservable[T]): IObservable[T] =
+  asObservable newObservableFactory proc(): IObservable[T] =
+    let oble = newSingleObservable[T]()
+    result = oble.asObservable
+    result.setOnSubscribe proc(): IDisposable =
+      upstream.subscribe(
         (proc(v: T) =
           log v
-          observable.execOnNext(v)
+          oble.execOnNext(v)
         ),
         (proc(e: Error) =
           log e
-          observable.execOnError(e)
+          oble.execOnError(e)
         ),
         (proc() =
           log "complete!"
-          observable.execOnCompleted()
+          oble.execOnCompleted()
         )
       )

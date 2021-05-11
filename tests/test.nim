@@ -50,8 +50,8 @@ suite "core":
   test "complex work":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.subscribe testObserver[int](results, prefix = "1:")
-    let disposable = subject.subscribe testObserver[int](results, prefix = "2:")
+    discard subject.asObservable.subscribe testObserver[int](results, prefix = "1:")
+    let disposable = subject.asObservable.subscribe testObserver[int](results, prefix = "2:")
 
     subject.onNext 10
     disposable.dispose()
@@ -243,8 +243,8 @@ suite "Cold->Hot Conversion":
       .select(i => i*2)
       .doThat((v: int) => results.add &"upstream:{v}")
       .publish()
-    discard r.subscribe testObserver[int](results, prefix = "1:")
-    discard r.subscribe testObserver[int](results, prefix = "2:")
+    discard r.asObservable.subscribe testObserver[int](results, prefix = "1:")
+    discard r.asObservable.subscribe testObserver[int](results, prefix = "2:")
     discard r.connect()
 
     check results == @[
@@ -259,7 +259,7 @@ suite "Cold->Hot Conversion":
     let observable = subject.asObservable
       .select(v => toFloat(v))
       .publish()
-    discard observable.subscribe testObserver[float](results)
+    discard observable.asObservable.subscribe testObserver[float](results)
     subject.onNext 1
     subject.onNext 2
     let disposable = observable.connect()
