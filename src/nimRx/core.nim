@@ -10,15 +10,20 @@ type
     onNext*: (T)->void
     onError*: (Error)->void
     onCompleted*: ()->void
+  IObservable*[T] = ref object
+    hasAnyObservers*: ()->bool
+    removeObserver*: (Observer[T])->void
   Observable*[T] = ref object of RootObj
+    iObservable: IObservable[T]
     observers*: seq[Observer[T]]
     observableFactory: ()->Observable[T]
     onSubscribe*: Observer[T]->IDisposable
     completed: bool
-  IDisposable* = object
+  IDisposable* = ref object
     dispose*: ()->void
-  Disposable*[T] = ref object
-    observable: Observable[T]
+  Subscription*[T] = ref object
+    iDisposable: IDisposable
+    iObservable: IObservable[T]
     observer: Observer[T]
     isDisposed: bool
 
@@ -31,18 +36,22 @@ proc newError*(msg: string): Error = Error(msg: msg)
 proc `$`*(e: Error): string = e.msg
 
 ## *Disposable ==========================================================================
-proc newDisposable*[T](observable: Observable[T]; observer: Observer[T]):
-                                                                          Disposable[T] =
-  result = Disposable[T](observable: observable, observer: observer)
-
-proc toDisposable*[T](self: Disposable[T]): IDisposable =
-  var self = self
-  IDisposable(dispose: proc(): void =
-    if self.isDisposed or self.observable.observers.len == 0:
-      return
-    self.observable.observers.keepIf(v => v != self.observer)
-    self.isDisposed = true
+proc newSubscription*[T](iObservable: IObservable[T]; observer: Observer[T]):
+                                                                  Subscription[T] =
+  let subscription = Subscription[T](
+    iObservable: iObservable,
+    observer: observer,
   )
+  subscription.iDisposable = IDisposable(dispose: proc(): void =
+    if subscription.isDisposed or not subscription.iObservable.hasAnyObservers():
+      return
+    subscription.iObservable.removeObserver(subscription.observer)
+    subscription.isDisposed = true
+  )
+  return subscription
+
+proc asDisposable*[T](self: Subscription[T]): IDisposable =
+  self.iDisposable
 
 template combineDisposables*(disposables: varargs[IDisposable]): IDisposable =
   IDisposable(dispose: () => disposables.apply(it => it.dispose()))
@@ -55,14 +64,28 @@ proc newObserver*[T](onNext: (T)->void;
 
 ## *Observable ==========================================================================
 proc newObservableFactory*[T](factory: ()->Observable[T]): Observable[T] =
-  Observable[T](
+  let observable = Observable[T](
     observers: newSeq[Observer[T]](),
     observableFactory: factory,
   )
+  observable.iObservable = IObservable[T](
+    hasAnyObservers: () => observable.observers.len != 0,
+    removeObserver: (o: Observer[T]) => observable.observers.keepIf(v => v != o),
+  )
+  return observable
 proc newObservable*[T](): Observable[T] =
-  Observable[T](
+  let observable = Observable[T](
     observers: newSeq[Observer[T]](),
   )
+  observable.iObservable = IObservable[T](
+    hasAnyObservers: () => observable.observers.len != 0,
+    removeObserver: (o: Observer[T]) => observable.observers.keepIf(v => v != o),
+  )
+  return observable
+
+proc asObservable*[T](observable: Observable[T]): IObservable[T] =
+  observable.iObservable
+
 
 proc setOnSubscribe*[T](self: Observable[T];
     onSubscribe: Observer[T]->IDisposable) =

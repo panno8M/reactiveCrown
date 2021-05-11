@@ -6,49 +6,49 @@ proc doNothing(): void = discard
 ## *Subject =============================================================================
 type
   Subject*[T] = ref object of RootObj
-    observer: Observer[T]
-    observable: Observable[T]
+    ober: Observer[T]
+    oble: Observable[T]
 
-proc asObservable*[T](self: Subject[T]): Observable[T] = self.observable
+proc asObservable*[T](self: Subject[T]): Observable[T] = self.oble
 
 proc newSubject*[T](): Subject[T] =
   let subject = Subject[T]()
-  subject.observable = newObservable[T]()
-  subject.observable.setOnSubscribe proc(o: Observer[T]): IDisposable =
-    if subject.observable.isCompleted:
-      subject.observable.execOnCompleted()
-    newDisposable(subject.observable, o).toDisposable()
-  subject.observer = newObserver[T](
+  subject.oble = newObservable[T]()
+  subject.oble.setOnSubscribe proc(o: Observer[T]): IDisposable =
+    if subject.oble.isCompleted:
+      subject.oble.execOnCompleted()
+    newSubscription(subject.oble.asObservable, o).asDisposable()
+  subject.ober = newObserver[T](
     (proc(v: T): void =
-      if subject.observable.isCompleted: return
-      subject.observable.execOnNext(v)
+      if subject.oble.isCompleted: return
+      subject.oble.execOnNext(v)
     ),
     (proc(e: Error): void =
-      if subject.observable.isCompleted: return
-      var s = subject.observable.observers
-      subject.observable.observers.setLen(0)
+      if subject.oble.isCompleted: return
+      var s = subject.oble.observers
+      subject.oble.observers.setLen(0)
       s.apply((x: Observer[T]) => x.onError(e))
     ),
     (proc(): void =
-      subject.observable.execOnCompleted()
-      subject.observable.observers.setLen(0)
-      subject.observable.setAsCompleted()
+      subject.oble.execOnCompleted()
+      subject.oble.observers.setLen(0)
+      subject.oble.setAsCompleted()
     ),
   )
   return subject
 
 template onNext*[T](subject: Subject[T]; v: T): void =
-  subject.observer.onNext(v)
+  subject.ober.onNext(v)
 template onError*[T](subject: Subject[T]; e: Error): void =
-  subject.observer.onError(e)
+  subject.ober.onError(e)
 template onCompleted*[T](subject: Subject[T]): void =
-  subject.observer.onCompleted()
+  subject.ober.onCompleted()
 
 template onNext*(subject: Subject[Unit]): void =
   subject.onNext(unitDefault())
 
 template subscribe*[T](self: Subject[T]; observer: Observer[T]): IDisposable =
-  self.observable.subscribe(observer)
+  self.oble.subscribe(observer)
 template subscribe*[T](self: Subject[T];
     onNext: (T)->void;
     onError: (Error)->void = doNothing[Error];
@@ -56,7 +56,7 @@ template subscribe*[T](self: Subject[T];
         IDisposable =
   self.observable.subscribe(onNext, onError, onCompleted)
 
-template subscribeBlock*(self: Subject[Unit]; action: untyped): Disposable[Unit] =
+template subscribeBlock*(self: Subject[Unit]; action: untyped): IDisposable =
   self.subscribe(proc(_: Unit) =
     action
   )

@@ -4,33 +4,33 @@ import nimRx/[core, subjects, utils]
 ## *factories ===========================================================================
 proc returnThat*[T](v: T): Observable[T] =
   newObservableFactory proc(): Observable[T] =
-    let observable = newObservable[T]()
-    result = observable
-    observable.setOnSubscribe proc(observer: Observer[T]): IDisposable =
-      observer.onNext v
-      observer.onCompleted()
-      newDisposable(observable, observer).toDisposable()
+    let oble = newObservable[T]()
+    result = oble
+    oble.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+      ober.onNext v
+      ober.onCompleted()
+      newSubscription(oble.asObservable, ober).asDisposable
 
 proc range*[T: Ordinal](start: T; count: Natural): Observable[T] =
   newObservableFactory proc(): Observable[T] =
-    let observable = newObservable[T]()
-    result = observable
-    observable.setOnSubscribe proc(observer: Observer[T]): IDisposable =
+    let oble = newObservable[T]()
+    result = oble
+    oble.setOnSubscribe proc(ober: Observer[T]): IDisposable =
       for i in 0..<count:
-        observer.onNext start.succ(i)
-      observer.onCompleted()
-      newDisposable(observable, observer).toDisposable()
+        ober.onNext start.succ(i)
+      ober.onCompleted()
+      newSubscription(oble.asObservable, ober).asDisposable
 
 ## *Cold -> Hot converter ===============================================================
 type ConnectableObservable[T] = ref object of Observable[T]
   upstream: Observable[T]
 proc publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
-  let observable = ConnectableObservable[T](
+  let oble = ConnectableObservable[T](
     upstream: upstream,
   )
-  observable.setOnSubscribe proc(observer: Observer[T]): IDisposable =
-    newDisposable(observable, observer).toDisposable()
-  return observable
+  oble.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+    newSubscription(oble.asObservable, ober).asDisposable
+  return oble
 
 
 proc connect*[T](self: ConnectableObservable[T]): IDisposable =
