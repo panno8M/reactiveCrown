@@ -1,7 +1,6 @@
 import sugar
 
 type
-  Unit* = ref object
   # TODO: define error type
   Error* = ref object
     msg: string
@@ -24,8 +23,6 @@ type
 
 proc doNothing[T](v: T): void = discard
 proc doNothing(): void = discard
-
-proc unitDefault*(): Unit = new Unit
 
 proc newError*(msg: string): Error = Error(msg: msg)
 proc `$`*(e: Error): string = e.msg
@@ -66,10 +63,3 @@ template subscribe*[T](self: IObservable[T];
     onError: (Error)->void = doNothing[Error];
     onCompleted: ()->void = doNothing): IDisposable =
   self.subscribe(newObserver(onNext, onError, onCompleted))
-
-# TODO move it to another like "unitUtils.nim"
-template subscribeBlock*(self: IObservable[Unit];
-    action: untyped): IDisposable =
-  self.subscribe(onNext = proc(_: Unit) =
-    action
-  )

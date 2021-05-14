@@ -63,5 +63,3 @@ template onError*[T](subject: Subject[T]; e: Error): void =
 template onCompleted*[T](subject: Subject[T]): void =
   subject.ober.onCompleted()
 
-template onNext*(subject: Subject[Unit]): void =
-  subject.onNext(unitDefault())
