@@ -1,5 +1,5 @@
 import unittest
-import sugar, strformat
+import sugar, strformat, sequtils
 import nimRx
 
 let testError = newError "Error"
@@ -83,21 +83,32 @@ suite "observable/operator":
     check results == @[$1, $3, $3, $5]
 
   test "select  [T, S](upstream: Observable[T]; op: (T)->S): Observable[S]":
-    var results = newSeq[string]()
+    var results1 = newSeq[string]()
+    var results2 = newSeq[string]()
     let
       subject = newSubject[int]()
-      select = subject.asObservable.select(v => toFloat(v*v))
-      disposable1 = select.subscribe testObserver[float](results)
+      select1 = subject.asObservable.select(v => toFloat(v))
+      select2 = subject.asObservable.select(v => toFloat(v))
 
+    let disposable11 = select1.subscribe testObserver[float](results1)
     subject.onNext 1
-    let disposable2 = select.subscribe testObserver[float](results)
+    let disposable21 = select2.subscribe testObserver[float](results2)
     subject.onNext 2
-    disposable1.dispose()
+    let disposable12 = select1.subscribe testObserver[float](results1)
     subject.onNext 3
-    disposable2.dispose()
+    let disposable22 = select2.subscribe testObserver[float](results2)
     subject.onNext 4
+    disposable11.dispose()
+    subject.onNext 5
+    disposable21.dispose()
+    subject.onNext 6
+    disposable12.dispose()
+    subject.onNext 7
+    disposable22.dispose()
+    subject.onNext 8
 
-    check results == @[$1f, $4f, $4f, $9f]
+    check results1 == @[1, 2, 3, 3, 4, 4, 5, 6].mapIt it.float.`$`
+    check results2 == @[2, 3, 4, 4, 5, 5, 6, 7].mapIt it.float.`$`
 
   test "buffer  [T](upstream: Observable[T]; count: Natural; skip: Natural = 0): Observable[seq[T]]":
     var
@@ -170,35 +181,65 @@ suite "observable/operator":
     check results == @[$(@[1, 2, 3]), $(@[10, 20, 30]), $testError]
 
   test "concat  [T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[T]":
-    var results = newSeq[string]()
-    let
-      subject1 = newSubject[int]()
-      subject2 = newSubject[int]()
-      subject3 = newSubject[int]()
-      subject4 = newSubject[int]()
-    discard concat(
-        subject1.asObservable,
-        subject2.asObservable,
-        subject3.asObservable,
-        subject4.asObservable,
-      )
-      .subscribe testObserver[int](results)
+    block:
+      var results = newSeq[string]()
+      let
+        subject1 = newSubject[int]()
+        subject2 = newSubject[int]()
+        subject3 = newSubject[int]()
+        subject4 = newSubject[int]()
+      discard concat(
+          subject1.asObservable,
+          subject2.asObservable,
+          subject3.asObservable,
+          subject4.asObservable,
+        )
+        .subscribe testObserver[int](results)
 
-    subject1.onNext 1
-    subject2.onNext 10
-    subject1.onNext 2
-    subject1.onCompleted()
+      subject1.onNext 1
+      subject2.onNext 10
+      subject1.onNext 2
+      subject1.onCompleted()
 
-    subject2.onNext 3
-    subject3.onCompleted()
-    subject2.onNext 4
-    subject2.onCompleted()
+      subject2.onNext 3
+      subject3.onCompleted()
+      subject2.onNext 4
+      subject2.onCompleted()
 
-    subject4.onNext 5
-    subject4.onNext 6
-    subject4.onCompleted()
+      subject4.onNext 5
+      subject4.onNext 6
+      subject4.onCompleted()
 
-    check results == @[$1, $2, $3, $4, $5, $6, "#"]
+      check results == @[$1, $2, $3, $4, $5, $6, "#"]
+    block:
+      var results = newSeq[string]()
+      let
+        sbj1 = newSubject[int]()
+        sbj2 = newSubject[int]()
+        concat = concat(
+          sbj1.asObservable,
+          sbj2.asObservable,
+        )
+        disp1 = concat.subscribe testObserver[int](results)
+        disp2 = concat.subscribe testObserver[int](results)
+      discard concat.subscribe testObserver[int](results)
+
+      sbj1.onNext 1
+      sbj2.onNext 2
+      disp1.dispose()
+      sbj1.onNext 3
+      sbj2.onNext 4
+      sbj1.onCompleted()
+      sbj1.onNext 5
+      sbj2.onNext 6
+      disp2.dispose()
+      sbj1.onNext 7
+      sbj2.onNext 8
+      sbj2.onCompleted()
+      sbj1.onNext 9
+      sbj2.onNext 10
+
+      check results == @[$1, $1, $1, $3, $3, $6, $6, $8, "#"]
 
   test "retry  [T](upstream: Observable[T]): Observable[T]":
     var results = newSeq[string]()
@@ -223,7 +264,7 @@ suite "observable/factory":
 
   test "repeat  [T](v: T; times: Natural): Observable[T]":
     var results = newSeq[string]()
-    discard repeat(5, 3).subscribe testObserver[int](results)
+    discard nimRx.repeat(5, 3).subscribe testObserver[int](results)
 
     check results == @[$5, $5, $5, "#"]
 
@@ -273,3 +314,37 @@ suite "Cold->Hot Conversion":
     subject.onNext 8
 
     check results == @[$3f, $4f, $7f, $8f]
+
+  test "refCount":
+    var results1 = newSeq[string]()
+    var results2 = newSeq[string]()
+    let subject = newSubject[int]()
+    let select = subject.asObservable
+      .select(v => toFloat(v))
+      .publish()
+    let observable1 = select
+      .refCount()
+    let observable2 = select
+      .refCount()
+
+    let disposable11 = observable1.subscribe testObserver[float](results1)
+    subject.onNext 1
+    let disposable21 = observable2.subscribe testObserver[float](results2)
+    subject.onNext 2
+    let disposable12 = observable1.subscribe testObserver[float](results1)
+    subject.onNext 3
+    let disposable22 = observable2.subscribe testObserver[float](results2)
+    subject.onNext 4
+    disposable11.dispose()
+    subject.onNext 5
+    disposable21.dispose()
+    subject.onNext 6
+    disposable12.dispose()
+    subject.onNext 7
+    disposable22.dispose()
+    subject.onNext 8
+    discard observable1.subscribe testObserver[float](results1)
+    subject.onNext 9
+
+    check results1 == @[1, 2, 3, 3, 4, 4, 5, 6, 9].mapIt it.float.`$`
+    check results2 == @[2, 3, 4, 4, 5, 5, 6].mapIt it.float.`$`
