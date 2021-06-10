@@ -34,6 +34,23 @@ template combineDisposables(disps: varargs[IDisposable]): IDisposable =
 
 # factories ===========================================================================
 proc returnThat*[T](v: T): IObservable[T] =
+  ## The moment it is subscribed(), it issues onNext() once
+  ## with the passed arguments, and immediately issues onCompleted() to finish.
+  runnableExamples:
+    import nimRx
+    import sugar
+
+    var
+      res: int
+      isCompleted: bool
+
+    discard returnThat(10)
+      .subscribe(
+        (v: int) => (res = v),
+        onCompleted = () => (isCompleted = true))
+
+    assert res == 10
+    assert isCompleted
   blueprint[T]:
     let retObservable = new IObservable[T]
     retObservable.onSubscribe = proc(observer: Observer[T]): IDisposable =
@@ -41,6 +58,7 @@ proc returnThat*[T](v: T): IObservable[T] =
       observer.onCompleted()
       newSubscription(retObservable, observer)
     return retObservable
+
 
 proc range*[T: Ordinal](start: T; count: Natural): IObservable[T] =
   blueprint[T]:

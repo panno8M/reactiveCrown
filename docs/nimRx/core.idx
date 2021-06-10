@@ -1,0 +1,10 @@
+Error	nimRx/core.html#Error	core: Error	
+Observer	nimRx/core.html#Observer	core: Observer	
+IObservable	nimRx/core.html#IObservable	core: IObservable	
+IDisposable	nimRx/core.html#IDisposable	core: IDisposable	
+newError	nimRx/core.html#newError,string	core: newError(msg: string): Error	
+`$`	nimRx/core.html#$,Error	core: `$`(e: Error): string	
+newSubscription	nimRx/core.html#newSubscription,IObservable[T],Observer[T]	core: newSubscription[T](iObservable: IObservable[T]; observer: Observer[T]): IDisposable	
+newObserver	nimRx/core.html#newObserver	core: newObserver[T](onNext: (T) -&gt; void; onError: (Error) -&gt; void = doNothing[Error];\n               onCompleted: () -&gt; void = doNothing): Observer[T]	
+subscribe	nimRx/core.html#subscribe,IObservable[T],Observer[T]	core: subscribe[T](self: IObservable[T]; observer: Observer[T]): IDisposable	
+subscribe	nimRx/core.html#subscribe.t,IObservable[T],	core: subscribe[T](self: IObservable[T]; onNext: (T) -&gt; void;\n             onError: (Error) -&gt; void = doNothing[Error];\n             onCompleted: () -&gt; void = doNothing): IDisposable	

@@ -15,7 +15,7 @@ type
     removeObserver*: (Observer[T])->void
   IDisposable* = ref object
     dispose*: ()->void
-  Subscription*[T] = ref object
+  Subscription[T] = ref object
     iDisposable: IDisposable
     iObservable: IObservable[T]
     observer: Observer[T]
@@ -49,14 +49,29 @@ proc newObserver*[T](onNext: (T)->void;
   Observer[T](onNext: onNext, onError: onError, onCompleted: onCompleted)
 
 # Observable ==========================================================================
-proc setOnSubscribe*[T](self: IObservable[T];
-    onSubscribe: Observer[T]->IDisposable) =
-  self.onSubscribe = onSubscribe
-
 proc subscribe*[T](self: IObservable[T]; observer: Observer[T]): IDisposable =
   self.onSubscribe(observer)
 template subscribe*[T](self: IObservable[T];
     onNext: (T)->void;
     onError: (Error)->void = doNothing[Error];
     onCompleted: ()->void = doNothing): IDisposable =
+  ## The sugar to:
+  ##
+  ## .. code-block:: Nim
+  ##    discard someObservable
+  ##      .subscribe(newObserver(
+  ##        (v: T) => onNext(v),
+  ##        (e: Error) => onError(e),
+  ##        () => onCompleted()
+  ##      ))
+  ##
+  ## It enable us to write:
+  ##
+  ## .. code-block:: Nim
+  ##    discard someObservable
+  ##      .subscribe(
+  ##        (v: T) => onNext(v),
+  ##        (e: Error) => onError(e),
+  ##        () => onCompleted()
+  ##      )
   self.subscribe(newObserver(onNext, onError, onCompleted))

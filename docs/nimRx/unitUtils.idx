@@ -1,0 +1,4 @@
+Unit	nimRx/unitUtils.html#Unit	unitUtils: Unit	
+unitDefault	nimRx/unitUtils.html#unitDefault	unitUtils: unitDefault(): Unit	
+subscribeBlock	nimRx/unitUtils.html#subscribeBlock.t,IObservable[Unit],untyped	unitUtils: subscribeBlock(self: IObservable[Unit]; action: untyped): IDisposable	
+onNext	nimRx/unitUtils.html#onNext.t,Subject[Unit]	unitUtils: onNext(subject: Subject[Unit]): void	

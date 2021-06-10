@@ -1,0 +1,6 @@
+Subject	nimRx/subjects.html#Subject	subjects: Subject	
+asObservable	nimRx/subjects.html#asObservable,Subject[T]	subjects: asObservable[T](self: Subject[T]): IObservable[T]	
+newSubject	nimRx/subjects.html#newSubject	subjects: newSubject[T](): Subject[T]	
+onNext	nimRx/subjects.html#onNext.t,Subject[T],T	subjects: onNext[T](subject: Subject[T]; v: T): void	
+onError	nimRx/subjects.html#onError.t,Subject[T],Error	subjects: onError[T](subject: Subject[T]; e: Error): void	
+onCompleted	nimRx/subjects.html#onCompleted.t,Subject[T]	subjects: onCompleted[T](subject: Subject[T]): void	

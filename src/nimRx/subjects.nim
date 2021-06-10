@@ -35,7 +35,7 @@ proc newSubject*[T](): Subject[T] =
     hasAnyObservers: () => subject.observers.len != 0,
     removeObserver: (o: Observer[T]) => subject.observers.keepIf(v => v != o),
   )
-  subject.iObservable.setOnSubscribe proc(ober: Observer[T]): IDisposable =
+  subject.iObservable.onSubscribe = proc(ober: Observer[T]): IDisposable =
     subject.addobserver ober
     if subject.isCompleted:
       subject.execOnCompleted()
