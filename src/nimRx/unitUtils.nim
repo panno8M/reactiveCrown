@@ -1,4 +1,5 @@
-import core, subjects
+import core
+import subjects
 
 type Unit* = ref object
 

@@ -17,8 +17,13 @@
 #   ),
 # )
 
-import sugar, sequtils
-import nimRx/[core, subjects, utils]
+import sugar
+import sequtils
+
+# nimRx
+import core
+import subjects
+import utils
 
 template blueprint[T](mkObservable: untyped): untyped =
   IObservable[T](onSubscribe: proc(ober: Observer[T]): IDisposable =

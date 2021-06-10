@@ -1,7 +1,10 @@
-import sugar, sequtils
-import nimRx/[core]
+import sugar
+import sequtils
 
-## *Subject =============================================================================
+# nimRx
+import core
+
+# Subject =============================================================================
 type
   Subject*[T] = ref object of RootObj
     ober: Observer[T]
