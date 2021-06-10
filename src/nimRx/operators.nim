@@ -23,7 +23,6 @@ import sequtils
 # nimRx
 import core
 import subjects
-import utils
 
 template blueprint[T](mkObservable: untyped): untyped =
   IObservable[T](onSubscribe: proc(ober: Observer[T]): IDisposable =
@@ -281,6 +280,7 @@ proc doThat*[T](upstream: IObservable[T]; op: (T)->void): IObservable[T] =
     )
 
 proc dump*[T](upstream: IObservable[T]): IObservable[T] =
+  template log(action: untyped): untyped = debugEcho "[DUMP] ", action
   blueprint[T]:
     IObservable[T](onSubscribe: proc(observer: Observer[T]): IDisposable =
       upstream.subscribe(
