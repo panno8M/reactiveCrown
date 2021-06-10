@@ -1,4 +1,4 @@
 # nimRx
 
 ## pages
-https://panno8m.github.io/nimRx/theindex.html
+https://panno8m.github.io/nimRx/nimRx.html
