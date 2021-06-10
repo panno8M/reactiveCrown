@@ -36,7 +36,7 @@ proc newSubject*[T](): Subject[T] =
     subject.addobserver ober
     if subject.isCompleted:
       subject.execOnCompleted()
-    newSubscription(subject.asObservable, ober).asDisposable()
+    newSubscription(subject.asObservable, ober)
   subject.ober = newObserver[T](
     (proc(v: T): void =
       if subject.isCompleted: return

@@ -29,7 +29,7 @@ proc `$`*(e: Error): string = e.msg
 
 # Subscription ==========================================================================
 proc newSubscription*[T](iObservable: IObservable[T]; observer: Observer[T]):
-                                                                  Subscription[T] =
+                                                                  IDisposable =
   let subscription = Subscription[T](
     iObservable: iObservable,
     observer: observer,
@@ -40,10 +40,7 @@ proc newSubscription*[T](iObservable: IObservable[T]; observer: Observer[T]):
     subscription.iObservable.removeObserver(subscription.observer)
     subscription.isDisposed = true
   )
-  return subscription
-
-proc asDisposable*[T](self: Subscription[T]): IDisposable =
-  self.iDisposable
+  return subscription.iDisposable
 
 # Observer ============================================================================
 proc newObserver*[T](onNext: (T)->void;
