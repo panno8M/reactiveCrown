@@ -1,3 +1,4 @@
+blueprint	nimRx/operators.html#blueprint.t,untyped	operators: blueprint[T](mkObservable: untyped): untyped	
 returnThat	nimRx/operators.html#returnThat,T	operators: returnThat[T](v: T): IObservable[T]	
 range	nimRx/operators.html#range,T,Natural	operators: range[T: Ordinal](start: T; count: Natural): IObservable[T]	
 repeat	nimRx/operators.html#repeat,T,Natural	operators: repeat[T](v: T; times: Natural): IObservable[T]	

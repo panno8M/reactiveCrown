@@ -70,7 +70,7 @@ window.addEventListener('DOMContentLoaded', main);
 <div class="document" id="documentId">
   <div class="container">
     <h1 class="title">Index</h1>
-    Modules: <a href="nimRx/core.html">nimRx/core</a>, <a href="nimRx/operators.html">nimRx/operators</a>, <a href="nimRx/subjects.html">nimRx/subjects</a>, <a href="nimRx/unitUtils.html">nimRx/unitUtils</a>.<br/><p /><h2>API symbols</h2>
+    Modules: <a href="nimRx.html">nimRx</a>, <a href="nimRx/core.html">nimRx/core</a>, <a href="nimRx/operators.html">nimRx/operators</a>, <a href="nimRx/subjects.html">nimRx/subjects</a>, <a href="nimRx/unitUtils.html">nimRx/unitUtils</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%24%60" href="#%60%24%60"><span>`$`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="core: `$`(e: Error): string" href="nimRx/core.html#%24%2CError">core: `$`(e: Error): string</a></li>
@@ -80,6 +80,10 @@ window.addEventListener('DOMContentLoaded', main);
           data-doc-search-tag="operators: asObservable[T](self: ConnectableObservable[T]): IObservable[T]" href="nimRx/operators.html#asObservable.t%2CConnectableObservable%5BT%5D">operators: asObservable[T](self: ConnectableObservable[T]): IObservable[T]</a></li>
           <li><a class="reference external"
           data-doc-search-tag="subjects: asObservable[T](self: Subject[T]): IObservable[T]" href="nimRx/subjects.html#asObservable%2CSubject%5BT%5D">subjects: asObservable[T](self: Subject[T]): IObservable[T]</a></li>
+          </ul></dd>
+<dt><a name="blueprint" href="#blueprint"><span>blueprint:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="operators: blueprint[T](mkObservable: untyped): untyped" href="nimRx/operators.html#blueprint.t%2Cuntyped">operators: blueprint[T](mkObservable: untyped): untyped</a></li>
           </ul></dd>
 <dt><a name="buffer" href="#buffer"><span>buffer:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -121,11 +125,15 @@ window.addEventListener('DOMContentLoaded', main);
 <li><a class="reference external"
           data-doc-search-tag="core: newError(msg: string): Error" href="nimRx/core.html#newError%2Cstring">core: newError(msg: string): Error</a></li>
           </ul></dd>
+<dt><a name="newIObservable" href="#newIObservable"><span>newIObservable:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="core: newIObservable[T](onSubscribe: (Observer[T]) -&gt; IDisposable): IObservable[T]" href="nimRx/core.html#newIObservable">core: newIObservable[T](onSubscribe: (Observer[T]) -&gt; IDisposable): IObservable[T]</a></li>
+          </ul></dd>
 <dt><a name="newObserver" href="#newObserver"><span>newObserver:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: newObserver[T](onNext: (T) -&gt; void; onError: (Error) -&gt; void = doNothing[Error];
-               onCompleted: () -&gt; void = doNothing): Observer[T]" href="nimRx/core.html#newObserver">core: newObserver[T](onNext: (T) -&gt; void; onError: (Error) -&gt; void = doNothing[Error];
-               onCompleted: () -&gt; void = doNothing): Observer[T]</a></li>
+          data-doc-search-tag="core: newObserver[T](onNext: proc (v: T); onError: proc (e: Error) = nil;
+               onCompleted: proc () = nil): Observer[T]" href="nimRx/core.html#newObserver%2Cproc%28T%29%2Cproc%28Error%29%2Cproc%29">core: newObserver[T](onNext: proc (v: T); onError: proc (e: Error) = nil;
+               onCompleted: proc () = nil): Observer[T]</a></li>
           </ul></dd>
 <dt><a name="newSubject" href="#newSubject"><span>newSubject:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -197,15 +205,15 @@ window.addEventListener('DOMContentLoaded', main);
 <li><a class="reference external"
           data-doc-search-tag="core: subscribe[T](self: IObservable[T]; observer: Observer[T]): IDisposable" href="nimRx/core.html#subscribe%2CIObservable%5BT%5D%2CObserver%5BT%5D">core: subscribe[T](self: IObservable[T]; observer: Observer[T]): IDisposable</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="core: subscribe[T](self: IObservable[T]; onNext: (T) -&gt; void;
-             onError: (Error) -&gt; void = doNothing[Error];
-             onCompleted: () -&gt; void = doNothing): IDisposable" href="nimRx/core.html#subscribe.t%2CIObservable%5BT%5D%2C">core: subscribe[T](self: IObservable[T]; onNext: (T) -&gt; void;
-             onError: (Error) -&gt; void = doNothing[Error];
-             onCompleted: () -&gt; void = doNothing): IDisposable</a></li>
+          data-doc-search-tag="core: subscribe[T](self: IObservable[T]; onNext: proc (v: T);
+             onError: proc (e: Error) = nil; onCompleted: proc () = nil): IDisposable" href="nimRx/core.html#subscribe.t%2CIObservable%5BT%5D%2Cproc%28T%29%2Cproc%28Error%29%2Cproc%29">core: subscribe[T](self: IObservable[T]; onNext: proc (v: T);
+             onError: proc (e: Error) = nil; onCompleted: proc () = nil): IDisposable</a></li>
           </ul></dd>
 <dt><a name="subscribeBlock" href="#subscribeBlock"><span>subscribeBlock:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="unitUtils: subscribeBlock(self: IObservable[Unit]; action: untyped): IDisposable" href="nimRx/unitUtils.html#subscribeBlock.t%2CIObservable%5BUnit%5D%2Cuntyped">unitUtils: subscribeBlock(self: IObservable[Unit]; action: untyped): IDisposable</a></li>
+          data-doc-search-tag="unitUtils: subscribeBlock[T](upstream: IObservable[T]; body: untyped): IDisposable" href="nimRx/unitUtils.html#subscribeBlock.t%2CIObservable%5BT%5D%2Cuntyped">unitUtils: subscribeBlock[T](upstream: IObservable[T]; body: untyped): IDisposable</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="unitUtils: subscribeBlock(upstream: IObservable[Unit]; body: untyped): IDisposable" href="nimRx/unitUtils.html#subscribeBlock.t%2CIObservable%5BUnit%5D%2Cuntyped">unitUtils: subscribeBlock(upstream: IObservable[Unit]; body: untyped): IDisposable</a></li>
           </ul></dd>
 <dt><a name="Unit" href="#Unit"><span>Unit:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -214,6 +222,10 @@ window.addEventListener('DOMContentLoaded', main);
 <dt><a name="unitDefault" href="#unitDefault"><span>unitDefault:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="unitUtils: unitDefault(): Unit" href="nimRx/unitUtils.html#unitDefault">unitUtils: unitDefault(): Unit</a></li>
+          </ul></dd>
+<dt><a name="unitfy" href="#unitfy"><span>unitfy:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="unitUtils: unitfy[T](upstream: IObservable[T]): IObservable[Unit]" href="nimRx/unitUtils.html#unitfy%2CIObservable%5BT%5D">unitUtils: unitfy[T](upstream: IObservable[T]): IObservable[Unit]</a></li>
           </ul></dd>
 <dt><a name="where" href="#where"><span>where:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -234,7 +246,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-06-10 14:35:47 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-06-12 10:25:01 UTC</small>
       </div>
     </div>
   </div>

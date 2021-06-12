@@ -24,7 +24,50 @@ import sequtils
 import core
 import subjects
 
-template blueprint[T](mkObservable: untyped): untyped =
+
+
+# Utilities SECTION
+
+template blueprint*[T](mkObservable: untyped): untyped =
+  ## | It is published in order to be enable to implement your operator by yourself.
+  ## | Therefore, it is **NOT** necessary for statements that use the library normally.
+  ## | For example, where operator is implemented as follows:
+  ##
+  ## .. code-block:: Nim
+  ##    proc where*[T](upstream: IObservable[T]; op: (T)->bool): IObservable[T] =
+  ##      blueprint[T]:
+  ##        newIObservable[T] proc(observer: Observer[T]): IDisposable =
+  ##          upstream.subscribe(
+  ##            (v: T) => (if op(v): observer.onNext v),
+  ##            (e: Error) => observer.onError e,
+  ##            () => observer.onCompleted(),
+  ##          )
+  ##
+  ## It may seem that this can be written as follows
+  ## by excluding the blueprint[T] statement:
+  ##
+  ## .. code-block:: Nim
+  ##    proc where*[T](upstream: IObservable[T]; op: (T)->bool): IObservable[T] =
+  ##      newIObservable[T] proc(observer: Observer[T]): IDisposable =
+  ##        upstream.subscribe(
+  ##          (v: T) => (if op(v): observer.onNext v),
+  ##          (e: Error) => observer.onError e,
+  ##          () => observer.onCompleted(),
+  ##        )
+  ##
+  ## The difference between the two is when you assign to a variable once
+  ## and try to subscribe multiple times, i.e.
+  ##
+  ## .. code-block:: Nim
+  ##    let
+  ##      sbj = newSubject[int]()
+  ##      obsEven = sbj.asObservable().where(v => v mod 2 == 0)
+  ##    discard obsEven.subscribe((v: int) => echo "sbsc #1: " & $v)
+  ##    discard obsEven.subscribe((v: int) => echo "sbsc #2: " & $v)
+  ##
+  ## | In this case, if blueprint is not used, the IObservable will be created when it is assigned to the variable, and the two subsequent subscriptions will be done to the same IObservable.
+  ## | In contrast, when blueprint is used, the IObservable is created for the first time when subscribing. In other words, the first subscribe creates an IObservable that is the entity of the where observable, and the next subscribe creates a new IObservable.
+  ## | This behavior is exactly like a cold observable. This behavior is also the reason for the name blueprint. In other words, when implementing a cold observable, it works well to use blueprint to implement it. On the other hand, it is not necessary when implementing a hot observable.
   IObservable[T](onSubscribe: proc(ober: Observer[T]): IDisposable =
     (() => mkObservable)().subscribe ober
   )
@@ -32,7 +75,10 @@ template blueprint[T](mkObservable: untyped): untyped =
 template combineDisposables(disps: varargs[IDisposable]): IDisposable =
   IDisposable(dispose: () => @disps.apply((it: IDisposable) => it.dispose()))
 
-# factories ===========================================================================
+
+
+# Factories SECTION
+
 proc returnThat*[T](v: T): IObservable[T] =
   ## The moment it is subscribed(), it issues onNext() once
   ## with the passed arguments, and immediately issues onCompleted() to finish.
@@ -59,8 +105,23 @@ proc returnThat*[T](v: T): IObservable[T] =
       newSubscription(retObservable, observer)
     return retObservable
 
-
 proc range*[T: Ordinal](start: T; count: Natural): IObservable[T] =
+  runnableExamples:
+    import nimRx
+    import sugar
+
+    var
+      res: int
+      isCompleted: bool
+
+    discard range(1, 10)
+      .subscribe(
+        onNext = (v: int) => (res += v),
+        onCompleted = () => (isCompleted = true),
+      )
+
+    assert res == 55
+    assert isCompleted
   blueprint[T]:
     let retObservable = new IObservable[T]
     retObservable.onSubscribe = proc(observer: Observer[T]): IDisposable =
@@ -73,7 +134,10 @@ proc range*[T: Ordinal](start: T; count: Natural): IObservable[T] =
 proc repeat*[T](v: T; times: Natural): IObservable[T] =
   returnThat(v).repeat(times)
 
-# Cold -> Hot converter ===============================================================
+
+
+# Cold -> Hot converter SECTION
+
 type ConnectableObservable[T] = ref object
   subject: Subject[T]
   upstream: IObservable[T]
@@ -81,12 +145,52 @@ type ConnectableObservable[T] = ref object
 template asObservable*[T](self: ConnectableObservable[T]): IObservable[T] =
   self.subject.asObservable()
 proc publish*[T](upstream: IObservable[T]): ConnectableObservable[T] =
+  runnableExamples:
+    import nimRx
+    import nimRx/unitUtils
+    import sugar
+
+    var cntCalled: int
+    let
+      sbj = newSubject[Unit]()
+      published = sbj.asObservable
+        .doThat((_: Unit) => (inc cntCalled))
+        .publish()
+
+    sbj.onNext()
+    assert cntCalled == 0
+
+    discard published.asObservable
+      .subscribeBlock:
+        discard
+
+    sbj.onNext()
+    assert cntCalled == 0
+
+    let disconnectable = published.connect()
+
+    sbj.onNext()
+    assert cntCalled == 1
+
+    discard published.asObservable
+      .subscribeBlock:
+        discard
+
+    sbj.onNext()
+    assert cntCalled == 2
+
+    disconnectable.dispose()
+
+    sbj.onNext()
+    assert cntCalled == 2
+
   ConnectableObservable[T](
     subject: newSubject[T](),
     upstream: upstream,
   )
 
 proc connect*[T](self: ConnectableObservable[T]): IDisposable =
+  ## See `publish proc<#publish,IObservable[T]>`_ for examples.
   # Do nothing when already connected between "publish subject" to its upstream
   if self.disposable_isItAlreadyConnected == nil:
     var dispSbsc = self.upstream.subscribe(
@@ -101,12 +205,12 @@ proc connect*[T](self: ConnectableObservable[T]): IDisposable =
   return self.disposable_isItAlreadyConnected
 
 proc refCount*[T](upstream: ConnectableObservable[T]): IObservable[T] =
-  ## TODO: I guess there are something wrong.
-  ## Need to research the original specifications in details.
+  ## NOTE: There is something wrong with this behavior.
+  ## Be careful when use it.
   var
     cntSubscribed = 0
     dispConnect: IDisposable
-  IObservable[T](onSubscribe: proc(observer: Observer[T]): IDisposable =
+  newIObservable[T] proc(observer: Observer[T]): IDisposable =
     let dispSubscribe = upstream.asObservable().subscribe observer
     inc cntSubscribed
     if cntSubscribed == 1:
@@ -117,42 +221,31 @@ proc refCount*[T](upstream: ConnectableObservable[T]): IObservable[T] =
         dispConnect.dispose()
       dispSubscribe.dispose()
     )
-  )
 
 proc share*[T](upstream: IObservable[T]): IObservable[T] =
   upstream.publish().refCount()
 
-# filters =============================================================================
-# proc where*[T](upstream: IObservable[T]; op: ((T)->bool)): IObservable[T] =
-#   asObservable newObservableFactory proc(): IObservable[T] =
-#     let oble = newSingleObservable[T]()
-#     result = oble.asObservable
-#     result.setOnSubscribe proc(ober: Observer[T]): IDisposable =
-#       oble.addObserver ober
-#       upstream.subscribe(
-#         (v: T) => (if op(v): oble.execOnNext v),
-#         oble.mkExecOnError,
-#         oble.mkExecOnCompleted,
-#       )
+
+
+# Filters SECTION
+
 proc where*[T](upstream: IObservable[T]; op: (T)->bool): IObservable[T] =
   blueprint[T]:
-    IObservable[T](onSubscribe: proc(observer: Observer[T]): IDisposable =
+    newIObservable[T] proc(observer: Observer[T]): IDisposable =
       upstream.subscribe(
         (v: T) => (if op(v): observer.onNext v),
         (e: Error) => observer.onError e,
         () => observer.onCompleted(),
       )
-    )
 
 proc select*[T, S](upstream: IObservable[T]; op: (T)->S): IObservable[S] =
   blueprint[S]:
-    IObservable[S](onSubscribe: proc(observer: Observer[S]): IDisposable =
+    newIObservable[S] proc(observer: Observer[S]): IDisposable =
       upstream.subscribe(
         (v: T) => observer.onNext op(v),
         (e: Error) => observer.onError e,
         () => observer.onCompleted(),
       )
-    )
 
 proc buffer*[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0):
                                                                 IObservable[seq[T]] =
@@ -160,7 +253,7 @@ proc buffer*[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0):
   type S = seq[T]
   blueprint[S]:
     var cache = newSeq[T]()
-    IObservable[seq[T]](onSubscribe: proc(observer: Observer[S]): IDisposable =
+    newIObservable[S] proc(observer: Observer[S]): IDisposable =
       upstream.subscribe(
         (proc(v: T) =
           cache.add v
@@ -174,7 +267,6 @@ proc buffer*[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0):
           observer.onCompleted()
         ),
       )
-    )
 
 proc zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
                                                   IObservable[tuple[l: Tl; r: Tr]] =
@@ -186,7 +278,7 @@ proc zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
         observer.onNext (cache.l[0], cache.r[0])
         cache.l = cache.l[1..cache.l.high]
         cache.r = cache.r[1..cache.r.high]
-    IObservable[S](onSubscribe: proc(observer: Observer[S]): IDisposable =
+    newIObservable[S] proc(observer: Observer[S]): IDisposable =
       let disps = @[
         tl.subscribe(
           (v: Tl) => (cache.l.add v; observer.tryOnNext()),
@@ -198,7 +290,6 @@ proc zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
         ),
       ]
       disps.combineDisposables()
-    )
 
 proc zip*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
                                                               IObservable[seq[T]] =
@@ -219,14 +310,16 @@ proc zip*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
         ),
         (e: Error) => observer.onError e,
       )
-    IObservable[S](onSubscribe: proc(observer: Observer[S]): IDisposable =
+    newIObservable[S] proc(observer: Observer[S]): IDisposable =
       var disps = newSeq[IDisposable](targets.len)
       for i, target in targets:
         disps[i] = (target, i).trySubscribe(observer)
       disps.combineDisposables()
-    )
 
-# onError handlings =====================================================================
+
+
+# OnError handlings SECTION
+
 proc retry*[T](upstream: IObservable[T]): IObservable[T] =
   let upstream = upstream
   blueprint[T]:
@@ -238,9 +331,8 @@ proc retry*[T](upstream: IObservable[T]): IObservable[T] =
         (e: Error) => (discard upstream.subscribe observer.mkRetryObserver()),
         () => observer.onCompleted(),
       )
-    IObservable[T](onSubscribe: proc(observer: Observer[T]): IDisposable =
+    newIObservable[T] proc(observer: Observer[T]): IDisposable =
       upstream.subscribe observer.mkRetryObserver()
-    )
 
 # onCompleted handlings ===============================================================
 proc concat*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
@@ -264,10 +356,9 @@ proc concat*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
             observer.onCompleted()
         ),
       )
-    IObservable[T](onSubscribe: proc(observer: Observer[T]): IDisposable =
+    newIObservable[T] proc(observer: Observer[T]): IDisposable =
       retDisp = upstream.subscribe observer.mkConcatObserver()
       IDisposable(dispose: () => retDisp.dispose())
-    )
 
 proc repeat*[T](upstream: IObservable[T]): IObservable[T] =
   blueprint[T]:
@@ -277,33 +368,31 @@ proc repeat*[T](upstream: IObservable[T]): IObservable[T] =
         (e: Error) => observer.onError e,
         () => (discard upstream.subscribe observer.mkRepeatObserver()),
       )
-    IObservable[T](onSubscribe: proc(observer: Observer[T]): IDisposable =
+    newIObservable[T] proc(observer: Observer[T]): IDisposable =
       return upstream.subscribe observer.mkRepeatObserver()
-    )
 
 proc repeat*[T](upstream: IObservable[T]; times: Natural): IObservable[T] =
   upstream.concat(sequtils.repeat(upstream, times-1))
 
 
-# value dump =====================================================
+
+# Value dump SECTION
 
 proc doThat*[T](upstream: IObservable[T]; op: (T)->void): IObservable[T] =
   blueprint[T]:
-    IObservable[T](onSubscribe: proc(observer: Observer[T]): IDisposable =
+    newIObservable[T] proc(observer: Observer[T]): IDisposable =
       upstream.subscribe(
         (v: T) => (op(v); observer.onNext v),
         (e: Error) => observer.onError e,
         () => observer.onCompleted(),
       )
-    )
 
 proc dump*[T](upstream: IObservable[T]): IObservable[T] =
   template log(action: untyped): untyped = debugEcho "[DUMP] ", action
   blueprint[T]:
-    IObservable[T](onSubscribe: proc(observer: Observer[T]): IDisposable =
+    newIObservable[T] proc(observer: Observer[T]): IDisposable =
       upstream.subscribe(
         (v: T) => (log v; observer.onNext v),
         (e: Error) => (log e; observer.onError e),
         () => (log "complete!"; observer.onCompleted()),
       )
-    )

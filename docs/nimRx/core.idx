@@ -5,6 +5,7 @@ IDisposable	nimRx/core.html#IDisposable	core: IDisposable
 newError	nimRx/core.html#newError,string	core: newError(msg: string): Error	
 `$`	nimRx/core.html#$,Error	core: `$`(e: Error): string	
 newSubscription	nimRx/core.html#newSubscription,IObservable[T],Observer[T]	core: newSubscription[T](iObservable: IObservable[T]; observer: Observer[T]): IDisposable	
-newObserver	nimRx/core.html#newObserver	core: newObserver[T](onNext: (T) -&gt; void; onError: (Error) -&gt; void = doNothing[Error];\n               onCompleted: () -&gt; void = doNothing): Observer[T]	
+newObserver	nimRx/core.html#newObserver,proc(T),proc(Error),proc)	core: newObserver[T](onNext: proc (v: T); onError: proc (e: Error) = nil;\n               onCompleted: proc () = nil): Observer[T]	
+newIObservable	nimRx/core.html#newIObservable	core: newIObservable[T](onSubscribe: (Observer[T]) -&gt; IDisposable): IObservable[T]	
 subscribe	nimRx/core.html#subscribe,IObservable[T],Observer[T]	core: subscribe[T](self: IObservable[T]; observer: Observer[T]): IDisposable	
-subscribe	nimRx/core.html#subscribe.t,IObservable[T],	core: subscribe[T](self: IObservable[T]; onNext: (T) -&gt; void;\n             onError: (Error) -&gt; void = doNothing[Error];\n             onCompleted: () -&gt; void = doNothing): IDisposable	
+subscribe	nimRx/core.html#subscribe.t,IObservable[T],proc(T),proc(Error),proc)	core: subscribe[T](self: IObservable[T]; onNext: proc (v: T);\n             onError: proc (e: Error) = nil; onCompleted: proc () = nil): IDisposable	

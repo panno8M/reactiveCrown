@@ -21,9 +21,6 @@ type
     observer: Observer[T]
     isDisposed: bool
 
-proc doNothing[T](v: T): void = discard
-proc doNothing(): void = discard
-
 proc newError*(msg: string): Error = Error(msg: msg)
 proc `$`*(e: Error): string = e.msg
 
@@ -43,19 +40,29 @@ proc newSubscription*[T](iObservable: IObservable[T]; observer: Observer[T]):
   return subscription.iDisposable
 
 # Observer ============================================================================
-proc newObserver*[T](onNext: (T)->void;
-                     onError: (Error)->void = doNothing[Error];
-                     onCompleted: ()->void = doNothing): Observer[T] =
-  Observer[T](onNext: onNext, onError: onError, onCompleted: onCompleted)
+proc newObserver*[T](
+      onNext: proc(v: T);
+      onError: proc(e: Error) = nil;
+      onCompleted: proc() = nil;
+    ): Observer[T] =
+  Observer[T](
+    onNext: onNext,
+    onError: (if onError != nil: onError else: (e: Error)=>(discard)),
+    onCompleted: (if onCompleted != nil: onCompleted else: ()=>(discard)),
+  )
 
 # Observable ==========================================================================
+proc newIObservable*[T](onSubscribe: (Observer[T])->IDisposable): IObservable[T] =
+  IObservable[T](onSubscribe: onSubscribe)
+
 proc subscribe*[T](self: IObservable[T]; observer: Observer[T]): IDisposable =
   self.onSubscribe(observer)
 template subscribe*[T](self: IObservable[T];
-    onNext: (T)->void;
-    onError: (Error)->void = doNothing[Error];
-    onCompleted: ()->void = doNothing): IDisposable =
-  ## The sugar to:
+      onNext: proc(v: T);
+      onError: proc(e: Error) = nil;
+      onCompleted: proc() = nil;
+    ): IDisposable =
+  ## Using this, you can omit the upper code as the lower one.
   ##
   ## .. code-block:: Nim
   ##    discard someObservable
@@ -64,8 +71,6 @@ template subscribe*[T](self: IObservable[T];
   ##        (e: Error) => onError(e),
   ##        () => onCompleted()
   ##      ))
-  ##
-  ## It enable us to write:
   ##
   ## .. code-block:: Nim
   ##    discard someObservable
