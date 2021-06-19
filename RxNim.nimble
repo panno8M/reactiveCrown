@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "panno"
-description   = "Nim version of Rx"
+description   = "ReactiveX implemented with Nim."
 license       = "MIT"
 srcDir        = "src"
 

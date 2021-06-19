@@ -17,7 +17,7 @@
 <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600' rel='stylesheet' type='text/css'/>
 
 <!-- CSS -->
-<title>nimRx/core</title>
+<title>rx/core</title>
 <link rel="stylesheet" type="text/css" href="../nimdoc.out.css">
 
 <script type="text/javascript" src="../dochack.js"></script>
@@ -69,7 +69,7 @@ window.addEventListener('DOMContentLoaded', main);
 <body>
 <div class="document" id="documentId">
   <div class="container">
-    <h1 class="title">nimRx/core</h1>
+    <h1 class="title">rx/core</h1>
     <div class="row">
   <div class="three columns">
   <div class="theme-switch-wrapper">
@@ -108,7 +108,7 @@ window.addEventListener('DOMContentLoaded', main);
     title="Observer[T] = ref object
   onNext*: (T) -&gt; void
   onError*: (Error) -&gt; void
-  onCompleted*: () -&gt; void">Observer</a></li>
+  onComplete*: () -&gt; void">Observer</a></li>
   <li><a class="reference" href="#IObservable"
     title="IObservable[T] = ref object
   onSubscribe*: Observer[T] -&gt; IDisposable
@@ -141,8 +141,8 @@ window.addEventListener('DOMContentLoaded', main);
   <ul class="simple nested-toc-section">newObserver
       <li><a class="reference" href="#newObserver%2Cproc%28T%29%2Cproc%28Error%29%2Cproc%29"
     title="newObserver[T](onNext: proc (v: T); onError: proc (e: Error) = nil;
-               onCompleted: proc () = nil): Observer[T]">newObserver[T](onNext: proc (v: T); onError: proc (e: Error) = nil;
-               onCompleted: proc () = nil): Observer[T]</a></li>
+               onComplete: proc () = nil): Observer[T]">newObserver[T](onNext: proc (v: T); onError: proc (e: Error) = nil;
+               onComplete: proc () = nil): Observer[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">newError
@@ -164,8 +164,8 @@ window.addEventListener('DOMContentLoaded', main);
       <ul class="simple nested-toc-section">subscribe
       <li><a class="reference" href="#subscribe.t%2CIObservable%5BT%5D%2Cproc%28T%29%2Cproc%28Error%29%2Cproc%29"
     title="subscribe[T](self: IObservable[T]; onNext: proc (v: T);
-             onError: proc (e: Error) = nil; onCompleted: proc () = nil): IDisposable">subscribe[T](self: IObservable[T]; onNext: proc (v: T);
-             onError: proc (e: Error) = nil; onCompleted: proc () = nil): IDisposable</a></li>
+             onError: proc (e: Error) = nil; onComplete: proc () = nil): IDisposable">subscribe[T](self: IObservable[T]; onNext: proc (v: T);
+             onError: proc (e: Error) = nil; onComplete: proc () = nil): IDisposable</a></li>
 
   </ul>
 
@@ -196,7 +196,7 @@ window.addEventListener('DOMContentLoaded', main);
 <dt><pre><a href="core.html#Observer"><span class="Identifier">Observer</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span>
   <span class="Identifier">onNext</span><span class="Operator">*</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">void</span>
   <span class="Identifier">onError</span><span class="Operator">*</span><span class="Other">:</span> <span class="Other">(</span><a href="core.html#Error"><span class="Identifier">Error</span></a><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">void</span>
-  <span class="Identifier">onCompleted</span><span class="Operator">*</span><span class="Other">:</span> <span class="Other">(</span><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">void</span>
+  <span class="Identifier">onComplete</span><span class="Operator">*</span><span class="Other">:</span> <span class="Other">(</span><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">void</span>
 </pre></dt>
 <dd>
 
@@ -251,7 +251,7 @@ window.addEventListener('DOMContentLoaded', main);
 </dd>
 <a id="newObserver,proc(T),proc(Error),proc)"></a>
 <dt><pre><span class="Keyword">proc</span> <a href="#newObserver%2Cproc%28T%29%2Cproc%28Error%29%2Cproc%29"><span class="Identifier">newObserver</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">onNext</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">onError</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">e</span><span class="Other">:</span> <a href="core.html#Error"><span class="Identifier">Error</span></a><span class="Other">)</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span>
-                    <span class="Identifier">onCompleted</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Other">)</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observer"><span class="Identifier">Observer</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+                    <span class="Identifier">onComplete</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Other">)</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observer"><span class="Identifier">Observer</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
@@ -278,19 +278,19 @@ window.addEventListener('DOMContentLoaded', main);
 <dl class="item">
 <a id="subscribe.t,IObservable[T],proc(T),proc(Error),proc)"></a>
 <dt><pre><span class="Keyword">template</span> <a href="#subscribe.t%2CIObservable%5BT%5D%2Cproc%28T%29%2Cproc%28Error%29%2Cproc%29"><span class="Identifier">subscribe</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">onNext</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">;</span>
-                      <span class="Identifier">onError</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">e</span><span class="Other">:</span> <a href="core.html#Error"><span class="Identifier">Error</span></a><span class="Other">)</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> <span class="Identifier">onCompleted</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Other">)</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IDisposable"><span class="Identifier">IDisposable</span></a></pre></dt>
+                      <span class="Identifier">onError</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">e</span><span class="Other">:</span> <a href="core.html#Error"><span class="Identifier">Error</span></a><span class="Other">)</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> <span class="Identifier">onComplete</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Other">)</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IDisposable"><span class="Identifier">IDisposable</span></a></pre></dt>
 <dd>
 
 Using this, you can omit the upper code as the lower one.<pre class="listing"><span class="Keyword">discard</span> <span class="Identifier">someObservable</span>
   <span class="Operator">.</span><span class="Identifier">subscribe</span><span class="Punctuation">(</span><span class="Identifier">newObserver</span><span class="Punctuation">(</span>
     <span class="Punctuation">(</span><span class="Identifier">v</span><span class="Punctuation">:</span> <span class="Identifier">T</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">onNext</span><span class="Punctuation">(</span><span class="Identifier">v</span><span class="Punctuation">)</span><span class="Punctuation">,</span>
     <span class="Punctuation">(</span><span class="Identifier">e</span><span class="Punctuation">:</span> <span class="Identifier">Error</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">onError</span><span class="Punctuation">(</span><span class="Identifier">e</span><span class="Punctuation">)</span><span class="Punctuation">,</span>
-    <span class="Punctuation">(</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">onCompleted</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
+    <span class="Punctuation">(</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">onComplete</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
   <span class="Punctuation">)</span><span class="Punctuation">)</span></pre><pre class="listing"><span class="Keyword">discard</span> <span class="Identifier">someObservable</span>
   <span class="Operator">.</span><span class="Identifier">subscribe</span><span class="Punctuation">(</span>
     <span class="Punctuation">(</span><span class="Identifier">v</span><span class="Punctuation">:</span> <span class="Identifier">T</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">onNext</span><span class="Punctuation">(</span><span class="Identifier">v</span><span class="Punctuation">)</span><span class="Punctuation">,</span>
     <span class="Punctuation">(</span><span class="Identifier">e</span><span class="Punctuation">:</span> <span class="Identifier">Error</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">onError</span><span class="Punctuation">(</span><span class="Identifier">e</span><span class="Punctuation">)</span><span class="Punctuation">,</span>
-    <span class="Punctuation">(</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">onCompleted</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
+    <span class="Punctuation">(</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">onComplete</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
   <span class="Punctuation">)</span></pre>
 
 </dd>
@@ -304,7 +304,7 @@ Using this, you can omit the upper code as the lower one.<pre class="listing"><s
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-06-12 10:24:59 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-06-19 11:48:28 UTC</small>
       </div>
     </div>
   </div>

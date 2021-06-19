@@ -4,8 +4,8 @@
 ## Usage with using unitUtils
 ## --------------------------
 runnableExamples:
-  import nimRx
-  import nimRx/unitUtils
+  import rx
+  import rx/unitUtils
 
   var isOnNextThrown: array[2, bool]
   let
@@ -39,12 +39,12 @@ type Unit* = ref object
 proc unitDefault*(): Unit = new Unit
 
 proc unitfy*[T](upstream: IObservable[T]): IObservable[Unit] =
-  blueprint[Unit]:
+  construct_whenSubscribed[Unit]():
     newIObservable[Unit] proc(observer: Observer[Unit]): IDisposable =
       upstream.subscribe(
         (v: T) => observer.onNext unitDefault(),
         (e: Error) => observer.onError e,
-        () => observer.onCompleted(),
+        () => observer.onComplete(),
       )
 
 template subscribeBlock*(upstream: IObservable[Unit];

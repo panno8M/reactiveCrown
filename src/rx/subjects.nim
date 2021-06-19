@@ -1,7 +1,7 @@
 import sugar
 import sequtils
 
-# nimRx
+# rx
 import core
 
 # Subject =============================================================================
@@ -22,7 +22,7 @@ template execOnNext[T](self: Subject[T]; v: T) =
 #     self.observers.apply((it: Observer[T]) => it.onError(e))
 template execOnCompleted[T](self: Subject[T]) =
   if self.asObservable.hasAnyObservers():
-    self.observers.apply((it: Observer[T]) => it.onCompleted())
+    self.observers.apply((it: Observer[T]) => it.onComplete())
 
 proc addObserver[T](self: Subject[T]; ober: Observer[T]) =
   self.observers.add ober
@@ -63,6 +63,6 @@ template onNext*[T](subject: Subject[T]; v: T): void =
   subject.ober.onNext(v)
 template onError*[T](subject: Subject[T]; e: Error): void =
   subject.ober.onError(e)
-template onCompleted*[T](subject: Subject[T]): void =
-  subject.ober.onCompleted()
+template onComplete*[T](subject: Subject[T]): void =
+  subject.ober.onComplete()
 

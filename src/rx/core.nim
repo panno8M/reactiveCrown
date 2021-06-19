@@ -8,7 +8,7 @@ type
   Observer*[T] = ref object
     onNext*: (T)->void
     onError*: (Error)->void
-    onCompleted*: ()->void
+    onComplete*: ()->void
   IObservable*[T] = ref object
     onSubscribe*: Observer[T]->IDisposable
     hasAnyObservers*: ()->bool
@@ -43,12 +43,12 @@ proc newSubscription*[T](iObservable: IObservable[T]; observer: Observer[T]):
 proc newObserver*[T](
       onNext: proc(v: T);
       onError: proc(e: Error) = nil;
-      onCompleted: proc() = nil;
+      onComplete: proc() = nil;
     ): Observer[T] =
   Observer[T](
     onNext: onNext,
     onError: (if onError != nil: onError else: (e: Error)=>(discard)),
-    onCompleted: (if onCompleted != nil: onCompleted else: ()=>(discard)),
+    onComplete: (if onComplete != nil: onComplete else: ()=>(discard)),
   )
 
 # Observable ==========================================================================
@@ -60,7 +60,7 @@ proc subscribe*[T](self: IObservable[T]; observer: Observer[T]): IDisposable =
 template subscribe*[T](self: IObservable[T];
       onNext: proc(v: T);
       onError: proc(e: Error) = nil;
-      onCompleted: proc() = nil;
+      onComplete: proc() = nil;
     ): IDisposable =
   ## Using this, you can omit the upper code as the lower one.
   ##
@@ -69,7 +69,7 @@ template subscribe*[T](self: IObservable[T];
   ##      .subscribe(newObserver(
   ##        (v: T) => onNext(v),
   ##        (e: Error) => onError(e),
-  ##        () => onCompleted()
+  ##        () => onComplete()
   ##      ))
   ##
   ## .. code-block:: Nim
@@ -77,6 +77,6 @@ template subscribe*[T](self: IObservable[T];
   ##      .subscribe(
   ##        (v: T) => onNext(v),
   ##        (e: Error) => onError(e),
-  ##        () => onCompleted()
+  ##        () => onComplete()
   ##      )
-  self.subscribe(newObserver(onNext, onError, onCompleted))
+  self.subscribe(newObserver(onNext, onError, onComplete))

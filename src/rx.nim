@@ -6,9 +6,9 @@
 ]##
 
 runnableExamples:
-  # It is the same as: import nimRx/[core, operators, subjects]
+  # It is the same as: import rx/[core, operators, subjects]
 
-  import nimRx/unitUtils
+  import rx/unitUtils
   import sugar
   import times
 
@@ -31,11 +31,11 @@ runnableExamples:
 
     obsOnBtnDoubleClicked =
       sbjOnBtnClicked.asObservable
-        .select(_ => cpuTime())
+        .map(_ => cpuTime())
         .buffer(2, 1)
-        .where(seqt => seqt.len == 2)
-        .select(seqt => seqt[1]-seqt[0])
-        .where(dt => dt <= doubleClickBorder_s)
+        .filter(seqt => seqt.len == 2)
+        .map(seqt => seqt[1]-seqt[0])
+        .filter(dt => dt <= doubleClickBorder_s)
         .doThat((dt: float) => echo "\"Button\" has double clicked!")
 
     dspOnBtnDoubleClicked =
@@ -56,28 +56,29 @@ runnableExamples:
   Modules
   =======
 
-  [core](nimRx/core.html)
+  [core](rx/core.html)
   -----------------------
 
   | It is the core of this library. 
-  | It is useless by itself basically but, it is necessary to use nimRx.
-  | It will be implicitly imported by written "import nimRx" . 
+  | It is useless by itself basically but, it is necessary to use rx.
+  | It will be implicitly imported by written "import rx" . 
 
-  [subjects](nimRx/subjects.html)
+  [subjects](rx/subjects.html)
   -------------------------------
 
-  It will be implicitly imported by written "import nimRx" . 
+  It will be implicitly imported by written "import rx" . 
 
-  [operators](nimRx/operators.html)
+  [operators](rx/operators.html)
   ---------------------------------
 
-  It will be implicitly imported by written "import nimRx" . 
+  It will be implicitly imported by written "import rx" . 
 
-  [unitUtils](nimRx/unitUtils.html)
+  [unitUtils](rx/unitUtils.html)
   ---------------------------------
 
-  To use this module, you need to explicitly import it by writing "import nimRx/unitUtils".
+  To use this module, you need to explicitly import it by writing "import rx/unitUtils".
 
 ]##
-import nimRx/[core, subjects, operators, unitUtils]
+import rx/[core, subjects, operators]
+import rx/unitUtils
 export core, subjects, operators

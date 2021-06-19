@@ -1,0 +1,11 @@
+Error	rx/core.html#Error	core: Error	
+Observer	rx/core.html#Observer	core: Observer	
+IObservable	rx/core.html#IObservable	core: IObservable	
+IDisposable	rx/core.html#IDisposable	core: IDisposable	
+newError	rx/core.html#newError,string	core: newError(msg: string): Error	
+`$`	rx/core.html#$,Error	core: `$`(e: Error): string	
+newSubscription	rx/core.html#newSubscription,IObservable[T],Observer[T]	core: newSubscription[T](iObservable: IObservable[T]; observer: Observer[T]): IDisposable	
+newObserver	rx/core.html#newObserver,proc(T),proc(Error),proc)	core: newObserver[T](onNext: proc (v: T); onError: proc (e: Error) = nil;\n               onComplete: proc () = nil): Observer[T]	
+newIObservable	rx/core.html#newIObservable	core: newIObservable[T](onSubscribe: (Observer[T]) -&gt; IDisposable): IObservable[T]	
+subscribe	rx/core.html#subscribe,IObservable[T],Observer[T]	core: subscribe[T](self: IObservable[T]; observer: Observer[T]): IDisposable	
+subscribe	rx/core.html#subscribe.t,IObservable[T],proc(T),proc(Error),proc)	core: subscribe[T](self: IObservable[T]; onNext: proc (v: T);\n             onError: proc (e: Error) = nil; onComplete: proc () = nil): IDisposable	

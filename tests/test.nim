@@ -1,6 +1,6 @@
 import unittest
 import sugar, strformat, sequtils
-import nimRx
+import rx
 
 let testError = newError "Error"
 template onNextMsg[T](r: var seq[string];
@@ -9,14 +9,14 @@ template onNextMsg[T](r: var seq[string];
 template onErrorMsg(r: var seq[string];
     prefix, suffix: string = ""): (Error->void) =
   ((e: Error) => r.add prefix & $e & suffix)
-template onCompletedMsg(r: var seq[string];
+template onCompleteMsg(r: var seq[string];
     prefix, suffix: string = ""): (()->void) =
   (() => r.add prefix & "#" & suffix)
 template testObserver[T](r: var seq[string];
     prefix, suffix: string = ""): Observer[T] = newObserver[T](
  onNextMsg[T](r, prefix, suffix),
  onErrorMsg(r, prefix, suffix),
- onCompletedMsg(r, prefix, suffix),
+ onCompleteMsg(r, prefix, suffix),
 )
 
 suite "core":
@@ -24,21 +24,21 @@ suite "core":
   test "complex dispose":
     let subject = newSubject[int]()
     var results = newSeq[string]()
-    let where = subject.asObservable.where(i => i mod 2 == 1)
-    let select = where.select(i => i.toFloat())
-    let disposable = select.subscribe testObserver[float](results)
+    let filter = subject.asObservable.filter(i => i mod 2 == 1)
+    let map = filter.map(i => i.toFloat())
+    let disposable = map.subscribe testObserver[float](results)
 
     subject.onNext 1
     subject.onNext 2
     subject.onNext 3
     disposable.dispose()
     subject.onNext 4
-    let whereDisposable = where.subscribe testObserver[int](results)
+    let filterDisposable = filter.subscribe testObserver[int](results)
     subject.onNext 5
-    whereDisposable.dispose()
+    filterDisposable.dispose()
     subject.onNext 6
-    discard select.subscribe testObserver[float](results)
-    discard select.subscribe testObserver[float](results)
+    discard map.subscribe testObserver[float](results)
+    discard map.subscribe testObserver[float](results)
     subject.onNext 7
     subject.onNext 8
     subject.onNext 9
@@ -56,21 +56,21 @@ suite "core":
     subject.onNext 10
     disposable.dispose()
     subject.onNext 20
-    subject.onCompleted()
+    subject.onComplete()
     subject.onNext 30
 
     check results == @["1:10", "2:10", "1:20", "1:#"]
 
 suite "observable/operator":
-  test "where  [T](upstream:Observable[T]; op: (T)->bool): Observable[T]":
+  test "filter  [T](upstream:Observable[T]; op: (T)->bool): Observable[T]":
     var results = newSeq[string]()
     let
       subject = newSubject[int]()
-      where = subject.asObservable.where(v => v mod 2 == 1)
-      disposable1 = where.subscribe testObserver[int](results)
+      filter = subject.asObservable.filter(v => v mod 2 == 1)
+      disposable1 = filter.subscribe testObserver[int](results)
 
     subject.onNext 1
-    let disposable2 = where.subscribe testObserver[int](results)
+    let disposable2 = filter.subscribe testObserver[int](results)
     subject.onNext 2
     subject.onNext 3
     disposable1.dispose()
@@ -82,21 +82,21 @@ suite "observable/operator":
 
     check results == @[$1, $3, $3, $5]
 
-  test "select  [T, S](upstream: Observable[T]; op: (T)->S): Observable[S]":
+  test "map  [T, S](upstream: Observable[T]; op: (T)->S): Observable[S]":
     var results1 = newSeq[string]()
     var results2 = newSeq[string]()
     let
       subject = newSubject[int]()
-      select1 = subject.asObservable.select(v => toFloat(v))
-      select2 = subject.asObservable.select(v => toFloat(v))
+      map1 = subject.asObservable.map(v => toFloat(v))
+      map2 = subject.asObservable.map(v => toFloat(v))
 
-    let disposable11 = select1.subscribe testObserver[float](results1)
+    let disposable11 = map1.subscribe testObserver[float](results1)
     subject.onNext 1
-    let disposable21 = select2.subscribe testObserver[float](results2)
+    let disposable21 = map2.subscribe testObserver[float](results2)
     subject.onNext 2
-    let disposable12 = select1.subscribe testObserver[float](results1)
+    let disposable12 = map1.subscribe testObserver[float](results1)
     subject.onNext 3
-    let disposable22 = select2.subscribe testObserver[float](results2)
+    let disposable22 = map2.subscribe testObserver[float](results2)
     subject.onNext 4
     disposable11.dispose()
     subject.onNext 5
@@ -170,7 +170,7 @@ suite "observable/operator":
     subject2.onNext 2
     subject3.onNext 3
     subject2.onNext 20
-    subject2.onCompleted()
+    subject2.onComplete()
     subject3.onNext 30
     subject1.onNext 100
     subject2.onNext 200
@@ -199,18 +199,18 @@ suite "observable/operator":
       subject1.onNext 1
       subject2.onNext 10
       subject1.onNext 2
-      subject1.onCompleted()
+      subject1.onComplete()
 
-      subject2.onNext 3
-      subject3.onCompleted()
-      subject2.onNext 4
-      subject2.onCompleted()
+      subject2.onNext 20
+      subject3.onComplete()
+      subject2.onNext 30
+      subject2.onComplete()
 
-      subject4.onNext 5
-      subject4.onNext 6
-      subject4.onCompleted()
+      subject4.onNext 100
+      subject4.onNext 200
+      subject4.onComplete()
 
-      check results == @[$1, $2, $3, $4, $5, $6, "#"]
+      check results == @[$1, $2, $20, $30, $100, $200, "#"]
     block:
       var results = newSeq[string]()
       let
@@ -229,13 +229,13 @@ suite "observable/operator":
       disp1.dispose()
       sbj1.onNext 3
       sbj2.onNext 4
-      sbj1.onCompleted()
+      sbj1.onComplete()
       sbj1.onNext 5
       sbj2.onNext 6
       disp2.dispose()
       sbj1.onNext 7
       sbj2.onNext 8
-      sbj2.onCompleted()
+      sbj2.onComplete()
       sbj1.onNext 9
       sbj2.onNext 10
 
@@ -256,17 +256,12 @@ suite "observable/operator":
 
 suite "observable/factory":
 
-  test "returnThat  [T](v: T): Observable[T]":
+  test "just  [T](v: T): Observable[T]":
     var results = newSeq[string]()
-    discard returnThat(100).subscribe testObserver[int](results)
+    discard just(100).subscribe testObserver[int](results)
 
     check results == @[$100, "#"]
 
-  test "repeat  [T](v: T; times: Natural): Observable[T]":
-    var results = newSeq[string]()
-    discard nimRx.repeat(5, 3).subscribe testObserver[int](results)
-
-    check results == @[$5, $5, $5, "#"]
 
   test "range  [T: Ordinal](start: T; count: Natural): Observable[T]":
     type Tempenum = enum
@@ -277,11 +272,17 @@ suite "observable/factory":
 
     check results == @[$alpha, $beta, $gamma, "#", "a", "b", "c", "#"]
 
+  test "repeat  [T](v: T; times: Natural): Observable[T]":
+    var results = newSeq[string]()
+    discard rx.just(5).repeat(3).subscribe testObserver[int](results)
+
+    check results == @[$5, $5, $5, "#"]
+
 suite "Cold->Hot Conversion":
   test "can publish & connect":
     var results = newSeq[string]()
     let r = range(0, 3)
-      .select(i => i*2)
+      .map(i => i*2)
       .doThat((v: int) => results.add &"upstream:{v}")
       .publish()
     discard r.asObservable.subscribe testObserver[int](results, prefix = "1:")
@@ -298,7 +299,7 @@ suite "Cold->Hot Conversion":
     var results = newSeq[string]()
     let subject = newSubject[int]()
     let observable = subject.asObservable
-      .select(v => toFloat(v))
+      .map(v => toFloat(v))
       .publish()
     discard observable.asObservable.subscribe testObserver[float](results)
     subject.onNext 1
@@ -319,13 +320,11 @@ suite "Cold->Hot Conversion":
     var results1 = newSeq[string]()
     var results2 = newSeq[string]()
     let subject = newSubject[int]()
-    let select = subject.asObservable
-      .select(v => toFloat(v))
+    let map = subject.asObservable
+      .map(v => toFloat(v))
       .publish()
-    let observable1 = select
-      .refCount()
-    let observable2 = select
-      .refCount()
+    let observable1 = map.refCount()
+    let observable2 = map.refCount()
 
     let disposable11 = observable1.subscribe testObserver[float](results1)
     subject.onNext 1
