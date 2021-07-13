@@ -10,7 +10,7 @@
 # IObservable[T].subscribe(
 #   (v: T) => doSomething(),
 #   (e: Error) => (doSomething(); doOtherThing()),
-#   (proc(v: T) = 
+#   (proc(v: T) =
 #     doSomething()
 #     doSomething()
 #     doSomething()
@@ -251,7 +251,7 @@ func filter*[T](upstream: IObservable[T]; op: (T)->bool): IObservable[T] =
 # SECTION Combining
 
 func zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
-                                                  IObservable[tuple[l: Tl; r: Tr]] =
+                                                  IObservable[(Tl, Tr)] =
   ## "[Zip](http://reactivex.io/documentation/operators/zip.html)" from ReactiveX
   runnableExamples:
     import rx
@@ -263,7 +263,7 @@ func zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
     discard zip(
         sbj1.asObservable,
         sbj2.asObservable)
-      .subscribe((x: tuple[l: int; r: char]) => res.add &"{x.l}{x.r}")
+      .subscribe((v: (int, char)) => res.add &"{v[0]}{v[1]}")
     sbj1.onNext 1
     sbj2.onNext 'A'
     sbj1.onNext 2
@@ -276,7 +276,7 @@ func zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
 
     doAssert res == @["1A", "2B", "3C", "4D"]
 
-  type S = tuple[l: Tl; r: Tr]
+  type S = (Tl, Tr)
   construct_whenSubscribed[S]:
     var cache: tuple[l: seq[Tl]; r: seq[Tr]] = (newSeq[Tl](), newSeq[Tr]())
     proc tryOnNext(observer: Observer[S]) =

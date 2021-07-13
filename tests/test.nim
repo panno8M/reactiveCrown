@@ -132,7 +132,7 @@ suite "observable/operator":
     check results1 == @[$(@[1, 2, 3]), $(@[2, 3, 4]), $(@[3, 4, 5]), $(@[4, 5, 6])]
     check results2 == @[$(@[1, 2]), $(@[3, 4]), $(@[5, 6])]
 
-  test "zip  [Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[tuple[l: Tl; r: Tr]]":
+  test "zip  [Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]":
     var results = newSeq[string]()
     let
       subject1 = newSubject[int]()
@@ -141,7 +141,7 @@ suite "observable/operator":
         subject1.asObservable,
         subject2.asObservable,
       )
-      .subscribe testObserver[tuple[l: int; r: float]](results)
+      .subscribe testObserver[(int, float)](results)
 
     subject1.onNext 1
     subject1.onNext 2
@@ -150,7 +150,7 @@ suite "observable/operator":
     subject2.onNext 2f
     subject2.onNext 3f
 
-    check results == @[$(l: 1, r: 1f), $(l: 2, r: 2f), $(l: 3, r: 3f)]
+    check results == @[$(1, 1f), $(2, 2f), $(3, 3f)]
 
   test "zip  [T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[seq[T]]":
     var results = newSeq[string]()

@@ -5,7 +5,7 @@ repeat	rx/operators.html#repeat,IObservable[T],Natural	operators: repeat[T](upst
 buffer	rx/operators.html#buffer,IObservable[T],Natural,Natural	operators: buffer[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0): IObservable[\n    seq[T]]	
 map	rx/operators.html#map,IObservable[T],	operators: map[T, S](upstream: IObservable[T]; op: (T) -&gt; S): IObservable[S]	
 filter	rx/operators.html#filter,IObservable[T],	operators: filter[T](upstream: IObservable[T]; op: (T) -&gt; bool): IObservable[T]	
-zip	rx/operators.html#zip,IObservable[Tl],IObservable[Tr]	operators: zip[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]): IObservable[\n    tuple[l: Tl, r: Tr]]	
+zip	rx/operators.html#zip,IObservable[Tl],IObservable[Tr]	operators: zip[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]): IObservable[(Tl, Tr)]	
 zip	rx/operators.html#zip,IObservable[T],varargs[IObservable[T]]	operators: zip[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[\n    seq[T]]	
 retry	rx/operators.html#retry,IObservable[T]	operators: retry[T](upstream: IObservable[T]): IObservable[T]	
 concat	rx/operators.html#concat,IObservable[T],varargs[IObservable[T]]	operators: concat[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[\n    T]	

@@ -128,19 +128,19 @@ window.addEventListener('DOMContentLoaded', main);
 <h1><a class="toc-backref" id="simple-usage" href="#simple-usage">Simple Usage</a></h1>
 <p><strong class="examples_text">Example:</strong></p>
 <pre class="listing"><span class="Keyword">import</span> <span class="Identifier">rx</span>
-<span class="Comment"># It is the same as: import rx/[core, operators, subjects]</span>
+<span class="Comment"># import rx/[core, operators, subjects] # It is the same as.</span>
 
 <span class="Keyword">import</span> <span class="Identifier">rx</span><span class="Operator">/</span><span class="Identifier">unitUtils</span>
 <span class="Keyword">import</span> <span class="Identifier">sugar</span>
 <span class="Keyword">import</span> <span class="Identifier">times</span>
 
-<span class="Comment"># procs for example</span>
+<span class="Comment"># procs just for example</span>
 <span class="Keyword">proc</span> <span class="Identifier">focus</span><span class="Punctuation">(</span><span class="Punctuation">)</span> <span class="Operator">=</span> <span class="Keyword">return</span>
 <span class="Keyword">proc</span> <span class="Identifier">jumpTo</span><span class="Punctuation">(</span><span class="Punctuation">)</span> <span class="Operator">=</span> <span class="Keyword">return</span>
 <span class="Keyword">var</span> <span class="Identifier">onButtonClicked</span><span class="Punctuation">:</span> <span class="Keyword">proc</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
-<span class="Comment"># =================</span>
+<span class="Comment"># ======================</span>
 
-<span class="Keyword">const</span> <span class="Identifier">doubleClickBorder_s</span> <span class="Operator">=</span> <span class="FloatNumber">0.01'f</span>
+<span class="Keyword">const</span> <span class="Identifier">doubleClickBorder_sec</span> <span class="Operator">=</span> <span class="FloatNumber">0.01'f</span>
 
 <span class="Keyword">let</span>
   <span class="Identifier">sbjOnBtnClicked</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">Unit</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
@@ -157,7 +157,7 @@ window.addEventListener('DOMContentLoaded', main);
       <span class="Operator">.</span><span class="Identifier">buffer</span><span class="Punctuation">(</span><span class="DecNumber">2</span><span class="Punctuation">,</span> <span class="DecNumber">1</span><span class="Punctuation">)</span>
       <span class="Operator">.</span><span class="Identifier">filter</span><span class="Punctuation">(</span><span class="Identifier">seqt</span> <span class="Operator">=&gt;</span> <span class="Identifier">seqt</span><span class="Operator">.</span><span class="Identifier">len</span> <span class="Operator">==</span> <span class="DecNumber">2</span><span class="Punctuation">)</span>
       <span class="Operator">.</span><span class="Identifier">map</span><span class="Punctuation">(</span><span class="Identifier">seqt</span> <span class="Operator">=&gt;</span> <span class="Identifier">seqt</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">]</span><span class="Operator">-</span><span class="Identifier">seqt</span><span class="Punctuation">[</span><span class="DecNumber">0</span><span class="Punctuation">]</span><span class="Punctuation">)</span>
-      <span class="Operator">.</span><span class="Identifier">filter</span><span class="Punctuation">(</span><span class="Identifier">dt</span> <span class="Operator">=&gt;</span> <span class="Identifier">dt</span> <span class="Operator">&lt;=</span> <span class="Identifier">doubleClickBorder_s</span><span class="Punctuation">)</span>
+      <span class="Operator">.</span><span class="Identifier">filter</span><span class="Punctuation">(</span><span class="Identifier">dt</span> <span class="Operator">=&gt;</span> <span class="Identifier">dt</span> <span class="Operator">&lt;=</span> <span class="Identifier">doubleClickBorder_sec</span><span class="Punctuation">)</span>
       <span class="Operator">.</span><span class="Identifier">doThat</span><span class="Punctuation">(</span><span class="Punctuation">(</span><span class="Identifier">dt</span><span class="Punctuation">:</span> <span class="Identifier">float</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">echo</span> <span class="StringLit">&quot;</span><span class="EscapeSequence">\&quot;</span><span class="StringLit">Button</span><span class="EscapeSequence">\&quot;</span><span class="StringLit"> has double clicked!&quot;</span><span class="Punctuation">)</span>
 
   <span class="Identifier">dspOnBtnDoubleClicked</span> <span class="Operator">=</span>
@@ -199,7 +199,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-06-19 11:48:31 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-07-13 02:59:43 UTC</small>
       </div>
     </div>
   </div>
