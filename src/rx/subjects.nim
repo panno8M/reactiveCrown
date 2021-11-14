@@ -8,11 +8,11 @@ import core
 type
   Subject*[T] = ref object of RootObj
     ober: Observer[T]
-    iObservable: IObservable[T]
+    observable: Observable[T]
     observers: seq[Observer[T]]
     isCompleted: bool
 
-proc asObservable*[T](self: Subject[T]): IObservable[T] = self.iObservable
+proc asObservable*[T](self: Subject[T]): Observable[T] = self.observable
 
 template execOnNext[T](self: Subject[T]; v: T) =
   if self.asObservable.hasAnyObservers():
@@ -31,11 +31,11 @@ proc newSubject*[T](): Subject[T] =
   let subject = Subject[T](
     observers: newSeq[Observer[T]](),
   )
-  subject.iObservable = IObservable[T](
+  subject.observable = Observable[T](
     hasAnyObservers: () => subject.observers.len != 0,
     removeObserver: (o: Observer[T]) => subject.observers.keepIf(v => v != o),
   )
-  subject.iObservable.onSubscribe = proc(ober: Observer[T]): IDisposable =
+  subject.observable.onSubscribe = proc(ober: Observer[T]): Disposable =
     subject.addobserver ober
     if subject.isCompleted:
       subject.execOnCompleted()

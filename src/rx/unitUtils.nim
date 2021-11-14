@@ -38,21 +38,21 @@ type Unit* = ref object
 
 proc unitDefault*(): Unit = new Unit
 
-proc unitfy*[T](upstream: IObservable[T]): IObservable[Unit] =
+proc unitfy*[T](upstream: Observable[T]): Observable[Unit] =
   construct_whenSubscribed[Unit]():
-    newIObservable[Unit] proc(observer: Observer[Unit]): IDisposable =
+    newObservable[Unit] proc(observer: Observer[Unit]): Disposable =
       upstream.subscribe(
         (v: T) => observer.onNext unitDefault(),
         (e: Error) => observer.onError e,
         () => observer.onComplete(),
       )
 
-template subscribeBlock*(upstream: IObservable[Unit];
-    body: untyped): IDisposable =
+template subscribeBlock*(upstream: Observable[Unit];
+    body: untyped): Disposable =
   upstream.subscribe((_: Unit) => body)
 
-template subscribeBlock*[T](upstream: IObservable[T];
-    body: untyped): IDisposable =
+template subscribeBlock*[T](upstream: Observable[T];
+    body: untyped): Disposable =
   upstream.unitfy().subscribe((_: Unit) => body)
 
 template onNext*(subject: Subject[Unit]): void =

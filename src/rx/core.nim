@@ -9,35 +9,35 @@ type
     onNext*: (T)->void
     onError*: (Error)->void
     onComplete*: ()->void
-  IObservable*[T] = ref object
-    onSubscribe*: Observer[T]->IDisposable
+  Observable*[T] = ref object
+    onSubscribe*: Observer[T]->Disposable
     hasAnyObservers*: ()->bool
     removeObserver*: (Observer[T])->void
-  IDisposable* = ref object
+  Disposable* = ref object
     dispose*: ()->void
   Subscription[T] = ref object
-    iDisposable: IDisposable
-    iObservable: IObservable[T]
+    disposable: Disposable
+    observable: Observable[T]
     observer: Observer[T]
     isDisposed: bool
 
 proc newError*(msg: string): Error = Error(msg: msg)
 proc `$`*(e: Error): string = e.msg
 
+
 # Subscription ==========================================================================
-proc newSubscription*[T](iObservable: IObservable[T]; observer: Observer[T]):
-                                                                  IDisposable =
-  let subscription = Subscription[T](
-    iObservable: iObservable,
-    observer: observer,
-  )
-  subscription.iDisposable = IDisposable(dispose: proc(): void =
-    if subscription.isDisposed or not subscription.iObservable.hasAnyObservers():
+converter `toDisposable`*[T](subscription: Subscription[T]): Disposable =
+  subscription.disposable
+
+proc newSubscription*[T](oble: Observable[T]; ober: Observer[T]): Subscription[T] =
+  var sbsc = Subscription[T]( observable: oble, observer: ober )
+  sbsc.disposable = Disposable(dispose: proc() =
+    if sbsc.isDisposed or not sbsc.observable.hasAnyObservers():
       return
-    subscription.iObservable.removeObserver(subscription.observer)
-    subscription.isDisposed = true
+    sbsc.observable.removeObserver(sbsc.observer)
+    sbsc.isDisposed = true
   )
-  return subscription.iDisposable
+  return sbsc
 
 # Observer ============================================================================
 proc newObserver*[T](
@@ -52,16 +52,16 @@ proc newObserver*[T](
   )
 
 # Observable ==========================================================================
-proc newIObservable*[T](onSubscribe: (Observer[T])->IDisposable): IObservable[T] =
-  IObservable[T](onSubscribe: onSubscribe)
+proc newObservable*[T](onSubscribe: (Observer[T])->Disposable): Observable[T] =
+  Observable[T](onSubscribe: onSubscribe)
 
-proc subscribe*[T](self: IObservable[T]; observer: Observer[T]): IDisposable =
+proc subscribe*[T](self: Observable[T]; observer: Observer[T]): Disposable =
   self.onSubscribe(observer)
-template subscribe*[T](self: IObservable[T];
+template subscribe*[T](self: Observable[T];
       onNext: proc(v: T);
       onError: proc(e: Error) = nil;
       onComplete: proc() = nil;
-    ): IDisposable =
+    ): Disposable =
   ## Using this, you can omit the upper code as the lower one.
   ##
   ## .. code-block:: Nim

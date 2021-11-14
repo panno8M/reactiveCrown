@@ -32,12 +32,12 @@ import subjects
 
 template construct_whenSubscribed*[T](
   mkObservable: untyped): untyped =
-  IObservable[T](onSubscribe: proc(ober: Observer[T]): IDisposable =
+  Observable[T](onSubscribe: proc(ober: Observer[T]): Disposable =
     (() => mkObservable)().subscribe ober
   )
 
-template combineDisposables(disps: varargs[IDisposable]): IDisposable =
-  IDisposable(dispose: () => @disps.apply((it: IDisposable) => it.dispose()))
+template combineDisposables(disps: varargs[Disposable]): Disposable =
+  Disposable(dispose: () => @disps.apply((it: Disposable) => it.dispose()))
 
 # Indicate whether operator perform a special behavior.
 template onNext_default[T](observer: Observer[T]): (v: T)->void =
@@ -51,7 +51,7 @@ template onComplete_default[T](observer: Observer[T]): ()->void =
 
 # SECTION Creating
 
-func just*[T](v: T): IObservable[T] =
+func just*[T](v: T): Observable[T] =
   ## "[Just](http://reactivex.io/documentation/operators/just.html)" from ReactiveX
   runnableExamples:
     import rx
@@ -70,15 +70,15 @@ func just*[T](v: T): IObservable[T] =
     assert isCompleted
 
   construct_whenSubscribed[T]:
-    let retObservable = new IObservable[T]
-    retObservable.onSubscribe = proc(observer: Observer[T]): IDisposable =
+    let retObservable = new Observable[T]
+    retObservable.onSubscribe = proc(observer: Observer[T]): Disposable =
       observer.onNext v
       observer.onComplete()
       newSubscription(retObservable, observer)
     return retObservable
 
 
-func range*[T: Ordinal](start: T; count: Natural): IObservable[T] =
+func range*[T: Ordinal](start: T; count: Natural): Observable[T] =
   ## "[Range](http://reactivex.io/documentation/operators/range.html)" from ReactiveX
   runnableExamples:
     import rx
@@ -98,15 +98,15 @@ func range*[T: Ordinal](start: T; count: Natural): IObservable[T] =
     assert isCompleted
 
   construct_whenSubscribed[T]:
-    let retObservable = new IObservable[T]
-    retObservable.onSubscribe = proc(observer: Observer[T]): IDisposable =
+    let retObservable = new Observable[T]
+    retObservable.onSubscribe = proc(observer: Observer[T]): Disposable =
       for i in 0..<count:
         observer.onNext start.succ(i)
       observer.onComplete()
       newSubscription(retObservable, observer)
     return retObservable
 
-func repeat*[T](upstream: IObservable[T]; times: Natural = 0): IObservable[T] =
+func repeat*[T](upstream: Observable[T]; times: Natural = 0): Observable[T] =
   ## | "[Repeat](http://reactivex.io/documentation/operators/repeat.html)" from ReactiveX
   ## | if "times" == 0: It will repeat stream infinitely.
   ## | if "times" >= 1: It will repeat stream "times" times.
@@ -132,15 +132,15 @@ func repeat*[T](upstream: IObservable[T]; times: Natural = 0): IObservable[T] =
             dec stat
             discard upstream.subscribe observer.mkRepeatObserver()
       )
-    newIObservable[T] proc(observer: Observer[T]): IDisposable =
+    newObservable[T] proc(observer: Observer[T]): Disposable =
       return upstream.subscribe observer.mkRepeatObserver()
 
 # !SECTION
 
 # SECTION Transforming
 
-func buffer*[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0):
-                                                                IObservable[seq[T]] =
+func buffer*[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0):
+                                                                Observable[seq[T]] =
   ## "[Buffer](http://reactivex.io/documentation/operators/buffer.html)" from ReactiveX
   runnableExamples:
     import rx
@@ -174,7 +174,7 @@ func buffer*[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0):
   type S = seq[T]
   construct_whenSubscribed[S]:
     var cache = newSeq[T]()
-    newIObservable[S] proc(observer: Observer[S]): IDisposable =
+    newObservable[S] proc(observer: Observer[S]): Disposable =
       upstream.subscribe(
         (proc(v: T) =
           cache.add v
@@ -189,7 +189,7 @@ func buffer*[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0):
         ),
       )
 
-func map*[T, S](upstream: IObservable[T]; op: (T)->S): IObservable[S] =
+func map*[T, S](upstream: Observable[T]; op: (T)->S): Observable[S] =
   ## "[Map](http://reactivex.io/documentation/operators/map.html)" from ReactiveX
   runnableExamples:
     import rx
@@ -207,7 +207,7 @@ func map*[T, S](upstream: IObservable[T]; op: (T)->S): IObservable[S] =
     doAssert res == @[10, 20, 30]
 
   construct_whenSubscribed[S]:
-    newIObservable[S] proc(observer: Observer[S]): IDisposable =
+    newObservable[S] proc(observer: Observer[S]): Disposable =
       upstream.subscribe(
         (v: T) => observer.onNext op(v),
         observer.onError_default,
@@ -218,7 +218,7 @@ func map*[T, S](upstream: IObservable[T]; op: (T)->S): IObservable[S] =
 
 # SECTION Filtering
 
-func filter*[T](upstream: IObservable[T]; op: (T)->bool): IObservable[T] =
+func filter*[T](upstream: Observable[T]; op: (T)->bool): Observable[T] =
   ## "[Filter](http://reactivex.io/documentation/operators/filter.html)" from ReactiveX
   runnableExamples:
     import rx
@@ -239,7 +239,7 @@ func filter*[T](upstream: IObservable[T]; op: (T)->bool): IObservable[T] =
     doAssert res == @[30, 22, 60]
 
   construct_whenSubscribed[T]:
-    newIObservable[T] proc(observer: Observer[T]): IDisposable =
+    newObservable[T] proc(observer: Observer[T]): Disposable =
       upstream.subscribe(
         (v: T) => (if op(v): observer.onNext v),
         observer.onError_default,
@@ -250,8 +250,8 @@ func filter*[T](upstream: IObservable[T]; op: (T)->bool): IObservable[T] =
 
 # SECTION Combining
 
-func zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
-                                                  IObservable[(Tl, Tr)] =
+func zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
+                                                  Observable[(Tl, Tr)] =
   ## "[Zip](http://reactivex.io/documentation/operators/zip.html)" from ReactiveX
   runnableExamples:
     import rx
@@ -284,7 +284,7 @@ func zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
         observer.onNext (cache.l[0], cache.r[0])
         cache.l = cache.l[1..cache.l.high]
         cache.r = cache.r[1..cache.r.high]
-    newIObservable[S] proc(observer: Observer[S]): IDisposable =
+    newObservable[S] proc(observer: Observer[S]): Disposable =
       let disps = @[
         tl.subscribe(
           (v: Tl) => (cache.l.add v; observer.tryOnNext()),
@@ -297,8 +297,8 @@ func zip*[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]):
       ]
       disps.combineDisposables()
 
-proc zip*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
-                                                              IObservable[seq[T]] =
+proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
+                                                              Observable[seq[T]] =
   ## "[Zip](http://reactivex.io/documentation/operators/zip.html)" from ReactiveX
   runnableExamples:
     import rx
@@ -331,8 +331,8 @@ proc zip*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
     var cache = newSeqWith(targets.len, newSeq[T]())
     # Is this statement put directly in the for statement on onSubscribe,
     # the values from all obles will go into cache[seq.high].
-    proc trySubscribe(target: tuple[oble: IObservable[T]; i: int];
-        observer: Observer[S]): IDisposable =
+    proc trySubscribe(target: tuple[oble: Observable[T]; i: int];
+        observer: Observer[S]): Disposable =
       target.oble.subscribe(
         (proc(v: T) =
           cache[target.i].add(v)
@@ -342,8 +342,8 @@ proc zip*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
         ),
         observer.onError_default,
       )
-    newIObservable[S] proc(observer: Observer[S]): IDisposable =
-      var disps = newSeq[IDisposable](targets.len)
+    newObservable[S] proc(observer: Observer[S]): Disposable =
+      var disps = newSeq[Disposable](targets.len)
       for i, target in targets:
         disps[i] = (target, i).trySubscribe(observer)
       disps.combineDisposables()
@@ -352,7 +352,7 @@ proc zip*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
 
 # SECTION Error handling
 
-func retry*[T](upstream: IObservable[T]): IObservable[T] =
+func retry*[T](upstream: Observable[T]): Observable[T] =
   ## "[Retry](http://reactivex.io/documentation/operators/retry.html)" from ReactiveX
   # TODO: To write runnable examples, needs to implement replaySubject.
   # NOTE: without this assignment, the upstream variable in retryConnection called later is not found.
@@ -364,14 +364,14 @@ func retry*[T](upstream: IObservable[T]): IObservable[T] =
       observer.onComplete_default,
     )
   construct_whenSubscribed[T]:
-    newIObservable[T] proc(observer: Observer[T]): IDisposable =
+    newObservable[T] proc(observer: Observer[T]): Disposable =
       upstream.subscribe observer.mkRetryObserver()
 
 # !SECTION
 
 # SECTION Mathematical and Aggregate
-proc concat*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
-                                                                IObservable[T] =
+proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
+                                                                Observable[T] =
   ## "[Concat](http://reactivex.io/documentation/operators/concat.html)" from ReactiveX
   runnableExamples:
     import rx
@@ -400,8 +400,8 @@ proc concat*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
   construct_whenSubscribed[T]:
     var
       i_target = 0
-      retDisp: IDisposable
-    proc nextTarget(): IObservable[T] =
+      retDisp: Disposable
+    proc nextTarget(): Observable[T] =
       result = targets[i_target]
       inc i_target
     proc mkConcatObserver(observer: Observer[T]): Observer[T] =
@@ -415,9 +415,9 @@ proc concat*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
             observer.onComplete()
         ),
       )
-    newIObservable[T] proc(observer: Observer[T]): IDisposable =
+    newObservable[T] proc(observer: Observer[T]): Disposable =
       retDisp = upstream.subscribe observer.mkConcatObserver()
-      IDisposable(dispose: () => retDisp.dispose())
+      Disposable(dispose: () => retDisp.dispose())
 
 # !SECTION
 
@@ -425,11 +425,11 @@ proc concat*[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]):
 
 type ConnectableObservable[T] = ref object
   subject: Subject[T]
-  upstream: IObservable[T]
-  disposable_isItAlreadyConnected: IDisposable
-template asObservable*[T](self: ConnectableObservable[T]): IObservable[T] =
+  upstream: Observable[T]
+  disposable_isItAlreadyConnected: Disposable
+template asObservable*[T](self: ConnectableObservable[T]): Observable[T] =
   self.subject.asObservable()
-func publish*[T](upstream: IObservable[T]): ConnectableObservable[T] =
+func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
   runnableExamples:
     import rx
     import rx/unitUtils
@@ -474,7 +474,7 @@ func publish*[T](upstream: IObservable[T]): ConnectableObservable[T] =
     upstream: upstream,
   )
 
-proc connect*[T](self: ConnectableObservable[T]): IDisposable =
+proc connect*[T](self: ConnectableObservable[T]): Disposable =
   ## See `publish proc<#publish,IObservable[T]>`_ for examples.
   # Do nothing when already connected between "publish subject" to its upstream
   if self.disposable_isItAlreadyConnected == nil:
@@ -483,50 +483,50 @@ proc connect*[T](self: ConnectableObservable[T]): IDisposable =
       (e: Error) => self.subject.onError e,
       () => self.subject.onComplete(),
     )
-    self.disposable_isItAlreadyConnected = IDisposable(dispose: proc() =
+    self.disposable_isItAlreadyConnected = Disposable(dispose: proc() =
       dispSbsc.dispose()
       self.disposable_isItAlreadyConnected = nil
     )
   return self.disposable_isItAlreadyConnected
 
-func refCount*[T](upstream: ConnectableObservable[T]): IObservable[T] =
+func refCount*[T](upstream: ConnectableObservable[T]): Observable[T] =
   ## NOTE: There is something wrong with this behavior.
   ## Be careful when use it.
   var
     cntSubscribed = 0
-    dispConnect: IDisposable
-  newIObservable[T] proc(observer: Observer[T]): IDisposable =
+    dispConnect: Disposable
+  newObservable[T] proc(observer: Observer[T]): Disposable =
     let dispSubscribe = upstream.asObservable().subscribe observer
     inc cntSubscribed
     if cntSubscribed == 1:
       dispConnect = upstream.connect()
-    return IDisposable(dispose: proc() =
+    return Disposable(dispose: proc() =
       dec cntSubscribed
       if cntSubscribed == 0:
         dispConnect.dispose()
       dispSubscribe.dispose()
     )
 
-func share*[T](upstream: IObservable[T]): IObservable[T] =
+func share*[T](upstream: Observable[T]): Observable[T] =
   upstream.publish().refCount()
 
 # !SECTION
 
 # SECTION Value dump
 
-func doThat*[T](upstream: IObservable[T]; op: (T)->void): IObservable[T] =
+func doThat*[T](upstream: Observable[T]; op: (T)->void): Observable[T] =
   construct_whenSubscribed[T]:
-    newIObservable[T] proc(observer: Observer[T]): IDisposable =
+    newObservable[T] proc(observer: Observer[T]): Disposable =
       upstream.subscribe(
         (v: T) => (op(v); observer.onNext v),
         observer.onError_default,
         observer.onComplete_default,
       )
 
-func dump*[T](upstream: IObservable[T]): IObservable[T] =
+func dump*[T](upstream: Observable[T]): Observable[T] =
   template log(action: untyped): untyped = debugEcho "[DUMP] ", action
   construct_whenSubscribed[T]:
-    newIObservable[T] proc(observer: Observer[T]): IDisposable =
+    newObservable[T] proc(observer: Observer[T]): Disposable =
       upstream.subscribe(
         (v: T) => (log v; observer.onNext v),
         (e: Error) => (log e; observer.onError e),
