@@ -13,12 +13,12 @@ runnableExamples:
     obs = sbj.toObservable
       .buffer(2, 1)
 
-  discard obs
+  obs
     .unitfy()
     .subscribeBlock:
       isOnNextThrown[0] = true
 
-  discard obs
+  obs
     .subscribeBlock:
       isOnNextThrown[1] = true
 

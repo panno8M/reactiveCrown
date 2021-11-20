@@ -55,7 +55,7 @@ proc onComplete*[T](observer: Observer[T]) {.inline.} =
 proc newObservable*[T](onSubscribe: (Observer[T])->Disposable): Observable[T] =
   Observable[T](onSubscribe: onSubscribe)
 
-proc subscribe*[T](self: Observable[T]; observer: Observer[T]): Disposable =
+proc subscribe*[T](self: Observable[T]; observer: Observer[T]): Disposable {.discardable.} =
   self.onSubscribe(observer)
 template subscribe*[T](self: Observable[T];
       onNext: T->void;
@@ -65,7 +65,7 @@ template subscribe*[T](self: Observable[T];
   ## Using this, you can omit the upper code as the lower one.
   ##
   ## .. code-block:: Nim
-  ##    discard someObservable
+  ##    someObservable
   ##      .subscribe(newObserver(
   ##        (v: T) => onNext(v),
   ##        (e: Error) => onError(e),
@@ -73,7 +73,7 @@ template subscribe*[T](self: Observable[T];
   ##      ))
   ##
   ## .. code-block:: Nim
-  ##    discard someObservable
+  ##    someObservable
   ##      .subscribe(
   ##        (v: T) => onNext(v),
   ##        (e: Error) => onError(e),

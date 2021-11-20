@@ -60,7 +60,7 @@ func just*[T](v: T): Observable[T] =
       res: int
       isCompleted: bool
 
-    discard just(10)
+    just(10)
       .subscribe(
         onNext = (x: int) => (res = x),
         onComplete = () => (isCompleted = true))
@@ -87,7 +87,7 @@ func range*[T: Ordinal](start: T; count: Natural): Observable[T] =
       res: int
       isCompleted: bool
 
-    discard range(1, 4)
+    range(1, 4)
       .subscribe(
         onNext = (x: int) => (res += x),
         onComplete = () => (isCompleted = true),
@@ -123,13 +123,13 @@ func repeat*[T](upstream: Observable[T]; times: Natural = 0): Observable[T] =
         case stat:
           # Process: infinity
           of 0:
-            discard upstream.subscribe observer.mkRepeatObserver()
+            upstream.subscribe observer.mkRepeatObserver()
           # Process: finity
           of 1: # End point.
             observer.onComplete()
           else:
             dec stat
-            discard upstream.subscribe observer.mkRepeatObserver()
+            upstream.subscribe observer.mkRepeatObserver()
       )
     newObservable[T] proc(observer: Observer[T]): Disposable =
       return upstream.subscribe observer.mkRepeatObserver()
@@ -147,7 +147,7 @@ func buffer*[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0):
 
     var res = newSeq[int]()
 
-    discard range(0, 5)
+    range(0, 5)
       .buffer(2, 1)
       .filter(x => x.len == 2) # If "buffer" reciexed onComplete exent, it will flush stored xalues 
                               # whether it has enough length or not.
@@ -161,7 +161,7 @@ func buffer*[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0):
 
     var res = newSeq[int]()
 
-    discard range(0, 6)
+    range(0, 6)
       .buffer(3)
       .filter(x => x.len == 3)
       .map(x => x[0] + x[1] + x[2])
@@ -196,7 +196,7 @@ func map*[T, S](upstream: Observable[T]; op: (T)->S): Observable[S] =
 
     var res = newSeq[int]()
     let sbj = newSubject[int]()
-    discard sbj
+    sbj
       .map(x => x*10)
       .subscribe((x: int) => (res.add x))
     sbj.onNext 1
@@ -225,7 +225,7 @@ func filter*[T](upstream: Observable[T]; op: (T)->bool): Observable[T] =
 
     var res = newSeq[int]()
     let sbj = newSubject[int]()
-    discard sbj
+    sbj
       .filter(x => x > 10)
       .subscribe((x: int) => (res.add x))
     sbj.onNext 2
@@ -259,7 +259,7 @@ func zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
     var res = newSeq[string]()
     let sbj1 = newSubject[int]()
     let sbj2 = newSubject[char]()
-    discard sbj1.zip( <>sbj2 )
+    sbj1.zip( <>sbj2 )
       .subscribe((v: (int, char)) => res.add &"{v[0]}{v[1]}")
     sbj1.onNext 1
     sbj2.onNext 'A'
@@ -306,7 +306,7 @@ proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
       sbj1 = newSubject[char]()
       sbj2 = newSubject[char]()
       sbj3 = newSubject[char]()
-    discard sbj1.zip( <>sbj2, <>sbj3 )
+    sbj1.zip( <>sbj2, <>sbj3 )
       .subscribe((x: seq[char]) => res.add &"{x[0]}{x[1]}{x[2]}")
     sbj1.onNext '1'
     sbj2.onNext 'a'
@@ -354,7 +354,7 @@ func retry*[T](upstream: Observable[T]): Observable[T] =
   func mkRetryObserver(observer: Observer[T]): Observer[T] =
     newObserver[T](
       observer.onNext_default,
-      (e: ref Exception) => (discard upstream.subscribe observer.mkRetryObserver()),
+      (e: ref Exception) => (upstream.subscribe observer.mkRetryObserver()),
       observer.onComplete_default,
     )
   construct_whenSubscribed[T]:
@@ -375,7 +375,7 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
     let
       sbj1 = newSubject[int]()
       sbj2 = newSubject[int]()
-    discard sbj1.concat( <>sbj2 )
+    sbj1.concat( <>sbj2 )
       .subscribe(
         onNext = (x: int) => res.add x,
         onComplete = () => res.add 0)
@@ -437,7 +437,7 @@ func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
     sbj.onNext()
     assert cntCalled == 0
 
-    discard published
+    published
       .subscribeBlock:
         discard
 
@@ -449,7 +449,7 @@ func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
     sbj.onNext()
     assert cntCalled == 1
 
-    discard published
+    published
       .subscribeBlock:
         discard
 
@@ -466,7 +466,7 @@ func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
     upstream: upstream,
   )
 
-proc connect*[T](self: ConnectableObservable[T]): Disposable =
+proc connect*[T](self: ConnectableObservable[T]): Disposable {.discardable.} =
   ## See `publish proc<#publish,IObservable[T]>`_ for examples.
   # Do nothing when already connected between "publish subject" to its upstream
   if self.disposable_isItAlreadyConnected == nil:

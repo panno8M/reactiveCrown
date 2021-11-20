@@ -34,8 +34,8 @@ suite "core":
     subject.onNext 5
     filterDisposable.dispose()
     subject.onNext 6
-    discard map.subscribe testObserver[float](results)
-    discard map.subscribe testObserver[float](results)
+    map.subscribe testObserver[float](results)
+    map.subscribe testObserver[float](results)
     subject.onNext 7
     subject.onNext 8
     subject.onNext 9
@@ -47,7 +47,7 @@ suite "core":
   test "complex work":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.subscribe testObserver[int](results, prefix = "1:")
+    subject.subscribe testObserver[int](results, prefix = "1:")
     let disposable = subject.subscribe testObserver[int](results, prefix = "2:")
 
     subject.onNext 10
@@ -112,10 +112,10 @@ suite "observable/operator":
       results1 = newSeq[string]()
       results2 = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject
+    subject
       .buffer(3, 1)
       .subscribe testObserver[seq[int]](results1)
-    discard subject
+    subject
       .buffer(2)
       .subscribe testObserver[seq[int]](results2)
 
@@ -134,7 +134,7 @@ suite "observable/operator":
     let
       subject1 = newSubject[int]()
       subject2 = newSubject[float]()
-    discard subject1.zip( <>subject2 )
+    subject1.zip( <>subject2 )
       .subscribe testObserver[(int, float)](results)
 
     subject1.onNext 1
@@ -152,7 +152,7 @@ suite "observable/operator":
       subject1 = newSubject[int]()
       subject2 = newSubject[int]()
       subject3 = newSubject[int]()
-    discard subject1.zip( <>subject2, <>subject3 )
+    subject1.zip( <>subject2, <>subject3 )
       .subscribe testObserver[seq[int]](results)
 
     subject1.onNext 1
@@ -178,7 +178,7 @@ suite "observable/operator":
         subject2 = newSubject[int]()
         subject3 = newSubject[int]()
         subject4 = newSubject[int]()
-      discard subject1.concat( <>subject2, <>subject3, <>subject4 )
+      subject1.concat( <>subject2, <>subject3, <>subject4 )
         .subscribe testObserver[int](results)
 
       subject1.onNext 1
@@ -204,7 +204,7 @@ suite "observable/operator":
         concat = sbj1.concat( <>sbj2 )
         disp1 = concat.subscribe testObserver[int](results)
         disp2 = concat.subscribe testObserver[int](results)
-      discard concat.subscribe testObserver[int](results)
+      concat.subscribe testObserver[int](results)
 
       sbj1.onNext 1
       sbj2.onNext 2
@@ -226,7 +226,7 @@ suite "observable/operator":
   test "retry  [T](upstream: Observable[T]): Observable[T]":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject
+    subject
       .retry()
       .subscribe testObserver[int](results)
 
@@ -240,7 +240,7 @@ suite "observable/factory":
 
   test "just  [T](v: T): Observable[T]":
     var results = newSeq[string]()
-    discard just(100).subscribe testObserver[int](results)
+    just(100).subscribe testObserver[int](results)
 
     check results == @[$100, "#"]
 
@@ -249,14 +249,14 @@ suite "observable/factory":
     type Tempenum = enum
       alpha, beta, gamma
     var results = newSeq[string]()
-    discard range(alpha, 3).subscribe testObserver[Tempenum](results)
-    discard range('a', 3).subscribe testObserver[char](results)
+    range(alpha, 3).subscribe testObserver[Tempenum](results)
+    range('a', 3).subscribe testObserver[char](results)
 
     check results == @[$alpha, $beta, $gamma, "#", "a", "b", "c", "#"]
 
   test "repeat  [T](v: T; times: Natural): Observable[T]":
     var results = newSeq[string]()
-    discard rx.just(5).repeat(3).subscribe testObserver[int](results)
+    rx.just(5).repeat(3).subscribe testObserver[int](results)
 
     check results == @[$5, $5, $5, "#"]
 
@@ -267,9 +267,9 @@ suite "Cold->Hot Conversion":
       .map(i => i*2)
       .doThat((v: int) => results.add &"upstream:{v}")
       .publish()
-    discard r.subscribe testObserver[int](results, prefix = "1:")
-    discard r.subscribe testObserver[int](results, prefix = "2:")
-    discard r.connect()
+    r.subscribe testObserver[int](results, prefix = "1:")
+    r.subscribe testObserver[int](results, prefix = "2:")
+    r.connect()
 
     check results == @[
       "upstream:0", "1:0", "2:0",
@@ -283,7 +283,7 @@ suite "Cold->Hot Conversion":
     let observable = subject
       .map(v => toFloat(v))
       .publish()
-    discard observable.subscribe testObserver[float](results)
+    observable.subscribe testObserver[float](results)
     subject.onNext 1
     subject.onNext 2
     let disposable = observable.connect()
@@ -292,7 +292,7 @@ suite "Cold->Hot Conversion":
     disposable.dispose()
     subject.onNext 5
     subject.onNext 6
-    discard observable.connect()
+    observable.connect()
     subject.onNext 7
     subject.onNext 8
 
@@ -324,7 +324,7 @@ suite "Cold->Hot Conversion":
     subject.onNext 7
     disposable22.dispose()
     subject.onNext 8
-    discard observable1.subscribe testObserver[float](results1)
+    observable1.subscribe testObserver[float](results1)
     subject.onNext 9
 
     check results1 == @[1, 2, 3, 3, 4, 4, 5, 6, 9].mapIt it.float.`$`

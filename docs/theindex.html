@@ -127,9 +127,11 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="newObserver" href="#newObserver"><span>newObserver:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: newObserver[T](onNext: proc (v: T); onError: proc (e: ref Exception) = nil;
-               onComplete: proc () = nil): Observer[T]" href="rx/core.html#newObserver%2Cproc%28T%29%2Cproc%28ref.Exception%29%2Cproc%29">core: newObserver[T](onNext: proc (v: T); onError: proc (e: ref Exception) = nil;
-               onComplete: proc () = nil): Observer[T]</a></li>
+          data-doc-search-tag="core: newObserver[T](onNext: T -&gt; void;
+               onError = default(proc (i0: ref Exception): void);
+               onComplete = default(proc (): void)): Observer[T]" href="rx/core.html#newObserver">core: newObserver[T](onNext: T -&gt; void;
+               onError = default(proc (i0: ref Exception): void);
+               onComplete = default(proc (): void)): Observer[T]</a></li>
           </ul></dd>
 <dt><a name="newSubject" href="#newSubject"><span>newSubject:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -149,15 +151,15 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="onComplete" href="#onComplete"><span>onComplete:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="subjects: onComplete[T](subject: Subject[T]): void" href="rx/subjects.html#onComplete.t%2CSubject%5BT%5D">subjects: onComplete[T](subject: Subject[T]): void</a></li>
+          data-doc-search-tag="core: onComplete[T](observer: Observer[T])" href="rx/core.html#onComplete%2CObserver%5BT%5D">core: onComplete[T](observer: Observer[T])</a></li>
           </ul></dd>
 <dt><a name="onError" href="#onError"><span>onError:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="subjects: onError[T](subject: Subject[T]; e: ref Exception): void" href="rx/subjects.html#onError.t%2CSubject%5BT%5D%2Cref.Exception">subjects: onError[T](subject: Subject[T]; e: ref Exception): void</a></li>
+          data-doc-search-tag="core: onError[T](observer: Observer[T]; e: ref Exception)" href="rx/core.html#onError%2CObserver%5BT%5D%2Cref.Exception">core: onError[T](observer: Observer[T]; e: ref Exception)</a></li>
           </ul></dd>
 <dt><a name="onNext" href="#onNext"><span>onNext:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="subjects: onNext[T](subject: Subject[T]; v: T): void" href="rx/subjects.html#onNext.t%2CSubject%5BT%5D%2CT">subjects: onNext[T](subject: Subject[T]; v: T): void</a></li>
+          data-doc-search-tag="core: onNext[T](observer: Observer[T]; x: T)" href="rx/core.html#onNext%2CObserver%5BT%5D%2CT">core: onNext[T](observer: Observer[T]; x: T)</a></li>
           <li><a class="reference external"
           data-doc-search-tag="unitUtils: onNext(subject: Subject[Unit]): void" href="rx/unitUtils.html#onNext.t%2CSubject%5BUnit%5D">unitUtils: onNext(subject: Subject[Unit]): void</a></li>
           </ul></dd>
@@ -193,9 +195,11 @@ window.addEventListener('DOMContentLoaded', main);
 <li><a class="reference external"
           data-doc-search-tag="core: subscribe[T](self: Observable[T]; observer: Observer[T]): Disposable" href="rx/core.html#subscribe%2CObservable%5BT%5D%2CObserver%5BT%5D">core: subscribe[T](self: Observable[T]; observer: Observer[T]): Disposable</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="core: subscribe[T](self: Observable[T]; onNext: proc (v: T);
-             onError: proc (e: ref Exception) = nil; onComplete: proc () = nil): Disposable" href="rx/core.html#subscribe.t%2CObservable%5BT%5D%2Cproc%28T%29%2Cproc%28ref.Exception%29%2Cproc%29">core: subscribe[T](self: Observable[T]; onNext: proc (v: T);
-             onError: proc (e: ref Exception) = nil; onComplete: proc () = nil): Disposable</a></li>
+          data-doc-search-tag="core: subscribe[T](self: Observable[T]; onNext: T -&gt; void;
+             onError = default(proc (i0: ref Exception): void);
+             onComplete = default(proc (): void)): Disposable" href="rx/core.html#subscribe.t%2CObservable%5BT%5D%2C">core: subscribe[T](self: Observable[T]; onNext: T -&gt; void;
+             onError = default(proc (i0: ref Exception): void);
+             onComplete = default(proc (): void)): Disposable</a></li>
           </ul></dd>
 <dt><a name="subscribeBlock" href="#subscribeBlock"><span>subscribeBlock:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -212,6 +216,10 @@ window.addEventListener('DOMContentLoaded', main);
           data-doc-search-tag="operators: toObservable[T](self: ConnectableObservable[T]): Observable[T]" href="rx/operators.html#toObservable.c%2CConnectableObservable%5BT%5D">operators: toObservable[T](self: ConnectableObservable[T]): Observable[T]</a></li>
           <li><a class="reference external"
           data-doc-search-tag="subjects: toObservable[T](self: Subject[T]): Observable[T]" href="rx/subjects.html#toObservable.c%2CSubject%5BT%5D">subjects: toObservable[T](self: Subject[T]): Observable[T]</a></li>
+          </ul></dd>
+<dt><a name="toObserver" href="#toObserver"><span>toObserver:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="subjects: toObserver[T](self: Subject[T]): Observer[T]" href="rx/subjects.html#toObserver.c%2CSubject%5BT%5D">subjects: toObserver[T](self: Subject[T]): Observer[T]</a></li>
           </ul></dd>
 <dt><a name="Unit" href="#Unit"><span>Unit:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -238,7 +246,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 05:59:13 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 09:16:26 UTC</small>
       </div>
     </div>
   </div>
