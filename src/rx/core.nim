@@ -44,6 +44,10 @@ proc newObserver*[T](
     onComplete: (if onComplete != nil: onComplete else: ()=>(discard)),
   )
 
+proc onNext*[T](observer: Observer[T]; x: T) {.inline.} = observer.onNext(x)
+proc onError*[T](observer: Observer[T]; e: ref Exception) {.inline.} = observer.onError(e)
+proc onComplete*[T](observer: Observer[T]) {.inline.} = observer.onComplete()
+
 # Observable ==========================================================================
 proc newObservable*[T](onSubscribe: (Observer[T])->Disposable): Observable[T] =
   Observable[T](onSubscribe: onSubscribe)

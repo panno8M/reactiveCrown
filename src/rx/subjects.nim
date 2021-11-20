@@ -6,14 +6,16 @@ import core
 
 # Subject =============================================================================
 type
-  Subject*[T] = ref object of RootObj
+  Subject*[T] = ref object
     ober: Observer[T]
     observable: Observable[T]
     observers: seq[Observer[T]]
     isCompleted: bool
 
 converter toObservable*[T](self: Subject[T]): Observable[T] = self.observable
-template `<>`*[T](self: Subject[T]): Observable[T] = self.observable
+template `<>`*[T](self: Subject[T]): Observable[T] = self.toObservable
+
+converter toObserver*[T](self: Subject[T]): Observer[T] = self.ober
 
 template execOnNext[T](self: Subject[T]; v: T) =
   if self.toObservable.hasAnyObservers():
@@ -21,7 +23,7 @@ template execOnNext[T](self: Subject[T]; v: T) =
 # template execOnError[T](self: Subject[T]; e: Error) =
 #   if self.toObservable.hasAnyObservers():
 #     self.observers.apply((it: Observer[T]) => it.onError(e))
-template execOnCompleted[T](self: Subject[T]) =
+template execOnComplete[T](self: Subject[T]) =
   if self.toObservable.hasAnyObservers():
     self.observers.apply((it: Observer[T]) => it.onComplete())
 
@@ -39,31 +41,23 @@ proc newSubject*[T](): Subject[T] =
   subject.observable.onSubscribe = proc(ober: Observer[T]): Disposable =
     subject.addobserver ober
     if subject.isCompleted:
-      subject.execOnCompleted()
+      subject.execOnComplete()
     newSubscription(subject, ober)
-  subject.ober = newObserver[T](
-    (proc(v: T): void =
+  subject.ober = Observer[T](
+    onNext: (proc(v: T): void =
       if subject.isCompleted: return
       subject.execOnNext(v)
     ),
-    (proc(e: ref Exception): void =
+    onError: (proc(e: ref Exception): void =
       if subject.isCompleted: return
       var s = subject.observers
       subject.observers.setLen(0)
       s.apply((x: Observer[T]) => x.onError(e))
     ),
-    (proc(): void =
-      subject.execOnCompleted()
+    onComplete: (proc(): void =
+      subject.execOnComplete()
       subject.observers.setLen(0)
       subject.isCompleted = true
     ),
   )
   return subject
-
-template onNext*[T](subject: Subject[T]; v: T): void =
-  subject.ober.onNext(v)
-template onError*[T](subject: Subject[T]; e: ref Exception): void =
-  subject.ober.onError(e)
-template onComplete*[T](subject: Subject[T]): void =
-  subject.ober.onComplete()
-
