@@ -30,8 +30,7 @@ import subjects
 
 # SECTION Utilities
 
-template construct_whenSubscribed*[T](
-  mkObservable: untyped): untyped =
+template construct_whenSubscribed*[T](mkObservable: untyped): untyped =
   Observable[T](onSubscribe: proc(ober: Observer[T]): Disposable =
     (() => mkObservable)().subscribe ober
   )
