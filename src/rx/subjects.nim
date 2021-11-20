@@ -43,18 +43,18 @@ proc newSubject*[T](): Subject[T] =
     if subject.isCompleted:
       subject.execOnComplete()
     newSubscription(subject, ober)
-  subject.ober = Observer[T](
-    onNext: (proc(v: T): void =
+  subject.ober = newObserver[T](
+    onNext= (proc(v: T): void =
       if subject.isCompleted: return
       subject.execOnNext(v)
     ),
-    onError: (proc(e: ref Exception): void =
+    onError= (proc(e: ref Exception): void =
       if subject.isCompleted: return
       var s = subject.observers
       subject.observers.setLen(0)
       s.apply((x: Observer[T]) => x.onError(e))
     ),
-    onComplete: (proc(): void =
+    onComplete= (proc(): void =
       subject.execOnComplete()
       subject.observers.setLen(0)
       subject.isCompleted = true

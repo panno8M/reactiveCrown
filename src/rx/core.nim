@@ -1,14 +1,15 @@
+import options
 import sugar
 
 type
   Observer*[T] = ref object
-    onNext*: (T)->void
-    onError*: (ref Exception)->void
-    onComplete*: ()->void
+    onNext: T->void
+    onError: Option[ref Exception->void]
+    onComplete: Option[()->void]
   Observable*[T] = ref object
     onSubscribe*: Observer[T]->Disposable
     hasAnyObservers*: ()->bool
-    removeObserver*: (Observer[T])->void
+    removeObserver*: Observer[T]->void
   Disposable* = ref object
     dispose*: ()->void
   Subscription[T] = ref object
@@ -34,19 +35,21 @@ proc newSubscription*[T](oble: Observable[T]; ober: Observer[T]): Subscription[T
 
 # Observer ============================================================================
 proc newObserver*[T](
-      onNext: proc(v: T);
-      onError: proc(e: ref Exception) = nil;
-      onComplete: proc() = nil;
+      onNext: T->void;
+      onError= default(ref Exception->void);
+      onComplete= default(()->void);
     ): Observer[T] =
   Observer[T](
     onNext: onNext,
-    onError: (if onError != nil: onError else: (e: ref Exception)=>(discard)),
-    onComplete: (if onComplete != nil: onComplete else: ()=>(discard)),
+    onError: option(onError),
+    onComplete: option(onComplete),
   )
 
 proc onNext*[T](observer: Observer[T]; x: T) {.inline.} = observer.onNext(x)
-proc onError*[T](observer: Observer[T]; e: ref Exception) {.inline.} = observer.onError(e)
-proc onComplete*[T](observer: Observer[T]) {.inline.} = observer.onComplete()
+proc onError*[T](observer: Observer[T]; e: ref Exception) {.inline.} = 
+  if observer.onError.isSome: observer.onError.get()(e)
+proc onComplete*[T](observer: Observer[T]) {.inline.} =
+  if observer.onComplete.isSome: observer.onComplete.get()()
 
 # Observable ==========================================================================
 proc newObservable*[T](onSubscribe: (Observer[T])->Disposable): Observable[T] =
@@ -55,9 +58,9 @@ proc newObservable*[T](onSubscribe: (Observer[T])->Disposable): Observable[T] =
 proc subscribe*[T](self: Observable[T]; observer: Observer[T]): Disposable =
   self.onSubscribe(observer)
 template subscribe*[T](self: Observable[T];
-      onNext: proc(v: T);
-      onError: proc(e: ref Exception) = nil;
-      onComplete: proc() = nil;
+      onNext: T->void;
+      onError= default(ref Exception->void);
+      onComplete= default(()->void);
     ): Disposable =
   ## Using this, you can omit the upper code as the lower one.
   ##
