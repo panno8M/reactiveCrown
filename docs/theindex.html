@@ -71,80 +71,64 @@ window.addEventListener('DOMContentLoaded', main);
   <div class="container">
     <h1 class="title">Index</h1>
     Modules: <a href="rx.html">rx</a>, <a href="rx/core.html">rx/core</a>, <a href="rx/operators.html">rx/operators</a>, <a href="rx/subjects.html">rx/subjects</a>, <a href="rx/unitUtils.html">rx/unitUtils</a>.<br/><p /><h2>API symbols</h2>
-<dl><dt><a name="%60%24%60" href="#%60%24%60"><span>`$`:</span></a></dt><dd><ul class="simple">
+<dl><dt><a name="asObservable" href="#asObservable"><span>asObservable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: `$`(e: Error): string" href="rx/core.html#%24%2CError">core: `$`(e: Error): string</a></li>
-          </ul></dd>
-<dt><a name="asObservable" href="#asObservable"><span>asObservable:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="operators: asObservable[T](self: ConnectableObservable[T]): IObservable[T]" href="rx/operators.html#asObservable.t%2CConnectableObservable%5BT%5D">operators: asObservable[T](self: ConnectableObservable[T]): IObservable[T]</a></li>
+          data-doc-search-tag="operators: asObservable[T](self: ConnectableObservable[T]): Observable[T]" href="rx/operators.html#asObservable.t%2CConnectableObservable%5BT%5D">operators: asObservable[T](self: ConnectableObservable[T]): Observable[T]</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="subjects: asObservable[T](self: Subject[T]): IObservable[T]" href="rx/subjects.html#asObservable%2CSubject%5BT%5D">subjects: asObservable[T](self: Subject[T]): IObservable[T]</a></li>
+          data-doc-search-tag="subjects: asObservable[T](self: Subject[T]): Observable[T]" href="rx/subjects.html#asObservable%2CSubject%5BT%5D">subjects: asObservable[T](self: Subject[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="buffer" href="#buffer"><span>buffer:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: buffer[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0): IObservable[
-    seq[T]]" href="rx/operators.html#buffer%2CIObservable%5BT%5D%2CNatural%2CNatural">operators: buffer[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0): IObservable[
+          data-doc-search-tag="operators: buffer[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0): Observable[
+    seq[T]]" href="rx/operators.html#buffer%2CObservable%5BT%5D%2CNatural%2CNatural">operators: buffer[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0): Observable[
     seq[T]]</a></li>
           </ul></dd>
 <dt><a name="concat" href="#concat"><span>concat:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: concat[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[
-    T]" href="rx/operators.html#concat%2CIObservable%5BT%5D%2Cvarargs%5BIObservable%5BT%5D%5D">operators: concat[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[
+          data-doc-search-tag="operators: concat[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
+    T]" href="rx/operators.html#concat%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D">operators: concat[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
     T]</a></li>
           </ul></dd>
 <dt><a name="connect" href="#connect"><span>connect:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: connect[T](self: ConnectableObservable[T]): IDisposable" href="rx/operators.html#connect%2CConnectableObservable%5BT%5D">operators: connect[T](self: ConnectableObservable[T]): IDisposable</a></li>
+          data-doc-search-tag="operators: connect[T](self: ConnectableObservable[T]): Disposable" href="rx/operators.html#connect%2CConnectableObservable%5BT%5D">operators: connect[T](self: ConnectableObservable[T]): Disposable</a></li>
           </ul></dd>
 <dt><a name="construct_whenSubscribed" href="#construct_whenSubscribed"><span>construct_whenSubscribed:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="operators: construct_whenSubscribed[T](mkObservable: untyped): untyped" href="rx/operators.html#construct_whenSubscribed.t%2Cuntyped">operators: construct_whenSubscribed[T](mkObservable: untyped): untyped</a></li>
           </ul></dd>
+<dt><a name="Disposable" href="#Disposable"><span>Disposable:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="core: Disposable" href="rx/core.html#Disposable">core: Disposable</a></li>
+          </ul></dd>
 <dt><a name="doThat" href="#doThat"><span>doThat:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: doThat[T](upstream: IObservable[T]; op: (T) -&gt; void): IObservable[T]" href="rx/operators.html#doThat%2CIObservable%5BT%5D%2C">operators: doThat[T](upstream: IObservable[T]; op: (T) -&gt; void): IObservable[T]</a></li>
+          data-doc-search-tag="operators: doThat[T](upstream: Observable[T]; op: (T) -&gt; void): Observable[T]" href="rx/operators.html#doThat%2CObservable%5BT%5D%2C">operators: doThat[T](upstream: Observable[T]; op: (T) -&gt; void): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="dump" href="#dump"><span>dump:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: dump[T](upstream: IObservable[T]): IObservable[T]" href="rx/operators.html#dump%2CIObservable%5BT%5D">operators: dump[T](upstream: IObservable[T]): IObservable[T]</a></li>
-          </ul></dd>
-<dt><a name="Error" href="#Error"><span>Error:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="core: Error" href="rx/core.html#Error">core: Error</a></li>
+          data-doc-search-tag="operators: dump[T](upstream: Observable[T]): Observable[T]" href="rx/operators.html#dump%2CObservable%5BT%5D">operators: dump[T](upstream: Observable[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="filter" href="#filter"><span>filter:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: filter[T](upstream: IObservable[T]; op: (T) -&gt; bool): IObservable[T]" href="rx/operators.html#filter%2CIObservable%5BT%5D%2C">operators: filter[T](upstream: IObservable[T]; op: (T) -&gt; bool): IObservable[T]</a></li>
-          </ul></dd>
-<dt><a name="IDisposable" href="#IDisposable"><span>IDisposable:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="core: IDisposable" href="rx/core.html#IDisposable">core: IDisposable</a></li>
-          </ul></dd>
-<dt><a name="IObservable" href="#IObservable"><span>IObservable:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="core: IObservable" href="rx/core.html#IObservable">core: IObservable</a></li>
+          data-doc-search-tag="operators: filter[T](upstream: Observable[T]; op: (T) -&gt; bool): Observable[T]" href="rx/operators.html#filter%2CObservable%5BT%5D%2C">operators: filter[T](upstream: Observable[T]; op: (T) -&gt; bool): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="just" href="#just"><span>just:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: just[T](v: T): IObservable[T]" href="rx/operators.html#just%2CT">operators: just[T](v: T): IObservable[T]</a></li>
+          data-doc-search-tag="operators: just[T](v: T): Observable[T]" href="rx/operators.html#just%2CT">operators: just[T](v: T): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="map" href="#map"><span>map:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: map[T, S](upstream: IObservable[T]; op: (T) -&gt; S): IObservable[S]" href="rx/operators.html#map%2CIObservable%5BT%5D%2C">operators: map[T, S](upstream: IObservable[T]; op: (T) -&gt; S): IObservable[S]</a></li>
+          data-doc-search-tag="operators: map[T, S](upstream: Observable[T]; op: (T) -&gt; S): Observable[S]" href="rx/operators.html#map%2CObservable%5BT%5D%2C">operators: map[T, S](upstream: Observable[T]; op: (T) -&gt; S): Observable[S]</a></li>
           </ul></dd>
-<dt><a name="newError" href="#newError"><span>newError:</span></a></dt><dd><ul class="simple">
+<dt><a name="newObservable" href="#newObservable"><span>newObservable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: newError(msg: string): Error" href="rx/core.html#newError%2Cstring">core: newError(msg: string): Error</a></li>
-          </ul></dd>
-<dt><a name="newIObservable" href="#newIObservable"><span>newIObservable:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="core: newIObservable[T](onSubscribe: (Observer[T]) -&gt; IDisposable): IObservable[T]" href="rx/core.html#newIObservable">core: newIObservable[T](onSubscribe: (Observer[T]) -&gt; IDisposable): IObservable[T]</a></li>
+          data-doc-search-tag="core: newObservable[T](onSubscribe: (Observer[T]) -&gt; Disposable): Observable[T]" href="rx/core.html#newObservable">core: newObservable[T](onSubscribe: (Observer[T]) -&gt; Disposable): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="newObserver" href="#newObserver"><span>newObserver:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: newObserver[T](onNext: proc (v: T); onError: proc (e: Error) = nil;
-               onComplete: proc () = nil): Observer[T]" href="rx/core.html#newObserver%2Cproc%28T%29%2Cproc%28Error%29%2Cproc%29">core: newObserver[T](onNext: proc (v: T); onError: proc (e: Error) = nil;
+          data-doc-search-tag="core: newObserver[T](onNext: proc (v: T); onError: proc (e: ref Exception) = nil;
+               onComplete: proc () = nil): Observer[T]" href="rx/core.html#newObserver%2Cproc%28T%29%2Cproc%28ref.Exception%29%2Cproc%29">core: newObserver[T](onNext: proc (v: T); onError: proc (e: ref Exception) = nil;
                onComplete: proc () = nil): Observer[T]</a></li>
           </ul></dd>
 <dt><a name="newSubject" href="#newSubject"><span>newSubject:</span></a></dt><dd><ul class="simple">
@@ -153,7 +137,11 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="newSubscription" href="#newSubscription"><span>newSubscription:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: newSubscription[T](iObservable: IObservable[T]; observer: Observer[T]): IDisposable" href="rx/core.html#newSubscription%2CIObservable%5BT%5D%2CObserver%5BT%5D">core: newSubscription[T](iObservable: IObservable[T]; observer: Observer[T]): IDisposable</a></li>
+          data-doc-search-tag="core: newSubscription[T](oble: Observable[T]; ober: Observer[T]): Subscription[T]" href="rx/core.html#newSubscription%2CObservable%5BT%5D%2CObserver%5BT%5D">core: newSubscription[T](oble: Observable[T]; ober: Observer[T]): Subscription[T]</a></li>
+          </ul></dd>
+<dt><a name="Observable" href="#Observable"><span>Observable:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="core: Observable" href="rx/core.html#Observable">core: Observable</a></li>
           </ul></dd>
 <dt><a name="Observer" href="#Observer"><span>Observer:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -165,7 +153,7 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="onError" href="#onError"><span>onError:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="subjects: onError[T](subject: Subject[T]; e: Error): void" href="rx/subjects.html#onError.t%2CSubject%5BT%5D%2CError">subjects: onError[T](subject: Subject[T]; e: Error): void</a></li>
+          data-doc-search-tag="subjects: onError[T](subject: Subject[T]; e: ref Exception): void" href="rx/subjects.html#onError.t%2CSubject%5BT%5D%2Cref.Exception">subjects: onError[T](subject: Subject[T]; e: ref Exception): void</a></li>
           </ul></dd>
 <dt><a name="onNext" href="#onNext"><span>onNext:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -175,27 +163,27 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="publish" href="#publish"><span>publish:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: publish[T](upstream: IObservable[T]): ConnectableObservable[T]" href="rx/operators.html#publish%2CIObservable%5BT%5D">operators: publish[T](upstream: IObservable[T]): ConnectableObservable[T]</a></li>
+          data-doc-search-tag="operators: publish[T](upstream: Observable[T]): ConnectableObservable[T]" href="rx/operators.html#publish%2CObservable%5BT%5D">operators: publish[T](upstream: Observable[T]): ConnectableObservable[T]</a></li>
           </ul></dd>
 <dt><a name="range" href="#range"><span>range:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: range[T: Ordinal](start: T; count: Natural): IObservable[T]" href="rx/operators.html#range%2CT%2CNatural">operators: range[T: Ordinal](start: T; count: Natural): IObservable[T]</a></li>
+          data-doc-search-tag="operators: range[T: Ordinal](start: T; count: Natural): Observable[T]" href="rx/operators.html#range%2CT%2CNatural">operators: range[T: Ordinal](start: T; count: Natural): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="refCount" href="#refCount"><span>refCount:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: refCount[T](upstream: ConnectableObservable[T]): IObservable[T]" href="rx/operators.html#refCount%2CConnectableObservable%5BT%5D">operators: refCount[T](upstream: ConnectableObservable[T]): IObservable[T]</a></li>
+          data-doc-search-tag="operators: refCount[T](upstream: ConnectableObservable[T]): Observable[T]" href="rx/operators.html#refCount%2CConnectableObservable%5BT%5D">operators: refCount[T](upstream: ConnectableObservable[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="repeat" href="#repeat"><span>repeat:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: repeat[T](upstream: IObservable[T]; times: Natural = 0): IObservable[T]" href="rx/operators.html#repeat%2CIObservable%5BT%5D%2CNatural">operators: repeat[T](upstream: IObservable[T]; times: Natural = 0): IObservable[T]</a></li>
+          data-doc-search-tag="operators: repeat[T](upstream: Observable[T]; times: Natural = 0): Observable[T]" href="rx/operators.html#repeat%2CObservable%5BT%5D%2CNatural">operators: repeat[T](upstream: Observable[T]; times: Natural = 0): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="retry" href="#retry"><span>retry:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: retry[T](upstream: IObservable[T]): IObservable[T]" href="rx/operators.html#retry%2CIObservable%5BT%5D">operators: retry[T](upstream: IObservable[T]): IObservable[T]</a></li>
+          data-doc-search-tag="operators: retry[T](upstream: Observable[T]): Observable[T]" href="rx/operators.html#retry%2CObservable%5BT%5D">operators: retry[T](upstream: Observable[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="share" href="#share"><span>share:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: share[T](upstream: IObservable[T]): IObservable[T]" href="rx/operators.html#share%2CIObservable%5BT%5D">operators: share[T](upstream: IObservable[T]): IObservable[T]</a></li>
+          data-doc-search-tag="operators: share[T](upstream: Observable[T]): Observable[T]" href="rx/operators.html#share%2CObservable%5BT%5D">operators: share[T](upstream: Observable[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="Subject" href="#Subject"><span>Subject:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -203,17 +191,21 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="subscribe" href="#subscribe"><span>subscribe:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: subscribe[T](self: IObservable[T]; observer: Observer[T]): IDisposable" href="rx/core.html#subscribe%2CIObservable%5BT%5D%2CObserver%5BT%5D">core: subscribe[T](self: IObservable[T]; observer: Observer[T]): IDisposable</a></li>
+          data-doc-search-tag="core: subscribe[T](self: Observable[T]; observer: Observer[T]): Disposable" href="rx/core.html#subscribe%2CObservable%5BT%5D%2CObserver%5BT%5D">core: subscribe[T](self: Observable[T]; observer: Observer[T]): Disposable</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="core: subscribe[T](self: IObservable[T]; onNext: proc (v: T);
-             onError: proc (e: Error) = nil; onComplete: proc () = nil): IDisposable" href="rx/core.html#subscribe.t%2CIObservable%5BT%5D%2Cproc%28T%29%2Cproc%28Error%29%2Cproc%29">core: subscribe[T](self: IObservable[T]; onNext: proc (v: T);
-             onError: proc (e: Error) = nil; onComplete: proc () = nil): IDisposable</a></li>
+          data-doc-search-tag="core: subscribe[T](self: Observable[T]; onNext: proc (v: T);
+             onError: proc (e: ref Exception) = nil; onComplete: proc () = nil): Disposable" href="rx/core.html#subscribe.t%2CObservable%5BT%5D%2Cproc%28T%29%2Cproc%28ref.Exception%29%2Cproc%29">core: subscribe[T](self: Observable[T]; onNext: proc (v: T);
+             onError: proc (e: ref Exception) = nil; onComplete: proc () = nil): Disposable</a></li>
           </ul></dd>
 <dt><a name="subscribeBlock" href="#subscribeBlock"><span>subscribeBlock:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="unitUtils: subscribeBlock[T](upstream: IObservable[T]; body: untyped): IDisposable" href="rx/unitUtils.html#subscribeBlock.t%2CIObservable%5BT%5D%2Cuntyped">unitUtils: subscribeBlock[T](upstream: IObservable[T]; body: untyped): IDisposable</a></li>
+          data-doc-search-tag="unitUtils: subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable" href="rx/unitUtils.html#subscribeBlock.t%2CObservable%5BT%5D%2Cuntyped">unitUtils: subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="unitUtils: subscribeBlock(upstream: IObservable[Unit]; body: untyped): IDisposable" href="rx/unitUtils.html#subscribeBlock.t%2CIObservable%5BUnit%5D%2Cuntyped">unitUtils: subscribeBlock(upstream: IObservable[Unit]; body: untyped): IDisposable</a></li>
+          data-doc-search-tag="unitUtils: subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable" href="rx/unitUtils.html#subscribeBlock.t%2CObservable%5BUnit%5D%2Cuntyped">unitUtils: subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable</a></li>
+          </ul></dd>
+<dt><a name="toDisposable" href="#toDisposable"><span>toDisposable:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="core: toDisposable[T](subscription: Subscription[T]): Disposable" href="rx/core.html#toDisposable.c%2CSubscription%5BT%5D">core: toDisposable[T](subscription: Subscription[T]): Disposable</a></li>
           </ul></dd>
 <dt><a name="Unit" href="#Unit"><span>Unit:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -225,22 +217,22 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="unitfy" href="#unitfy"><span>unitfy:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="unitUtils: unitfy[T](upstream: IObservable[T]): IObservable[Unit]" href="rx/unitUtils.html#unitfy%2CIObservable%5BT%5D">unitUtils: unitfy[T](upstream: IObservable[T]): IObservable[Unit]</a></li>
+          data-doc-search-tag="unitUtils: unitfy[T](upstream: Observable[T]): Observable[Unit]" href="rx/unitUtils.html#unitfy%2CObservable%5BT%5D">unitUtils: unitfy[T](upstream: Observable[T]): Observable[Unit]</a></li>
           </ul></dd>
 <dt><a name="zip" href="#zip"><span>zip:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: zip[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[
-    seq[T]]" href="rx/operators.html#zip%2CIObservable%5BT%5D%2Cvarargs%5BIObservable%5BT%5D%5D">operators: zip[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[
+          data-doc-search-tag="operators: zip[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
+    seq[T]]" href="rx/operators.html#zip%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D">operators: zip[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
     seq[T]]</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="operators: zip[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]): IObservable[(Tl, Tr)]" href="rx/operators.html#zip%2CIObservable%5BTl%5D%2CIObservable%5BTr%5D">operators: zip[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]): IObservable[(Tl, Tr)]</a></li>
+          data-doc-search-tag="operators: zip[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]" href="rx/operators.html#zip%2CObservable%5BTl%5D%2CObservable%5BTr%5D">operators: zip[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]</a></li>
           </ul></dd>
 </dl>
     <div class="row">
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-07-13 02:59:43 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 03:34:03 UTC</small>
       </div>
     </div>
   </div>

@@ -1,7 +1,7 @@
 Usage with using unitUtils	rx/unitUtils.html#usage-with-using-unitutils	 Usage with using unitUtils	
 Unit	rx/unitUtils.html#Unit	unitUtils: Unit	
 unitDefault	rx/unitUtils.html#unitDefault	unitUtils: unitDefault(): Unit	
-unitfy	rx/unitUtils.html#unitfy,IObservable[T]	unitUtils: unitfy[T](upstream: IObservable[T]): IObservable[Unit]	
-subscribeBlock	rx/unitUtils.html#subscribeBlock.t,IObservable[Unit],untyped	unitUtils: subscribeBlock(upstream: IObservable[Unit]; body: untyped): IDisposable	
-subscribeBlock	rx/unitUtils.html#subscribeBlock.t,IObservable[T],untyped	unitUtils: subscribeBlock[T](upstream: IObservable[T]; body: untyped): IDisposable	
+unitfy	rx/unitUtils.html#unitfy,Observable[T]	unitUtils: unitfy[T](upstream: Observable[T]): Observable[Unit]	
+subscribeBlock	rx/unitUtils.html#subscribeBlock.t,Observable[Unit],untyped	unitUtils: subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable	
+subscribeBlock	rx/unitUtils.html#subscribeBlock.t,Observable[T],untyped	unitUtils: subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable	
 onNext	rx/unitUtils.html#onNext.t,Subject[Unit]	unitUtils: onNext(subject: Subject[Unit]): void	

@@ -108,86 +108,86 @@ window.addEventListener('DOMContentLoaded', main);
   <a class="reference reference-toplevel" href="#12" id="62">Procs</a>
   <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">doThat
-      <li><a class="reference" href="#doThat%2CIObservable%5BT%5D%2C"
-    title="doThat[T](upstream: IObservable[T]; op: (T) -&gt; void): IObservable[T]">doThat[T](upstream: IObservable[T]; op: (T) -&gt; void): IObservable[T]</a></li>
+      <li><a class="reference" href="#doThat%2CObservable%5BT%5D%2C"
+    title="doThat[T](upstream: Observable[T]; op: (T) -&gt; void): Observable[T]">doThat[T](upstream: Observable[T]; op: (T) -&gt; void): Observable[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">map
-      <li><a class="reference" href="#map%2CIObservable%5BT%5D%2C"
-    title="map[T, S](upstream: IObservable[T]; op: (T) -&gt; S): IObservable[S]">map[T, S](upstream: IObservable[T]; op: (T) -&gt; S): IObservable[S]</a></li>
+      <li><a class="reference" href="#map%2CObservable%5BT%5D%2C"
+    title="map[T, S](upstream: Observable[T]; op: (T) -&gt; S): Observable[S]">map[T, S](upstream: Observable[T]; op: (T) -&gt; S): Observable[S]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">filter
-      <li><a class="reference" href="#filter%2CIObservable%5BT%5D%2C"
-    title="filter[T](upstream: IObservable[T]; op: (T) -&gt; bool): IObservable[T]">filter[T](upstream: IObservable[T]; op: (T) -&gt; bool): IObservable[T]</a></li>
+      <li><a class="reference" href="#filter%2CObservable%5BT%5D%2C"
+    title="filter[T](upstream: Observable[T]; op: (T) -&gt; bool): Observable[T]">filter[T](upstream: Observable[T]; op: (T) -&gt; bool): Observable[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">just
       <li><a class="reference" href="#just%2CT"
-    title="just[T](v: T): IObservable[T]">just[T](v: T): IObservable[T]</a></li>
+    title="just[T](v: T): Observable[T]">just[T](v: T): Observable[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">range
       <li><a class="reference" href="#range%2CT%2CNatural"
-    title="range[T: Ordinal](start: T; count: Natural): IObservable[T]">range[T: Ordinal](start: T; count: Natural): IObservable[T]</a></li>
+    title="range[T: Ordinal](start: T; count: Natural): Observable[T]">range[T: Ordinal](start: T; count: Natural): Observable[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">repeat
-      <li><a class="reference" href="#repeat%2CIObservable%5BT%5D%2CNatural"
-    title="repeat[T](upstream: IObservable[T]; times: Natural = 0): IObservable[T]">repeat[T](upstream: IObservable[T]; times: Natural = 0): IObservable[T]</a></li>
+      <li><a class="reference" href="#repeat%2CObservable%5BT%5D%2CNatural"
+    title="repeat[T](upstream: Observable[T]; times: Natural = 0): Observable[T]">repeat[T](upstream: Observable[T]; times: Natural = 0): Observable[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">zip
-      <li><a class="reference" href="#zip%2CIObservable%5BTl%5D%2CIObservable%5BTr%5D"
-    title="zip[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]): IObservable[(Tl, Tr)]">zip[Tl, Tr](tl: IObservable[Tl]; tr: IObservable[Tr]): IObservable[(Tl, Tr)]</a></li>
-  <li><a class="reference" href="#zip%2CIObservable%5BT%5D%2Cvarargs%5BIObservable%5BT%5D%5D"
-    title="zip[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[
-    seq[T]]">zip[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[
+      <li><a class="reference" href="#zip%2CObservable%5BTl%5D%2CObservable%5BTr%5D"
+    title="zip[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]">zip[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]</a></li>
+  <li><a class="reference" href="#zip%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D"
+    title="zip[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
+    seq[T]]">zip[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
     seq[T]]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">buffer
-      <li><a class="reference" href="#buffer%2CIObservable%5BT%5D%2CNatural%2CNatural"
-    title="buffer[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0): IObservable[
-    seq[T]]">buffer[T](upstream: IObservable[T]; timeSpan: Natural; skip: Natural = 0): IObservable[
+      <li><a class="reference" href="#buffer%2CObservable%5BT%5D%2CNatural%2CNatural"
+    title="buffer[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0): Observable[
+    seq[T]]">buffer[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0): Observable[
     seq[T]]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">retry
-      <li><a class="reference" href="#retry%2CIObservable%5BT%5D"
-    title="retry[T](upstream: IObservable[T]): IObservable[T]">retry[T](upstream: IObservable[T]): IObservable[T]</a></li>
+      <li><a class="reference" href="#retry%2CObservable%5BT%5D"
+    title="retry[T](upstream: Observable[T]): Observable[T]">retry[T](upstream: Observable[T]): Observable[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">concat
-      <li><a class="reference" href="#concat%2CIObservable%5BT%5D%2Cvarargs%5BIObservable%5BT%5D%5D"
-    title="concat[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[
-    T]">concat[T](upstream: IObservable[T]; targets: varargs[IObservable[T]]): IObservable[
+      <li><a class="reference" href="#concat%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D"
+    title="concat[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
+    T]">concat[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
     T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">connect
       <li><a class="reference" href="#connect%2CConnectableObservable%5BT%5D"
-    title="connect[T](self: ConnectableObservable[T]): IDisposable">connect[T](self: ConnectableObservable[T]): IDisposable</a></li>
+    title="connect[T](self: ConnectableObservable[T]): Disposable">connect[T](self: ConnectableObservable[T]): Disposable</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">share
-      <li><a class="reference" href="#share%2CIObservable%5BT%5D"
-    title="share[T](upstream: IObservable[T]): IObservable[T]">share[T](upstream: IObservable[T]): IObservable[T]</a></li>
+      <li><a class="reference" href="#share%2CObservable%5BT%5D"
+    title="share[T](upstream: Observable[T]): Observable[T]">share[T](upstream: Observable[T]): Observable[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">publish
-      <li><a class="reference" href="#publish%2CIObservable%5BT%5D"
-    title="publish[T](upstream: IObservable[T]): ConnectableObservable[T]">publish[T](upstream: IObservable[T]): ConnectableObservable[T]</a></li>
+      <li><a class="reference" href="#publish%2CObservable%5BT%5D"
+    title="publish[T](upstream: Observable[T]): ConnectableObservable[T]">publish[T](upstream: Observable[T]): ConnectableObservable[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">refCount
       <li><a class="reference" href="#refCount%2CConnectableObservable%5BT%5D"
-    title="refCount[T](upstream: ConnectableObservable[T]): IObservable[T]">refCount[T](upstream: ConnectableObservable[T]): IObservable[T]</a></li>
+    title="refCount[T](upstream: ConnectableObservable[T]): Observable[T]">refCount[T](upstream: ConnectableObservable[T]): Observable[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">dump
-      <li><a class="reference" href="#dump%2CIObservable%5BT%5D"
-    title="dump[T](upstream: IObservable[T]): IObservable[T]">dump[T](upstream: IObservable[T]): IObservable[T]</a></li>
+      <li><a class="reference" href="#dump%2CObservable%5BT%5D"
+    title="dump[T](upstream: Observable[T]): Observable[T]">dump[T](upstream: Observable[T]): Observable[T]</a></li>
 
   </ul>
 
@@ -203,7 +203,7 @@ window.addEventListener('DOMContentLoaded', main);
   </ul>
   <ul class="simple nested-toc-section">asObservable
       <li><a class="reference" href="#asObservable.t%2CConnectableObservable%5BT%5D"
-    title="asObservable[T](self: ConnectableObservable[T]): IObservable[T]">asObservable[T](self: ConnectableObservable[T]): IObservable[T]</a></li>
+    title="asObservable[T](self: ConnectableObservable[T]): Observable[T]">asObservable[T](self: ConnectableObservable[T]): Observable[T]</a></li>
 
   </ul>
 
@@ -227,7 +227,7 @@ window.addEventListener('DOMContentLoaded', main);
 <h1><a class="toc-backref" href="#12">Procs</a></h1>
 <dl class="item">
 <a id="just,T"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#just%2CT"><span class="Identifier">just</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dt><pre><span class="Keyword">func</span> <a href="#just%2CT"><span class="Identifier">just</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 &quot;<a class="reference external" href="http://reactivex.io/documentation/operators/just.html">Just</a>&quot; from ReactiveX
@@ -249,7 +249,7 @@ window.addEventListener('DOMContentLoaded', main);
 
 </dd>
 <a id="range,T,Natural"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#range%2CT%2CNatural"><span class="Identifier">range</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <span class="Identifier">Ordinal</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">start</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">count</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dt><pre><span class="Keyword">func</span> <a href="#range%2CT%2CNatural"><span class="Identifier">range</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <span class="Identifier">Ordinal</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">start</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">count</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 &quot;<a class="reference external" href="http://reactivex.io/documentation/operators/range.html">Range</a>&quot; from ReactiveX
@@ -271,15 +271,15 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Identifier">assert</span> <span class="Identifier">isCompleted</span></pre>
 
 </dd>
-<a id="repeat,IObservable[T],Natural"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#repeat%2CIObservable%5BT%5D%2CNatural"><span class="Identifier">repeat</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">times</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<a id="repeat,Observable[T],Natural"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#repeat%2CObservable%5BT%5D%2CNatural"><span class="Identifier">repeat</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">times</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 <p>&quot;<a class="reference external" href="http://reactivex.io/documentation/operators/repeat.html">Repeat</a>&quot; from ReactiveX<br/>if &quot;times&quot; == 0: It will repeat stream infinitely.<br/>if &quot;times&quot; &gt;= 1: It will repeat stream &quot;times&quot; times.<br/></p>
 
 </dd>
-<a id="buffer,IObservable[T],Natural,Natural"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#buffer%2CIObservable%5BT%5D%2CNatural%2CNatural"><span class="Identifier">buffer</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeSpan</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">;</span> <span class="Identifier">skip</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span>
+<a id="buffer,Observable[T],Natural,Natural"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#buffer%2CObservable%5BT%5D%2CNatural%2CNatural"><span class="Identifier">buffer</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeSpan</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">;</span> <span class="Identifier">skip</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span>
     <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span></pre></dt>
 <dd>
 
@@ -313,8 +313,8 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Identifier">doAssert</span> <span class="Identifier">res</span> <span class="Operator">==</span> <span class="Operator">@</span><span class="Punctuation">[</span><span class="DecNumber">3</span><span class="Punctuation">,</span> <span class="DecNumber">12</span><span class="Punctuation">]</span></pre>
 
 </dd>
-<a id="map,IObservable[T],"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#map%2CIObservable%5BT%5D%2C"><span class="Identifier">map</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">S</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">op</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">S</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">S</span><span class="Other">]</span></pre></dt>
+<a id="map,Observable[T],"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#map%2CObservable%5BT%5D%2C"><span class="Identifier">map</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">S</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">op</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">S</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">S</span><span class="Other">]</span></pre></dt>
 <dd>
 
 &quot;<a class="reference external" href="http://reactivex.io/documentation/operators/map.html">Map</a>&quot; from ReactiveX
@@ -334,8 +334,8 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Identifier">doAssert</span> <span class="Identifier">res</span> <span class="Operator">==</span> <span class="Operator">@</span><span class="Punctuation">[</span><span class="DecNumber">10</span><span class="Punctuation">,</span> <span class="DecNumber">20</span><span class="Punctuation">,</span> <span class="DecNumber">30</span><span class="Punctuation">]</span></pre>
 
 </dd>
-<a id="filter,IObservable[T],"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#filter%2CIObservable%5BT%5D%2C"><span class="Identifier">filter</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">op</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">bool</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<a id="filter,Observable[T],"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#filter%2CObservable%5BT%5D%2C"><span class="Identifier">filter</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">op</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">bool</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 &quot;<a class="reference external" href="http://reactivex.io/documentation/operators/filter.html">Filter</a>&quot; from ReactiveX
@@ -358,9 +358,8 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Identifier">doAssert</span> <span class="Identifier">res</span> <span class="Operator">==</span> <span class="Operator">@</span><span class="Punctuation">[</span><span class="DecNumber">30</span><span class="Punctuation">,</span> <span class="DecNumber">22</span><span class="Punctuation">,</span> <span class="DecNumber">60</span><span class="Punctuation">]</span></pre>
 
 </dd>
-<a id="zip,IObservable[Tl],IObservable[Tr]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#zip%2CIObservable%5BTl%5D%2CIObservable%5BTr%5D"><span class="Identifier">zip</span></a><span class="Other">[</span><span class="Identifier">Tl</span><span class="Other">,</span> <span class="Identifier">Tr</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tl</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">Tl</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">tr</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">Tr</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span>
-    <span class="Other">(</span><span class="Identifier">Tl</span><span class="Other">,</span> <span class="Identifier">Tr</span><span class="Other">)</span><span class="Other">]</span></pre></dt>
+<a id="zip,Observable[Tl],Observable[Tr]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#zip%2CObservable%5BTl%5D%2CObservable%5BTr%5D"><span class="Identifier">zip</span></a><span class="Other">[</span><span class="Identifier">Tl</span><span class="Other">,</span> <span class="Identifier">Tr</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tl</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">Tl</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">tr</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">Tr</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Other">(</span><span class="Identifier">Tl</span><span class="Other">,</span> <span class="Identifier">Tr</span><span class="Other">)</span><span class="Other">]</span></pre></dt>
 <dd>
 
 &quot;<a class="reference external" href="http://reactivex.io/documentation/operators/zip.html">Zip</a>&quot; from ReactiveX
@@ -388,8 +387,8 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Identifier">doAssert</span> <span class="Identifier">res</span> <span class="Operator">==</span> <span class="Operator">@</span><span class="Punctuation">[</span><span class="StringLit">&quot;1A&quot;</span><span class="Punctuation">,</span> <span class="StringLit">&quot;2B&quot;</span><span class="Punctuation">,</span> <span class="StringLit">&quot;3C&quot;</span><span class="Punctuation">,</span> <span class="StringLit">&quot;4D&quot;</span><span class="Punctuation">]</span></pre>
 
 </dd>
-<a id="zip,IObservable[T],varargs[IObservable[T]]"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#zip%2CIObservable%5BT%5D%2Cvarargs%5BIObservable%5BT%5D%5D"><span class="Identifier">zip</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">targets</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span>
+<a id="zip,Observable[T],varargs[Observable[T]]"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#zip%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D"><span class="Identifier">zip</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">targets</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span>
     <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span></pre></dt>
 <dd>
 
@@ -420,15 +419,15 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Identifier">doAssert</span> <span class="Identifier">res</span> <span class="Operator">==</span> <span class="Operator">@</span><span class="Punctuation">[</span><span class="StringLit">&quot;1aA&quot;</span><span class="Punctuation">,</span> <span class="StringLit">&quot;2bB&quot;</span><span class="Punctuation">]</span></pre>
 
 </dd>
-<a id="retry,IObservable[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#retry%2CIObservable%5BT%5D"><span class="Identifier">retry</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<a id="retry,Observable[T]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#retry%2CObservable%5BT%5D"><span class="Identifier">retry</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 &quot;<a class="reference external" href="http://reactivex.io/documentation/operators/retry.html">Retry</a>&quot; from ReactiveX
 
 </dd>
-<a id="concat,IObservable[T],varargs[IObservable[T]]"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#concat%2CIObservable%5BT%5D%2Cvarargs%5BIObservable%5BT%5D%5D"><span class="Identifier">concat</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">targets</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span>
+<a id="concat,Observable[T],varargs[Observable[T]]"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#concat%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D"><span class="Identifier">concat</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">targets</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span>
     <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
@@ -457,8 +456,8 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Identifier">doAssert</span> <span class="Identifier">res</span> <span class="Operator">==</span> <span class="Operator">@</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">2</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">]</span></pre>
 
 </dd>
-<a id="publish,IObservable[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#publish%2CIObservable%5BT%5D"><span class="Identifier">publish</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">ConnectableObservable</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<a id="publish,Observable[T]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#publish%2CObservable%5BT%5D"><span class="Identifier">publish</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">ConnectableObservable</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
@@ -503,35 +502,35 @@ window.addEventListener('DOMContentLoaded', main);
 
 </dd>
 <a id="connect,ConnectableObservable[T]"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#connect%2CConnectableObservable%5BT%5D"><span class="Identifier">connect</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">ConnectableObservable</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IDisposable"><span class="Identifier">IDisposable</span></a></pre></dt>
+<dt><pre><span class="Keyword">proc</span> <a href="#connect%2CConnectableObservable%5BT%5D"><span class="Identifier">connect</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">ConnectableObservable</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Disposable"><span class="Identifier">Disposable</span></a></pre></dt>
 <dd>
 
 See <a class="reference external" href="#publish,IObservable[T]">publish proc</a> for examples.
 
 </dd>
 <a id="refCount,ConnectableObservable[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#refCount%2CConnectableObservable%5BT%5D"><span class="Identifier">refCount</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <span class="Identifier">ConnectableObservable</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dt><pre><span class="Keyword">func</span> <a href="#refCount%2CConnectableObservable%5BT%5D"><span class="Identifier">refCount</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <span class="Identifier">ConnectableObservable</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 NOTE: There is something wrong with this behavior. Be careful when use it.
 
 </dd>
-<a id="share,IObservable[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#share%2CIObservable%5BT%5D"><span class="Identifier">share</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<a id="share,Observable[T]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#share%2CObservable%5BT%5D"><span class="Identifier">share</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="doThat,IObservable[T],"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#doThat%2CIObservable%5BT%5D%2C"><span class="Identifier">doThat</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">op</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<a id="doThat,Observable[T],"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#doThat%2CObservable%5BT%5D%2C"><span class="Identifier">doThat</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">op</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span> <span class="Operator">-&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="dump,IObservable[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#dump%2CIObservable%5BT%5D"><span class="Identifier">dump</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<a id="dump,Observable[T]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#dump%2CObservable%5BT%5D"><span class="Identifier">dump</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
@@ -550,7 +549,7 @@ NOTE: There is something wrong with this behavior. Be careful when use it.
 
 </dd>
 <a id="asObservable.t,ConnectableObservable[T]"></a>
-<dt><pre><span class="Keyword">template</span> <a href="#asObservable.t%2CConnectableObservable%5BT%5D"><span class="Identifier">asObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">ConnectableObservable</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#IObservable"><span class="Identifier">IObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dt><pre><span class="Keyword">template</span> <a href="#asObservable.t%2CConnectableObservable%5BT%5D"><span class="Identifier">asObservable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">ConnectableObservable</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
@@ -566,7 +565,7 @@ NOTE: There is something wrong with this behavior. Be careful when use it.
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-07-13 02:59:41 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 03:34:01 UTC</small>
       </div>
     </div>
   </div>
