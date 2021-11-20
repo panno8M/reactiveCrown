@@ -212,6 +212,11 @@ window.addEventListener('DOMContentLoaded', main);
     title="construct_whenSubscribed[T](mkObservable: untyped): untyped">construct_whenSubscribed[T](mkObservable: untyped): untyped</a></li>
 
   </ul>
+  <ul class="simple nested-toc-section"><>
+      <li><a class="reference" href="#%3C%3E.t%2CConnectableObservable%5BT%5D"
+    title="`&lt;&gt;`[T](self: ConnectableObservable[T]): Observable[T]">`&lt;&gt;`[T](self: ConnectableObservable[T]): Observable[T]</a></li>
+
+  </ul>
 
   </ul>
 </li>
@@ -376,7 +381,7 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Keyword">var</span> <span class="Identifier">res</span> <span class="Operator">=</span> <span class="Identifier">newSeq</span><span class="Punctuation">[</span><span class="Identifier">string</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
 <span class="Keyword">let</span> <span class="Identifier">sbj1</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">int</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
 <span class="Keyword">let</span> <span class="Identifier">sbj2</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">char</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
-<span class="Keyword">discard</span> <span class="Identifier">sbj1</span><span class="Operator">.</span><span class="Identifier">zip</span><span class="Punctuation">(</span> <span class="Identifier">sbj2</span><span class="Operator">.</span><span class="Identifier">toObservable</span> <span class="Punctuation">)</span>
+<span class="Keyword">discard</span> <span class="Identifier">sbj1</span><span class="Operator">.</span><span class="Identifier">zip</span><span class="Punctuation">(</span> <span class="Operator">&lt;&gt;</span><span class="Identifier">sbj2</span> <span class="Punctuation">)</span>
   <span class="Operator">.</span><span class="Identifier">subscribe</span><span class="Punctuation">(</span><span class="Punctuation">(</span><span class="Identifier">v</span><span class="Punctuation">:</span> <span class="Punctuation">(</span><span class="Identifier">int</span><span class="Punctuation">,</span> <span class="Identifier">char</span><span class="Punctuation">)</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">res</span><span class="Operator">.</span><span class="Identifier">add</span> <span class="Operator">&amp;</span><span class="StringLit">&quot;{v[0]}{v[1]}&quot;</span><span class="Punctuation">)</span>
 <span class="Identifier">sbj1</span><span class="Operator">.</span><span class="Identifier">onNext</span> <span class="DecNumber">1</span>
 <span class="Identifier">sbj2</span><span class="Operator">.</span><span class="Identifier">onNext</span> <span class="CharLit">'A'</span>
@@ -406,9 +411,7 @@ window.addEventListener('DOMContentLoaded', main);
   <span class="Identifier">sbj1</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">char</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
   <span class="Identifier">sbj2</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">char</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
   <span class="Identifier">sbj3</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">char</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
-<span class="Keyword">discard</span> <span class="Identifier">sbj1</span><span class="Operator">.</span><span class="Identifier">zip</span><span class="Punctuation">(</span>
-    <span class="Identifier">sbj2</span><span class="Operator">.</span><span class="Identifier">toObservable</span><span class="Punctuation">,</span>
-    <span class="Identifier">sbj3</span><span class="Operator">.</span><span class="Identifier">toObservable</span><span class="Punctuation">)</span>
+<span class="Keyword">discard</span> <span class="Identifier">sbj1</span><span class="Operator">.</span><span class="Identifier">zip</span><span class="Punctuation">(</span> <span class="Operator">&lt;&gt;</span><span class="Identifier">sbj2</span><span class="Punctuation">,</span> <span class="Operator">&lt;&gt;</span><span class="Identifier">sbj3</span> <span class="Punctuation">)</span>
   <span class="Operator">.</span><span class="Identifier">subscribe</span><span class="Punctuation">(</span><span class="Punctuation">(</span><span class="Identifier">x</span><span class="Punctuation">:</span> <span class="Identifier">seq</span><span class="Punctuation">[</span><span class="Identifier">char</span><span class="Punctuation">]</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">res</span><span class="Operator">.</span><span class="Identifier">add</span> <span class="Operator">&amp;</span><span class="StringLit">&quot;{x[0]}{x[1]}{x[2]}&quot;</span><span class="Punctuation">)</span>
 <span class="Identifier">sbj1</span><span class="Operator">.</span><span class="Identifier">onNext</span> <span class="CharLit">'1'</span>
 <span class="Identifier">sbj2</span><span class="Operator">.</span><span class="Identifier">onNext</span> <span class="CharLit">'a'</span>
@@ -443,7 +446,7 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Keyword">let</span>
   <span class="Identifier">sbj1</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">int</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
   <span class="Identifier">sbj2</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">int</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
-<span class="Keyword">discard</span> <span class="Identifier">sbj1</span><span class="Operator">.</span><span class="Identifier">concat</span><span class="Punctuation">(</span> <span class="Identifier">sbj2</span><span class="Operator">.</span><span class="Identifier">toObservable</span> <span class="Punctuation">)</span>
+<span class="Keyword">discard</span> <span class="Identifier">sbj1</span><span class="Operator">.</span><span class="Identifier">concat</span><span class="Punctuation">(</span> <span class="Operator">&lt;&gt;</span><span class="Identifier">sbj2</span> <span class="Punctuation">)</span>
   <span class="Operator">.</span><span class="Identifier">subscribe</span><span class="Punctuation">(</span>
     <span class="Identifier">onNext</span> <span class="Operator">=</span> <span class="Punctuation">(</span><span class="Identifier">x</span><span class="Punctuation">:</span> <span class="Identifier">int</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">res</span><span class="Operator">.</span><span class="Identifier">add</span> <span class="Identifier">x</span><span class="Punctuation">,</span>
     <span class="Identifier">onComplete</span> <span class="Operator">=</span> <span class="Punctuation">(</span><span class="Punctuation">)</span> <span class="Operator">=&gt;</span> <span class="Identifier">res</span><span class="Operator">.</span><span class="Identifier">add</span> <span class="DecNumber">0</span><span class="Punctuation">)</span>
@@ -561,6 +564,13 @@ NOTE: There is something wrong with this behavior. Be careful when use it.
 
 
 </dd>
+<a id="<>.t,ConnectableObservable[T]"></a>
+<dt><pre><span class="Keyword">template</span> <a href="#%3C%3E.t%2CConnectableObservable%5BT%5D"><span class="Identifier">`&lt;&gt;`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">ConnectableObservable</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
 
 </dl></div>
 
@@ -571,7 +581,7 @@ NOTE: There is something wrong with this behavior. Be careful when use it.
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 05:06:31 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 05:59:13 UTC</small>
       </div>
     </div>
   </div>

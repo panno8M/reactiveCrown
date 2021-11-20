@@ -260,7 +260,7 @@ func zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
     var res = newSeq[string]()
     let sbj1 = newSubject[int]()
     let sbj2 = newSubject[char]()
-    discard sbj1.zip( sbj2.toObservable )
+    discard sbj1.zip( <>sbj2 )
       .subscribe((v: (int, char)) => res.add &"{v[0]}{v[1]}")
     sbj1.onNext 1
     sbj2.onNext 'A'
@@ -307,9 +307,7 @@ proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
       sbj1 = newSubject[char]()
       sbj2 = newSubject[char]()
       sbj3 = newSubject[char]()
-    discard sbj1.zip(
-        sbj2.toObservable,
-        sbj3.toObservable)
+    discard sbj1.zip( <>sbj2, <>sbj3 )
       .subscribe((x: seq[char]) => res.add &"{x[0]}{x[1]}{x[2]}")
     sbj1.onNext '1'
     sbj2.onNext 'a'
@@ -378,7 +376,7 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
     let
       sbj1 = newSubject[int]()
       sbj2 = newSubject[int]()
-    discard sbj1.concat( sbj2.toObservable )
+    discard sbj1.concat( <>sbj2 )
       .subscribe(
         onNext = (x: int) => res.add x,
         onComplete = () => res.add 0)
@@ -423,6 +421,7 @@ type ConnectableObservable[T] = ref object
   upstream: Observable[T]
   disposable_isItAlreadyConnected: Disposable
 converter toObservable*[T](self: ConnectableObservable[T]): Observable[T] = self.subject
+template `<>`*[T](self: ConnectableObservable[T]): Observable[T] = self.toObservable
 func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
   runnableExamples:
     import rx

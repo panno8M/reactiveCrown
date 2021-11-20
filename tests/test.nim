@@ -4,11 +4,11 @@ import rx
 
 let testError = Exception.newException "Error"
 template onNextMsg[T](r: var seq[string]; prefix, suffix: string = ""): auto =
-  ((v: T) => r.add prefix & $v & suffix)
+  (v: T) => r.add prefix & $v & suffix
 template onErrorMsg(r: var seq[string]; prefix, suffix: string = ""): auto =
-  ((e: ref Exception) => r.add prefix & e.msg & suffix)
+  (e: ref Exception) => r.add prefix & e.msg & suffix
 template onCompleteMsg(r: var seq[string]; prefix, suffix: string = ""): auto =
-  (() => r.add prefix & "#" & suffix)
+  () => r.add prefix & "#" & suffix
 template testObserver[T](r: var seq[string]; prefix, suffix: string = ""): Observer[T] =
   newObserver[T](
     onNextMsg[T](r, prefix, suffix),
@@ -134,7 +134,7 @@ suite "observable/operator":
     let
       subject1 = newSubject[int]()
       subject2 = newSubject[float]()
-    discard subject1.zip( subject2.toObservable )
+    discard subject1.zip( <>subject2 )
       .subscribe testObserver[(int, float)](results)
 
     subject1.onNext 1
@@ -152,10 +152,7 @@ suite "observable/operator":
       subject1 = newSubject[int]()
       subject2 = newSubject[int]()
       subject3 = newSubject[int]()
-    discard subject1.zip(
-        subject2.toObservable,
-        subject3.toObservable,
-      )
+    discard subject1.zip( <>subject2, <>subject3 )
       .subscribe testObserver[seq[int]](results)
 
     subject1.onNext 1
@@ -181,11 +178,7 @@ suite "observable/operator":
         subject2 = newSubject[int]()
         subject3 = newSubject[int]()
         subject4 = newSubject[int]()
-      discard subject1.concat(
-          subject2.toObservable,
-          subject3.toObservable,
-          subject4.toObservable,
-        )
+      discard subject1.concat( <>subject2, <>subject3, <>subject4 )
         .subscribe testObserver[int](results)
 
       subject1.onNext 1
@@ -208,9 +201,7 @@ suite "observable/operator":
       let
         sbj1 = newSubject[int]()
         sbj2 = newSubject[int]()
-        concat = sbj1.concat(
-          sbj2.toObservable,
-        )
+        concat = sbj1.concat( <>sbj2 )
         disp1 = concat.subscribe testObserver[int](results)
         disp2 = concat.subscribe testObserver[int](results)
       discard concat.subscribe testObserver[int](results)

@@ -13,6 +13,7 @@ type
     isCompleted: bool
 
 converter toObservable*[T](self: Subject[T]): Observable[T] = self.observable
+template `<>`*[T](self: Subject[T]): Observable[T] = self.observable
 
 template execOnNext[T](self: Subject[T]; v: T) =
   if self.toObservable.hasAnyObservers():

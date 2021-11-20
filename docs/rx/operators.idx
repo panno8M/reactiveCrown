@@ -10,6 +10,7 @@ zip	rx/operators.html#zip,Observable[T],varargs[Observable[T]]	operators: zip[T]
 retry	rx/operators.html#retry,Observable[T]	operators: retry[T](upstream: Observable[T]): Observable[T]	
 concat	rx/operators.html#concat,Observable[T],varargs[Observable[T]]	operators: concat[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[\n    T]	
 toObservable	rx/operators.html#toObservable.c,ConnectableObservable[T]	operators: toObservable[T](self: ConnectableObservable[T]): Observable[T]	
+`&lt;&gt;`	rx/operators.html#<>.t,ConnectableObservable[T]	operators: `&lt;&gt;`[T](self: ConnectableObservable[T]): Observable[T]	
 publish	rx/operators.html#publish,Observable[T]	operators: publish[T](upstream: Observable[T]): ConnectableObservable[T]	
 connect	rx/operators.html#connect,ConnectableObservable[T]	operators: connect[T](self: ConnectableObservable[T]): Disposable	
 refCount	rx/operators.html#refCount,ConnectableObservable[T]	operators: refCount[T](upstream: ConnectableObservable[T]): Observable[T]	
