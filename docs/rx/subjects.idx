@@ -1,5 +1,5 @@
 Subject	rx/subjects.html#Subject	subjects: Subject	
-asObservable	rx/subjects.html#asObservable,Subject[T]	subjects: asObservable[T](self: Subject[T]): Observable[T]	
+toObservable	rx/subjects.html#toObservable.c,Subject[T]	subjects: toObservable[T](self: Subject[T]): Observable[T]	
 newSubject	rx/subjects.html#newSubject	subjects: newSubject[T](): Subject[T]	
 onNext	rx/subjects.html#onNext.t,Subject[T],T	subjects: onNext[T](subject: Subject[T]; v: T): void	
 onError	rx/subjects.html#onError.t,Subject[T],ref.Exception	subjects: onError[T](subject: Subject[T]; e: ref Exception): void	

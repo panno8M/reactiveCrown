@@ -21,7 +21,7 @@ suite "core":
   test "complex dispose":
     let subject = newSubject[int]()
     var results = newSeq[string]()
-    let filter = subject.asObservable.filter(i => i mod 2 == 1)
+    let filter = subject.filter(i => i mod 2 == 1)
     let map = filter.map(i => i.toFloat())
     let disposable = map.subscribe testObserver[float](results)
 
@@ -47,8 +47,8 @@ suite "core":
   test "complex work":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.asObservable.subscribe testObserver[int](results, prefix = "1:")
-    let disposable = subject.asObservable.subscribe testObserver[int](results, prefix = "2:")
+    discard subject.subscribe testObserver[int](results, prefix = "1:")
+    let disposable = subject.subscribe testObserver[int](results, prefix = "2:")
 
     subject.onNext 10
     disposable.dispose()
@@ -63,7 +63,7 @@ suite "observable/operator":
     var results = newSeq[string]()
     let
       subject = newSubject[int]()
-      filter = subject.asObservable.filter(v => v mod 2 == 1)
+      filter = subject.filter(v => v mod 2 == 1)
       disposable1 = filter.subscribe testObserver[int](results)
 
     subject.onNext 1
@@ -84,8 +84,8 @@ suite "observable/operator":
     var results2 = newSeq[string]()
     let
       subject = newSubject[int]()
-      map1 = subject.asObservable.map(v => toFloat(v))
-      map2 = subject.asObservable.map(v => toFloat(v))
+      map1 = subject.map(v => toFloat(v))
+      map2 = subject.map(v => toFloat(v))
 
     let disposable11 = map1.subscribe testObserver[float](results1)
     subject.onNext 1
@@ -112,10 +112,10 @@ suite "observable/operator":
       results1 = newSeq[string]()
       results2 = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.asObservable
+    discard subject
       .buffer(3, 1)
       .subscribe testObserver[seq[int]](results1)
-    discard subject.asObservable
+    discard subject
       .buffer(2)
       .subscribe testObserver[seq[int]](results2)
 
@@ -134,10 +134,7 @@ suite "observable/operator":
     let
       subject1 = newSubject[int]()
       subject2 = newSubject[float]()
-    discard zip(
-        subject1.asObservable,
-        subject2.asObservable,
-      )
+    discard subject1.zip( subject2.toObservable )
       .subscribe testObserver[(int, float)](results)
 
     subject1.onNext 1
@@ -155,10 +152,9 @@ suite "observable/operator":
       subject1 = newSubject[int]()
       subject2 = newSubject[int]()
       subject3 = newSubject[int]()
-    discard zip(
-        subject1.asObservable,
-        subject2.asObservable,
-        subject3.asObservable,
+    discard subject1.zip(
+        subject2.toObservable,
+        subject3.toObservable,
       )
       .subscribe testObserver[seq[int]](results)
 
@@ -185,11 +181,10 @@ suite "observable/operator":
         subject2 = newSubject[int]()
         subject3 = newSubject[int]()
         subject4 = newSubject[int]()
-      discard concat(
-          subject1.asObservable,
-          subject2.asObservable,
-          subject3.asObservable,
-          subject4.asObservable,
+      discard subject1.concat(
+          subject2.toObservable,
+          subject3.toObservable,
+          subject4.toObservable,
         )
         .subscribe testObserver[int](results)
 
@@ -213,9 +208,8 @@ suite "observable/operator":
       let
         sbj1 = newSubject[int]()
         sbj2 = newSubject[int]()
-        concat = concat(
-          sbj1.asObservable,
-          sbj2.asObservable,
+        concat = sbj1.concat(
+          sbj2.toObservable,
         )
         disp1 = concat.subscribe testObserver[int](results)
         disp2 = concat.subscribe testObserver[int](results)
@@ -241,7 +235,7 @@ suite "observable/operator":
   test "retry  [T](upstream: Observable[T]): Observable[T]":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    discard subject.asObservable
+    discard subject
       .retry()
       .subscribe testObserver[int](results)
 
@@ -282,8 +276,8 @@ suite "Cold->Hot Conversion":
       .map(i => i*2)
       .doThat((v: int) => results.add &"upstream:{v}")
       .publish()
-    discard r.asObservable.subscribe testObserver[int](results, prefix = "1:")
-    discard r.asObservable.subscribe testObserver[int](results, prefix = "2:")
+    discard r.subscribe testObserver[int](results, prefix = "1:")
+    discard r.subscribe testObserver[int](results, prefix = "2:")
     discard r.connect()
 
     check results == @[
@@ -295,10 +289,10 @@ suite "Cold->Hot Conversion":
   test "can dispose and reconnect the connection":
     var results = newSeq[string]()
     let subject = newSubject[int]()
-    let observable = subject.asObservable
+    let observable = subject
       .map(v => toFloat(v))
       .publish()
-    discard observable.asObservable.subscribe testObserver[float](results)
+    discard observable.subscribe testObserver[float](results)
     subject.onNext 1
     subject.onNext 2
     let disposable = observable.connect()
@@ -317,7 +311,7 @@ suite "Cold->Hot Conversion":
     var results1 = newSeq[string]()
     var results2 = newSeq[string]()
     let subject = newSubject[int]()
-    let map = subject.asObservable
+    let map = subject
       .map(v => toFloat(v))
       .publish()
     let observable1 = map.refCount()

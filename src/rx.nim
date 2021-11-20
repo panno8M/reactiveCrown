@@ -24,13 +24,13 @@ runnableExamples:
     sbjOnBtnClicked = newSubject[Unit]()
 
     dspOnBtnClicked =
-      sbjOnBtnClicked.asObservable
+      sbjOnBtnClicked.toObservable
         .doThat((_: Unit) => echo "\"Button\" has clicked!")
         .subscribeBlock:
           focus()
 
     obsOnBtnDoubleClicked =
-      sbjOnBtnClicked.asObservable
+      sbjOnBtnClicked.toObservable
         .map(_ => cpuTime())
         .buffer(2, 1)
         .filter(seqt => seqt.len == 2)

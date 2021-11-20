@@ -10,7 +10,7 @@ runnableExamples:
   var isOnNextThrown: array[2, bool]
   let
     sbj = newSubject[Unit]()
-    obs = sbj.asObservable
+    obs = sbj.toObservable
       .buffer(2, 1)
 
   discard obs

@@ -12,16 +12,16 @@ type
     observers: seq[Observer[T]]
     isCompleted: bool
 
-proc asObservable*[T](self: Subject[T]): Observable[T] = self.observable
+converter toObservable*[T](self: Subject[T]): Observable[T] = self.observable
 
 template execOnNext[T](self: Subject[T]; v: T) =
-  if self.asObservable.hasAnyObservers():
+  if self.toObservable.hasAnyObservers():
     self.observers.apply((it: Observer[T]) => it.onNext(v))
 # template execOnError[T](self: Subject[T]; e: Error) =
-#   if self.asObservable.hasAnyObservers():
+#   if self.toObservable.hasAnyObservers():
 #     self.observers.apply((it: Observer[T]) => it.onError(e))
 template execOnCompleted[T](self: Subject[T]) =
-  if self.asObservable.hasAnyObservers():
+  if self.toObservable.hasAnyObservers():
     self.observers.apply((it: Observer[T]) => it.onComplete())
 
 proc addObserver[T](self: Subject[T]; ober: Observer[T]) =
@@ -39,7 +39,7 @@ proc newSubject*[T](): Subject[T] =
     subject.addobserver ober
     if subject.isCompleted:
       subject.execOnCompleted()
-    newSubscription(subject.asObservable, ober)
+    newSubscription(subject, ober)
   subject.ober = newObserver[T](
     (proc(v: T): void =
       if subject.isCompleted: return

@@ -197,7 +197,7 @@ func map*[T, S](upstream: Observable[T]; op: (T)->S): Observable[S] =
 
     var res = newSeq[int]()
     let sbj = newSubject[int]()
-    discard sbj.asObservable
+    discard sbj
       .map(x => x*10)
       .subscribe((x: int) => (res.add x))
     sbj.onNext 1
@@ -226,7 +226,7 @@ func filter*[T](upstream: Observable[T]; op: (T)->bool): Observable[T] =
 
     var res = newSeq[int]()
     let sbj = newSubject[int]()
-    discard sbj.asObservable
+    discard sbj
       .filter(x => x > 10)
       .subscribe((x: int) => (res.add x))
     sbj.onNext 2
@@ -260,9 +260,7 @@ func zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
     var res = newSeq[string]()
     let sbj1 = newSubject[int]()
     let sbj2 = newSubject[char]()
-    discard zip(
-        sbj1.asObservable,
-        sbj2.asObservable)
+    discard sbj1.zip( sbj2.toObservable )
       .subscribe((v: (int, char)) => res.add &"{v[0]}{v[1]}")
     sbj1.onNext 1
     sbj2.onNext 'A'
@@ -309,10 +307,9 @@ proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
       sbj1 = newSubject[char]()
       sbj2 = newSubject[char]()
       sbj3 = newSubject[char]()
-    discard zip(
-        sbj1.asObservable,
-        sbj2.asObservable,
-        sbj3.asObservable)
+    discard sbj1.zip(
+        sbj2.toObservable,
+        sbj3.toObservable)
       .subscribe((x: seq[char]) => res.add &"{x[0]}{x[1]}{x[2]}")
     sbj1.onNext '1'
     sbj2.onNext 'a'
@@ -381,9 +378,7 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
     let
       sbj1 = newSubject[int]()
       sbj2 = newSubject[int]()
-    discard concat(
-        sbj1.asObservable,
-        sbj2.asObservable)
+    discard sbj1.concat( sbj2.toObservable )
       .subscribe(
         onNext = (x: int) => res.add x,
         onComplete = () => res.add 0)
@@ -427,8 +422,7 @@ type ConnectableObservable[T] = ref object
   subject: Subject[T]
   upstream: Observable[T]
   disposable_isItAlreadyConnected: Disposable
-template asObservable*[T](self: ConnectableObservable[T]): Observable[T] =
-  self.subject.asObservable()
+converter toObservable*[T](self: ConnectableObservable[T]): Observable[T] = self.subject
 func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
   runnableExamples:
     import rx
@@ -438,14 +432,14 @@ func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
     var cntCalled: int
     let
       sbj = newSubject[Unit]()
-      published = sbj.asObservable
+      published = sbj
         .doThat((_: Unit) => (inc cntCalled))
         .publish()
 
     sbj.onNext()
     assert cntCalled == 0
 
-    discard published.asObservable
+    discard published
       .subscribeBlock:
         discard
 
@@ -457,7 +451,7 @@ func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
     sbj.onNext()
     assert cntCalled == 1
 
-    discard published.asObservable
+    discard published
       .subscribeBlock:
         discard
 
@@ -496,7 +490,7 @@ func refCount*[T](upstream: ConnectableObservable[T]): Observable[T] =
     cntSubscribed = 0
     dispConnect: Disposable
   newObservable[T] proc(observer: Observer[T]): Disposable =
-    let dispSubscribe = upstream.asObservable().subscribe observer
+    let dispSubscribe = upstream.subscribe observer
     inc cntSubscribed
     if cntSubscribed == 1:
       dispConnect = upstream.connect()

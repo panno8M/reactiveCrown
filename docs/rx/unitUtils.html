@@ -165,7 +165,7 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Keyword">var</span> <span class="Identifier">isOnNextThrown</span><span class="Punctuation">:</span> <span class="Identifier">array</span><span class="Punctuation">[</span><span class="DecNumber">2</span><span class="Punctuation">,</span> <span class="Identifier">bool</span><span class="Punctuation">]</span>
 <span class="Keyword">let</span>
   <span class="Identifier">sbj</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">Unit</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
-  <span class="Identifier">obs</span> <span class="Operator">=</span> <span class="Identifier">sbj</span><span class="Operator">.</span><span class="Identifier">asObservable</span>
+  <span class="Identifier">obs</span> <span class="Operator">=</span> <span class="Identifier">sbj</span><span class="Operator">.</span><span class="Identifier">toObservable</span>
     <span class="Operator">.</span><span class="Identifier">buffer</span><span class="Punctuation">(</span><span class="DecNumber">2</span><span class="Punctuation">,</span> <span class="DecNumber">1</span><span class="Punctuation">)</span>
 
 <span class="Keyword">discard</span> <span class="Identifier">obs</span>
@@ -251,7 +251,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 03:34:02 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 05:06:32 UTC</small>
       </div>
     </div>
   </div>

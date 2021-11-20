@@ -71,13 +71,7 @@ window.addEventListener('DOMContentLoaded', main);
   <div class="container">
     <h1 class="title">Index</h1>
     Modules: <a href="rx.html">rx</a>, <a href="rx/core.html">rx/core</a>, <a href="rx/operators.html">rx/operators</a>, <a href="rx/subjects.html">rx/subjects</a>, <a href="rx/unitUtils.html">rx/unitUtils</a>.<br/><p /><h2>API symbols</h2>
-<dl><dt><a name="asObservable" href="#asObservable"><span>asObservable:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="operators: asObservable[T](self: ConnectableObservable[T]): Observable[T]" href="rx/operators.html#asObservable.t%2CConnectableObservable%5BT%5D">operators: asObservable[T](self: ConnectableObservable[T]): Observable[T]</a></li>
-          <li><a class="reference external"
-          data-doc-search-tag="subjects: asObservable[T](self: Subject[T]): Observable[T]" href="rx/subjects.html#asObservable%2CSubject%5BT%5D">subjects: asObservable[T](self: Subject[T]): Observable[T]</a></li>
-          </ul></dd>
-<dt><a name="buffer" href="#buffer"><span>buffer:</span></a></dt><dd><ul class="simple">
+<dl><dt><a name="buffer" href="#buffer"><span>buffer:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="operators: buffer[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0): Observable[
     seq[T]]" href="rx/operators.html#buffer%2CObservable%5BT%5D%2CNatural%2CNatural">operators: buffer[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0): Observable[
@@ -207,6 +201,12 @@ window.addEventListener('DOMContentLoaded', main);
 <li><a class="reference external"
           data-doc-search-tag="core: toDisposable[T](subscription: Subscription[T]): Disposable" href="rx/core.html#toDisposable.c%2CSubscription%5BT%5D">core: toDisposable[T](subscription: Subscription[T]): Disposable</a></li>
           </ul></dd>
+<dt><a name="toObservable" href="#toObservable"><span>toObservable:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="operators: toObservable[T](self: ConnectableObservable[T]): Observable[T]" href="rx/operators.html#toObservable.c%2CConnectableObservable%5BT%5D">operators: toObservable[T](self: ConnectableObservable[T]): Observable[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="subjects: toObservable[T](self: Subject[T]): Observable[T]" href="rx/subjects.html#toObservable.c%2CSubject%5BT%5D">subjects: toObservable[T](self: Subject[T]): Observable[T]</a></li>
+          </ul></dd>
 <dt><a name="Unit" href="#Unit"><span>Unit:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="unitUtils: Unit" href="rx/unitUtils.html#Unit">unitUtils: Unit</a></li>
@@ -232,7 +232,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 03:34:03 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 05:06:32 UTC</small>
       </div>
     </div>
   </div>
