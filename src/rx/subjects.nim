@@ -45,7 +45,7 @@ proc newSubject*[T](): Subject[T] =
       if subject.isCompleted: return
       subject.execOnNext(v)
     ),
-    (proc(e: Error): void =
+    (proc(e: ref Exception): void =
       if subject.isCompleted: return
       var s = subject.observers
       subject.observers.setLen(0)
@@ -61,7 +61,7 @@ proc newSubject*[T](): Subject[T] =
 
 template onNext*[T](subject: Subject[T]; v: T): void =
   subject.ober.onNext(v)
-template onError*[T](subject: Subject[T]; e: Error): void =
+template onError*[T](subject: Subject[T]; e: ref Exception): void =
   subject.ober.onError(e)
 template onComplete*[T](subject: Subject[T]): void =
   subject.ober.onComplete()

@@ -1,13 +1,9 @@
 import sugar
 
 type
-  # TODO: define error type
-  Error* = ref object
-    msg: string
-
   Observer*[T] = ref object
     onNext*: (T)->void
-    onError*: (Error)->void
+    onError*: (ref Exception)->void
     onComplete*: ()->void
   Observable*[T] = ref object
     onSubscribe*: Observer[T]->Disposable
@@ -20,9 +16,6 @@ type
     observable: Observable[T]
     observer: Observer[T]
     isDisposed: bool
-
-proc newError*(msg: string): Error = Error(msg: msg)
-proc `$`*(e: Error): string = e.msg
 
 
 # Subscription ==========================================================================
@@ -42,12 +35,12 @@ proc newSubscription*[T](oble: Observable[T]; ober: Observer[T]): Subscription[T
 # Observer ============================================================================
 proc newObserver*[T](
       onNext: proc(v: T);
-      onError: proc(e: Error) = nil;
+      onError: proc(e: ref Exception) = nil;
       onComplete: proc() = nil;
     ): Observer[T] =
   Observer[T](
     onNext: onNext,
-    onError: (if onError != nil: onError else: (e: Error)=>(discard)),
+    onError: (if onError != nil: onError else: (e: ref Exception)=>(discard)),
     onComplete: (if onComplete != nil: onComplete else: ()=>(discard)),
   )
 
@@ -59,7 +52,7 @@ proc subscribe*[T](self: Observable[T]; observer: Observer[T]): Disposable =
   self.onSubscribe(observer)
 template subscribe*[T](self: Observable[T];
       onNext: proc(v: T);
-      onError: proc(e: Error) = nil;
+      onError: proc(e: ref Exception) = nil;
       onComplete: proc() = nil;
     ): Disposable =
   ## Using this, you can omit the upper code as the lower one.

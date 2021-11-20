@@ -2,22 +2,19 @@ import unittest
 import sugar, strformat, sequtils
 import rx
 
-let testError = newError "Error"
-template onNextMsg[T](r: var seq[string];
-    prefix, suffix: string = ""): proc(v: T) =
+let testError = Exception.newException "Error"
+template onNextMsg[T](r: var seq[string]; prefix, suffix: string = ""): auto =
   ((v: T) => r.add prefix & $v & suffix)
-template onErrorMsg(r: var seq[string];
-    prefix, suffix: string = ""): (Error->void) =
-  ((e: Error) => r.add prefix & $e & suffix)
-template onCompleteMsg(r: var seq[string];
-    prefix, suffix: string = ""): (()->void) =
+template onErrorMsg(r: var seq[string]; prefix, suffix: string = ""): auto =
+  ((e: ref Exception) => r.add prefix & e.msg & suffix)
+template onCompleteMsg(r: var seq[string]; prefix, suffix: string = ""): auto =
   (() => r.add prefix & "#" & suffix)
-template testObserver[T](r: var seq[string];
-    prefix, suffix: string = ""): Observer[T] = newObserver[T](
- onNextMsg[T](r, prefix, suffix),
- onErrorMsg(r, prefix, suffix),
- onCompleteMsg(r, prefix, suffix),
-)
+template testObserver[T](r: var seq[string]; prefix, suffix: string = ""): Observer[T] =
+  newObserver[T](
+    onNextMsg[T](r, prefix, suffix),
+    onErrorMsg(r, prefix, suffix),
+    onCompleteMsg(r, prefix, suffix),
+  )
 
 suite "core":
 
@@ -178,7 +175,7 @@ suite "observable/operator":
     subject3.onError testError
     subject3.onNext 3000
 
-    check results == @[$(@[1, 2, 3]), $(@[10, 20, 30]), $testError]
+    check results == @[$(@[1, 2, 3]), $(@[10, 20, 30]), testError.msg]
 
   test "concat  [T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[T]":
     block:
@@ -249,7 +246,7 @@ suite "observable/operator":
       .subscribe testObserver[int](results)
 
     subject.onNext 10
-    subject.onError newError("Error")
+    subject.onError testError
     subject.onNext 20
 
     check results == @[$10, $20]

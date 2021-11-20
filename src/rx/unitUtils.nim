@@ -43,7 +43,7 @@ proc unitfy*[T](upstream: Observable[T]): Observable[Unit] =
     newObservable[Unit] proc(observer: Observer[Unit]): Disposable =
       upstream.subscribe(
         (v: T) => observer.onNext unitDefault(),
-        (e: Error) => observer.onError e,
+        (e: ref Exception) => observer.onError e,
         () => observer.onComplete(),
       )
 

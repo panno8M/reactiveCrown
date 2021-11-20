@@ -42,8 +42,8 @@ template combineDisposables(disps: varargs[Disposable]): Disposable =
 # Indicate whether operator perform a special behavior.
 template onNext_default[T](observer: Observer[T]): (v: T)->void =
   (v: T) => observer.onNext(v)
-template onError_default[T](observer: Observer[T]): (e: Error)->void =
-  (e: Error) => observer.onError(e)
+template onError_default[T](observer: Observer[T]): (e: ref Exception)->void =
+  (e: ref Exception) => observer.onError(e)
 template onComplete_default[T](observer: Observer[T]): ()->void =
   () => observer.onComplete()
 
@@ -360,7 +360,7 @@ func retry*[T](upstream: Observable[T]): Observable[T] =
   func mkRetryObserver(observer: Observer[T]): Observer[T] =
     newObserver[T](
       observer.onNext_default,
-      (e: Error) => (discard upstream.subscribe observer.mkRetryObserver()),
+      (e: ref Exception) => (discard upstream.subscribe observer.mkRetryObserver()),
       observer.onComplete_default,
     )
   construct_whenSubscribed[T]:
@@ -480,7 +480,7 @@ proc connect*[T](self: ConnectableObservable[T]): Disposable =
   if self.disposable_isItAlreadyConnected == nil:
     var dispSbsc = self.upstream.subscribe(
       (v: T) => self.subject.onNext v,
-      (e: Error) => self.subject.onError e,
+      (e: ref Exception) => self.subject.onError e,
       () => self.subject.onComplete(),
     )
     self.disposable_isItAlreadyConnected = Disposable(dispose: proc() =
@@ -529,7 +529,7 @@ func dump*[T](upstream: Observable[T]): Observable[T] =
     newObservable[T] proc(observer: Observer[T]): Disposable =
       upstream.subscribe(
         (v: T) => (log v; observer.onNext v),
-        (e: Error) => (log e; observer.onError e),
+        (e: ref Exception) => (log e; observer.onError e),
         () => (log "complete!"; observer.onComplete()),
       )
 
