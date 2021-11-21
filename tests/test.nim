@@ -1,44 +1,44 @@
 import unittest
-import sugar, strformat, sequtils
+import sugar, strformat, sequtils, strutils
 import rx
 
 let testError = Exception.newException "Error"
-template onNextMsg[T](r: var seq[string]; prefix, suffix: string = ""): auto =
+template nextMsg[T](r: var seq[string]; prefix, suffix: string = ""): auto =
   (v: T) => r.add prefix & $v & suffix
-template onErrorMsg(r: var seq[string]; prefix, suffix: string = ""): auto =
+template errorMsg(r: var seq[string]; prefix, suffix: string = ""): auto =
   (e: ref Exception) => r.add prefix & e.msg & suffix
-template onCompleteMsg(r: var seq[string]; prefix, suffix: string = ""): auto =
+template completeMsg(r: var seq[string]; prefix, suffix: string = ""): auto =
   () => r.add prefix & "#" & suffix
 template testObserver[T](r: var seq[string]; prefix, suffix: string = ""): Observer[T] =
   newObserver[T](
-    onNextMsg[T](r, prefix, suffix),
-    onErrorMsg(r, prefix, suffix),
-    onCompleteMsg(r, prefix, suffix),
+    nextMsg[T](r, prefix, suffix),
+    errorMsg(r, prefix, suffix),
+    completeMsg(r, prefix, suffix),
   )
 
 suite "core":
 
   test "complex dispose":
-    let subject = newSubject[int]()
+    let subject = newPublishSubject[int]()
     var results = newSeq[string]()
     let filter = subject.filter(i => i mod 2 == 1)
     let map = filter.map(i => i.toFloat())
     let disposable = map.subscribe testObserver[float](results)
 
-    subject.onNext 1
-    subject.onNext 2
-    subject.onNext 3
+    subject.next 1
+    subject.next 2
+    subject.next 3
     disposable.dispose()
-    subject.onNext 4
+    subject.next 4
     let filterDisposable = filter.subscribe testObserver[int](results)
-    subject.onNext 5
+    subject.next 5
     filterDisposable.dispose()
-    subject.onNext 6
+    subject.next 6
     map.subscribe testObserver[float](results)
     map.subscribe testObserver[float](results)
-    subject.onNext 7
-    subject.onNext 8
-    subject.onNext 9
+    subject.next 7
+    subject.next 8
+    subject.next 9
 
 
     check results == @[$1f, $3f, $5, $7f, $7f, $9f, $9f]
@@ -46,15 +46,15 @@ suite "core":
 
   test "complex work":
     var results = newSeq[string]()
-    let subject = newSubject[int]()
+    let subject = newPublishSubject[int]()
     subject.subscribe testObserver[int](results, prefix = "1:")
     let disposable = subject.subscribe testObserver[int](results, prefix = "2:")
 
-    subject.onNext 10
+    subject.next 10
     disposable.dispose()
-    subject.onNext 20
-    subject.onComplete()
-    subject.onNext 30
+    subject.next 20
+    subject.complete()
+    subject.next 30
 
     check results == @["1:10", "2:10", "1:20", "1:#"]
 
@@ -62,20 +62,20 @@ suite "observable/operator":
   test "filter  [T](upstream:Observable[T]; op: (T)->bool): Observable[T]":
     var results = newSeq[string]()
     let
-      subject = newSubject[int]()
+      subject = newPublishSubject[int]()
       filter = subject.filter(v => v mod 2 == 1)
       disposable1 = filter.subscribe testObserver[int](results)
 
-    subject.onNext 1
+    subject.next 1
     let disposable2 = filter.subscribe testObserver[int](results)
-    subject.onNext 2
-    subject.onNext 3
+    subject.next 2
+    subject.next 3
     disposable1.dispose()
-    subject.onNext 4
-    subject.onNext 5
+    subject.next 4
+    subject.next 5
     disposable2.dispose()
-    subject.onNext 6
-    subject.onNext 7
+    subject.next 6
+    subject.next 7
 
     check results == @[$1, $3, $3, $5]
 
@@ -83,26 +83,26 @@ suite "observable/operator":
     var results1 = newSeq[string]()
     var results2 = newSeq[string]()
     let
-      subject = newSubject[int]()
+      subject = newPublishSubject[int]()
       map1 = subject.map(v => toFloat(v))
       map2 = subject.map(v => toFloat(v))
 
     let disposable11 = map1.subscribe testObserver[float](results1)
-    subject.onNext 1
+    subject.next 1
     let disposable21 = map2.subscribe testObserver[float](results2)
-    subject.onNext 2
+    subject.next 2
     let disposable12 = map1.subscribe testObserver[float](results1)
-    subject.onNext 3
+    subject.next 3
     let disposable22 = map2.subscribe testObserver[float](results2)
-    subject.onNext 4
+    subject.next 4
     disposable11.dispose()
-    subject.onNext 5
+    subject.next 5
     disposable21.dispose()
-    subject.onNext 6
+    subject.next 6
     disposable12.dispose()
-    subject.onNext 7
+    subject.next 7
     disposable22.dispose()
-    subject.onNext 8
+    subject.next 8
 
     check results1 == @[1, 2, 3, 3, 4, 4, 5, 6].mapIt it.float.`$`
     check results2 == @[2, 3, 4, 4, 5, 5, 6, 7].mapIt it.float.`$`
@@ -111,7 +111,7 @@ suite "observable/operator":
     var
       results1 = newSeq[string]()
       results2 = newSeq[string]()
-    let subject = newSubject[int]()
+    let subject = newPublishSubject[int]()
     subject
       .buffer(3, 1)
       .subscribe testObserver[seq[int]](results1)
@@ -119,12 +119,12 @@ suite "observable/operator":
       .buffer(2)
       .subscribe testObserver[seq[int]](results2)
 
-    subject.onNext 1
-    subject.onNext 2
-    subject.onNext 3
-    subject.onNext 4
-    subject.onNext 5
-    subject.onNext 6
+    subject.next 1
+    subject.next 2
+    subject.next 3
+    subject.next 4
+    subject.next 5
+    subject.next 6
 
     check results1 == @[$(@[1, 2, 3]), $(@[2, 3, 4]), $(@[3, 4, 5]), $(@[4, 5, 6])]
     check results2 == @[$(@[1, 2]), $(@[3, 4]), $(@[5, 6])]
@@ -132,41 +132,41 @@ suite "observable/operator":
   test "zip  [Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]":
     var results = newSeq[string]()
     let
-      subject1 = newSubject[int]()
-      subject2 = newSubject[float]()
+      subject1 = newPublishSubject[int]()
+      subject2 = newPublishSubject[float]()
     subject1.zip( <>subject2 )
       .subscribe testObserver[(int, float)](results)
 
-    subject1.onNext 1
-    subject1.onNext 2
-    subject1.onNext 3
-    subject2.onNext 1f
-    subject2.onNext 2f
-    subject2.onNext 3f
+    subject1.next 1
+    subject1.next 2
+    subject1.next 3
+    subject2.next 1f
+    subject2.next 2f
+    subject2.next 3f
 
     check results == @[$(1, 1f), $(2, 2f), $(3, 3f)]
 
   test "zip  [T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[seq[T]]":
     var results = newSeq[string]()
     let
-      subject1 = newSubject[int]()
-      subject2 = newSubject[int]()
-      subject3 = newSubject[int]()
+      subject1 = newPublishSubject[int]()
+      subject2 = newPublishSubject[int]()
+      subject3 = newPublishSubject[int]()
     subject1.zip( <>subject2, <>subject3 )
       .subscribe testObserver[seq[int]](results)
 
-    subject1.onNext 1
-    subject1.onNext 10
-    subject2.onNext 2
-    subject3.onNext 3
-    subject2.onNext 20
-    subject2.onComplete()
-    subject3.onNext 30
-    subject1.onNext 100
-    subject2.onNext 200
-    subject3.onNext 300
-    subject3.onError testError
-    subject3.onNext 3000
+    subject1.next 1
+    subject1.next 10
+    subject2.next 2
+    subject3.next 3
+    subject2.next 20
+    subject2.complete()
+    subject3.next 30
+    subject1.next 100
+    subject2.next 200
+    subject3.next 300
+    subject3.error testError
+    subject3.next 3000
 
     check results == @[$(@[1, 2, 3]), $(@[10, 20, 30]), testError.msg]
 
@@ -174,67 +174,68 @@ suite "observable/operator":
     block:
       var results = newSeq[string]()
       let
-        subject1 = newSubject[int]()
-        subject2 = newSubject[int]()
-        subject3 = newSubject[int]()
-        subject4 = newSubject[int]()
+        subject1 = newPublishSubject[int]()
+        subject2 = newPublishSubject[int]()
+        subject3 = newPublishSubject[int]()
+        subject4 = newPublishSubject[int]()
       subject1.concat( <>subject2, <>subject3, <>subject4 )
         .subscribe testObserver[int](results)
 
-      subject1.onNext 1
-      subject2.onNext 10
-      subject1.onNext 2
-      subject1.onComplete()
+      subject1.next 1
+      subject2.next 10
+      subject1.complete()
 
-      subject2.onNext 20
-      subject3.onComplete()
-      subject2.onNext 30
-      subject2.onComplete()
+      subject2.next 20
+      subject3.complete()
+      subject2.next 30
+      subject2.complete()
 
-      subject4.onNext 100
-      subject4.onNext 200
-      subject4.onComplete()
+      subject4.next 100
+      subject4.complete()
 
-      check results == @[$1, $2, $20, $30, $100, $200, "#"]
+      check results == @[$1, $20, $30, $100, "#"]
     block:
       var results = newSeq[string]()
       let
-        sbj1 = newSubject[int]()
-        sbj2 = newSubject[int]()
+        sbj1 = newPublishSubject[int]()
+        sbj2 = newPublishSubject[int]()
         concat = sbj1.concat( <>sbj2 )
         disp1 = concat.subscribe testObserver[int](results)
         disp2 = concat.subscribe testObserver[int](results)
       concat.subscribe testObserver[int](results)
 
-      sbj1.onNext 1
-      sbj2.onNext 2
+      sbj1.next 1
+      sbj2.next 2
       disp1.dispose()
-      sbj1.onNext 3
-      sbj2.onNext 4
-      sbj1.onComplete()
-      sbj1.onNext 5
-      sbj2.onNext 6
+      sbj1.next 3
+      sbj2.next 4
+      sbj1.complete()
+      sbj1.next 5
+      sbj2.next 6
       disp2.dispose()
-      sbj1.onNext 7
-      sbj2.onNext 8
-      sbj2.onComplete()
-      sbj1.onNext 9
-      sbj2.onNext 10
+      sbj1.next 7
+      sbj2.next 8
+      sbj2.complete()
+      sbj1.next 9
+      sbj2.next 10
 
       check results == @[$1, $1, $1, $3, $3, $6, $6, $8, "#"]
 
   test "retry  [T](upstream: Observable[T]): Observable[T]":
-    var results = newSeq[string]()
-    let subject = newSubject[int]()
-    subject
-      .retry()
-      .subscribe testObserver[int](results)
+    echo "\e[34mTODO!\e[m"
+    check false
+    # var results = newSeq[string]()
+    # let subject = newPublishSubject[string]()
+    # subject
+    #   .map(x => parseInt(x))
+    #   .retry()
+    #   .subscribe testObserver[int](results)
 
-    subject.onNext 10
-    subject.onError testError
-    subject.onNext 20
+    # subject.next "10"
+    # subject.next "XXX"
+    # subject.next "20"
 
-    check results == @[$10, $20]
+    # check results == @[$10, $20]
 
 suite "observable/factory":
 
@@ -279,29 +280,29 @@ suite "Cold->Hot Conversion":
     ]
   test "can dispose and reconnect the connection":
     var results = newSeq[string]()
-    let subject = newSubject[int]()
+    let subject = newPublishSubject[int]()
     let observable = subject
       .map(v => toFloat(v))
       .publish()
     observable.subscribe testObserver[float](results)
-    subject.onNext 1
-    subject.onNext 2
+    subject.next 1
+    subject.next 2
     let disposable = observable.connect()
-    subject.onNext 3
-    subject.onNext 4
+    subject.next 3
+    subject.next 4
     disposable.dispose()
-    subject.onNext 5
-    subject.onNext 6
+    subject.next 5
+    subject.next 6
     observable.connect()
-    subject.onNext 7
-    subject.onNext 8
+    subject.next 7
+    subject.next 8
 
     check results == @[$3f, $4f, $7f, $8f]
 
   test "refCount":
     var results1 = newSeq[string]()
     var results2 = newSeq[string]()
-    let subject = newSubject[int]()
+    let subject = newPublishSubject[int]()
     let map = subject
       .map(v => toFloat(v))
       .publish()
@@ -309,23 +310,23 @@ suite "Cold->Hot Conversion":
     let observable2 = map.refCount()
 
     let disposable11 = observable1.subscribe testObserver[float](results1)
-    subject.onNext 1
+    subject.next 1
     let disposable21 = observable2.subscribe testObserver[float](results2)
-    subject.onNext 2
+    subject.next 2
     let disposable12 = observable1.subscribe testObserver[float](results1)
-    subject.onNext 3
+    subject.next 3
     let disposable22 = observable2.subscribe testObserver[float](results2)
-    subject.onNext 4
+    subject.next 4
     disposable11.dispose()
-    subject.onNext 5
+    subject.next 5
     disposable21.dispose()
-    subject.onNext 6
+    subject.next 6
     disposable12.dispose()
-    subject.onNext 7
+    subject.next 7
     disposable22.dispose()
-    subject.onNext 8
+    subject.next 8
     observable1.subscribe testObserver[float](results1)
-    subject.onNext 9
+    subject.next 9
 
     check results1 == @[1, 2, 3, 3, 4, 4, 5, 6, 9].mapIt it.float.`$`
     check results2 == @[2, 3, 4, 4, 5, 5, 6].mapIt it.float.`$`

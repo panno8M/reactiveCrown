@@ -2,9 +2,9 @@
 #
 # Since the chain does not continue from the following functions, 
 # the parentheses should be omitted and the description should be procedural:
-# * Observer[T].onNext val
-# * Observer[T].onError err
-# * Observer[T].onComplete()
+# * Observer[T].next val
+# * Observer[T].error err
+# * Observer[T].complete()
 # * IObservable[T].subscribe observer
 #
 # IObservable[T].subscribe(
@@ -39,12 +39,12 @@ template combineDisposables(disps: varargs[Disposable]): Disposable =
   Disposable(dispose: () => @disps.apply((it: Disposable) => it.dispose()))
 
 # Indicate whether operator perform a special behavior.
-template onNext_default[T](observer: Observer[T]): (v: T)->void =
-  (v: T) => observer.onNext(v)
-template onError_default[T](observer: Observer[T]): (e: ref Exception)->void =
-  (e: ref Exception) => observer.onError(e)
-template onComplete_default[T](observer: Observer[T]): ()->void =
-  () => observer.onComplete()
+template next_default[T](observer: Observer[T]): (proc(v: T) {.closure.}) =
+  (v: T) => observer.next(v)
+template error_default[T](observer: Observer[T]): (proc(e: ref Exception) {.closure.}) =
+  (e: ref Exception) => observer.error(e)
+template complete_default[T](observer: Observer[T]): (proc() {.closure.}) =
+  () => observer.complete()
 
 # !SECTION
 
@@ -62,8 +62,8 @@ func just*[T](v: T): Observable[T] =
 
     just(10)
       .subscribe(
-        onNext = (x: int) => (res = x),
-        onComplete = () => (isCompleted = true))
+        next = (x: int) => (res = x),
+        complete = () => (isCompleted = true))
 
     assert res == 10
     assert isCompleted
@@ -71,8 +71,8 @@ func just*[T](v: T): Observable[T] =
   construct_whenSubscribed[T]:
     let retObservable = new Observable[T]
     retObservable.onSubscribe = proc(observer: Observer[T]): Disposable =
-      observer.onNext v
-      observer.onComplete()
+      observer.next v
+      observer.complete()
       newSubscription(retObservable, observer)
     return retObservable
 
@@ -89,8 +89,8 @@ func range*[T: Ordinal](start: T; count: Natural): Observable[T] =
 
     range(1, 4)
       .subscribe(
-        onNext = (x: int) => (res += x),
-        onComplete = () => (isCompleted = true),
+        next = (x: int) => (res += x),
+        complete = () => (isCompleted = true),
       )
 
     assert res == 10
@@ -100,8 +100,8 @@ func range*[T: Ordinal](start: T; count: Natural): Observable[T] =
     let retObservable = new Observable[T]
     retObservable.onSubscribe = proc(observer: Observer[T]): Disposable =
       for i in 0..<count:
-        observer.onNext start.succ(i)
-      observer.onComplete()
+        observer.next start.succ(i)
+      observer.complete()
       newSubscription(retObservable, observer)
     return retObservable
 
@@ -117,8 +117,8 @@ func repeat*[T](upstream: Observable[T]; times: Natural = 0): Observable[T] =
     var stat: Natural = times
     proc mkRepeatObserver(observer: Observer[T]): Observer[T] =
       return newObserver[T](
-        observer.onNext_default,
-        observer.onError_default,
+        observer.next_default,
+        observer.error_default,
         proc() =
         case stat:
           # Process: infinity
@@ -126,7 +126,7 @@ func repeat*[T](upstream: Observable[T]; times: Natural = 0): Observable[T] =
             upstream.subscribe observer.mkRepeatObserver()
           # Process: finity
           of 1: # End point.
-            observer.onComplete()
+            observer.complete()
           else:
             dec stat
             upstream.subscribe observer.mkRepeatObserver()
@@ -149,7 +149,7 @@ func buffer*[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0):
 
     range(0, 5)
       .buffer(2, 1)
-      .filter(x => x.len == 2) # If "buffer" reciexed onComplete exent, it will flush stored xalues 
+      .filter(x => x.len == 2) # If "buffer" reciexed complete exent, it will flush stored xalues 
                               # whether it has enough length or not.
       .map(x => x[0]*x[1])
       .subscribe((x: int) => (res.add x))
@@ -178,13 +178,13 @@ func buffer*[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0):
         (proc(v: T) =
           cache.add v
           if cache.len == timeSpan:
-            observer.onNext cache
+            observer.next cache
             cache = cache[skip..cache.high]
         ),
-        observer.onError_default,
+        observer.error_default,
         (proc() =
-          if cache.len != 0: observer.onNext cache
-          observer.onComplete()
+          if cache.len != 0: observer.next cache
+          observer.complete()
         ),
       )
 
@@ -195,22 +195,22 @@ func map*[T, S](upstream: Observable[T]; op: (T)->S): Observable[S] =
     import sugar
 
     var res = newSeq[int]()
-    let sbj = newSubject[int]()
+    let sbj = newPublishSubject[int]()
     sbj
       .map(x => x*10)
       .subscribe((x: int) => (res.add x))
-    sbj.onNext 1
-    sbj.onNext 2
-    sbj.onNext 3
+    sbj.next 1
+    sbj.next 2
+    sbj.next 3
 
     doAssert res == @[10, 20, 30]
 
   construct_whenSubscribed[S]:
     newObservable[S] proc(observer: Observer[S]): Disposable =
       upstream.subscribe(
-        (v: T) => observer.onNext op(v),
-        observer.onError_default,
-        observer.onComplete_default,
+        (v: T) => observer.next op(v),
+        observer.error_default,
+        observer.complete_default,
       )
 
 #!SECTION
@@ -224,25 +224,25 @@ func filter*[T](upstream: Observable[T]; op: (T)->bool): Observable[T] =
     import sugar
 
     var res = newSeq[int]()
-    let sbj = newSubject[int]()
+    let sbj = newPublishSubject[int]()
     sbj
       .filter(x => x > 10)
       .subscribe((x: int) => (res.add x))
-    sbj.onNext 2
-    sbj.onNext 30
-    sbj.onNext 22
-    sbj.onNext 5
-    sbj.onNext 60
-    sbj.onNext 1
+    sbj.next 2
+    sbj.next 30
+    sbj.next 22
+    sbj.next 5
+    sbj.next 60
+    sbj.next 1
 
     doAssert res == @[30, 22, 60]
 
   construct_whenSubscribed[T]:
     newObservable[T] proc(observer: Observer[T]): Disposable =
       upstream.subscribe(
-        (v: T) => (if op(v): observer.onNext v),
-        observer.onError_default,
-        observer.onComplete_default,
+        (v: T) => (if op(v): observer.next v),
+        observer.error_default,
+        observer.complete_default,
       )
 
 # !SECTION
@@ -257,19 +257,19 @@ func zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
     import sugar, strformat
 
     var res = newSeq[string]()
-    let sbj1 = newSubject[int]()
-    let sbj2 = newSubject[char]()
+    let sbj1 = newPublishSubject[int]()
+    let sbj2 = newPublishSubject[char]()
     sbj1.zip( <>sbj2 )
       .subscribe((v: (int, char)) => res.add &"{v[0]}{v[1]}")
-    sbj1.onNext 1
-    sbj2.onNext 'A'
-    sbj1.onNext 2
-    sbj2.onNext 'B'
-    sbj2.onNext 'C'
-    sbj2.onNext 'D'
-    sbj1.onNext 3
-    sbj1.onNext 4
-    sbj1.onNext 5
+    sbj1.next 1
+    sbj2.next 'A'
+    sbj1.next 2
+    sbj2.next 'B'
+    sbj2.next 'C'
+    sbj2.next 'D'
+    sbj1.next 3
+    sbj1.next 4
+    sbj1.next 5
 
     doAssert res == @["1A", "2B", "3C", "4D"]
 
@@ -278,18 +278,18 @@ func zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
     var cache: tuple[l: seq[Tl]; r: seq[Tr]] = (newSeq[Tl](), newSeq[Tr]())
     proc tryOnNext(observer: Observer[S]) =
       if cache.l.len != 0 and cache.r.len != 0:
-        observer.onNext (cache.l[0], cache.r[0])
+        observer.next (cache.l[0], cache.r[0])
         cache.l = cache.l[1..cache.l.high]
         cache.r = cache.r[1..cache.r.high]
     newObservable[S] proc(observer: Observer[S]): Disposable =
       let disps = @[
         tl.subscribe(
           (v: Tl) => (cache.l.add v; observer.tryOnNext()),
-          observer.onError_default,
+          observer.error_default,
         ),
         tr.subscribe(
           (v: Tr) => (cache.r.add v; observer.tryOnNext()),
-          observer.onError_default,
+          observer.error_default,
         ),
       ]
       disps.combineDisposables()
@@ -303,19 +303,19 @@ proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
 
     var res = newSeq[string]()
     let
-      sbj1 = newSubject[char]()
-      sbj2 = newSubject[char]()
-      sbj3 = newSubject[char]()
+      sbj1 = newPublishSubject[char]()
+      sbj2 = newPublishSubject[char]()
+      sbj3 = newPublishSubject[char]()
     sbj1.zip( <>sbj2, <>sbj3 )
       .subscribe((x: seq[char]) => res.add &"{x[0]}{x[1]}{x[2]}")
-    sbj1.onNext '1'
-    sbj2.onNext 'a'
-    sbj1.onNext '2'
-    sbj3.onNext 'A'
-    sbj2.onNext 'b'
-    sbj1.onNext '3'
-    sbj3.onNext 'B'
-    sbj3.onNext 'C'
+    sbj1.next '1'
+    sbj2.next 'a'
+    sbj1.next '2'
+    sbj3.next 'A'
+    sbj2.next 'b'
+    sbj1.next '3'
+    sbj3.next 'B'
+    sbj3.next 'C'
 
     doAssert res == @["1aA", "2bB"]
 
@@ -331,10 +331,10 @@ proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
         (proc(v: T) =
           cache[target.i].add(v)
           if cache.filterIt(it.len == 0).len == 0:
-            observer.onNext cache.mapIt(it[0])
+            observer.next cache.mapIt(it[0])
             cache = cache.mapIt(it[1..it.high])
         ),
-        observer.onError_default,
+        observer.error_default,
       )
     newObservable[S] proc(observer: Observer[S]): Disposable =
       var disps = newSeq[Disposable](targets.len)
@@ -352,10 +352,10 @@ func retry*[T](upstream: Observable[T]): Observable[T] =
   # NOTE: without this assignment, the upstream variable in retryConnection called later is not found.
   # ...I do not know why. :-(
   func mkRetryObserver(observer: Observer[T]): Observer[T] =
-    newObserver[T](
-      observer.onNext_default,
-      (e: ref Exception) => (upstream.subscribe observer.mkRetryObserver()),
-      observer.onComplete_default,
+    return newObserver[T](
+      observer.next_default,
+      proc(e: ref Exception) = (upstream.subscribe observer.mkRetryObserver()),
+      observer.complete_default,
     )
   construct_whenSubscribed[T]:
     newObservable[T] proc(observer: Observer[T]): Disposable =
@@ -373,18 +373,18 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
 
     var res = newSeq[int]()
     let
-      sbj1 = newSubject[int]()
-      sbj2 = newSubject[int]()
+      sbj1 = newPublishSubject[int]()
+      sbj2 = newPublishSubject[int]()
     sbj1.concat( <>sbj2 )
       .subscribe(
-        onNext = (x: int) => res.add x,
-        onComplete = () => res.add 0)
-    sbj1.onNext 1
-    sbj2.onNext 2
-    sbj1.onNext 1
-    sbj1.onComplete()
-    sbj2.onNext 2
-    sbj2.onComplete()
+        next = (x: int) => res.add x,
+        complete = () => res.add 0)
+    sbj1.next 1
+    sbj2.next 2
+    sbj1.next 1
+    sbj1.complete()
+    sbj2.next 2
+    sbj2.complete()
 
     doAssert res == @[1, 1, 2, 0]
 
@@ -398,14 +398,12 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
       inc i_target
     proc mkConcatObserver(observer: Observer[T]): Observer[T] =
       newObserver[T](
-        observer.onNext_default,
-        observer.onError_default,
-        (proc() =
-          if i_target < targets.len:
-            retDisp = nextTarget().subscribe observer.mkConcatObserver()
-          else:
-            observer.onComplete()
-        ),
+        observer.next_default,
+        observer.error_default,
+        if i_target < targets.len:
+          (proc() = retDisp = nextTarget().subscribe observer.mkConcatObserver())
+        else:
+          observer.complete_default
       )
     newObservable[T] proc(observer: Observer[T]): Disposable =
       retDisp = upstream.subscribe observer.mkConcatObserver()
@@ -429,40 +427,40 @@ func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
 
     var cntCalled: int
     let
-      sbj = newSubject[Unit]()
+      sbj = newPublishSubject[Unit]()
       published = sbj
         .doThat((_: Unit) => (inc cntCalled))
         .publish()
 
-    sbj.onNext()
+    sbj.next()
     assert cntCalled == 0
 
     published
       .subscribeBlock:
         discard
 
-    sbj.onNext()
+    sbj.next()
     assert cntCalled == 0
 
     let disconnectable = published.connect()
 
-    sbj.onNext()
+    sbj.next()
     assert cntCalled == 1
 
     published
       .subscribeBlock:
         discard
 
-    sbj.onNext()
+    sbj.next()
     assert cntCalled == 2
 
     disconnectable.dispose()
 
-    sbj.onNext()
+    sbj.next()
     assert cntCalled == 2
 
   ConnectableObservable[T](
-    subject: newSubject[T](),
+    subject: newPublishSubject[T](),
     upstream: upstream,
   )
 
@@ -471,9 +469,9 @@ proc connect*[T](self: ConnectableObservable[T]): Disposable {.discardable.} =
   # Do nothing when already connected between "publish subject" to its upstream
   if self.disposable_isItAlreadyConnected == nil:
     var dispSbsc = self.upstream.subscribe(
-      (v: T) => self.subject.onNext v,
-      (e: ref Exception) => self.subject.onError e,
-      () => self.subject.onComplete(),
+      (v: T) => self.subject.next v,
+      (e: ref Exception) => self.subject.error e,
+      () => self.subject.complete(),
     )
     self.disposable_isItAlreadyConnected = Disposable(dispose: proc() =
       dispSbsc.dispose()
@@ -510,9 +508,9 @@ func doThat*[T](upstream: Observable[T]; op: (T)->void): Observable[T] =
   construct_whenSubscribed[T]:
     newObservable[T] proc(observer: Observer[T]): Disposable =
       upstream.subscribe(
-        (v: T) => (op(v); observer.onNext v),
-        observer.onError_default,
-        observer.onComplete_default,
+        (v: T) => (op(v); observer.next v),
+        observer.error_default,
+        observer.complete_default,
       )
 
 func dump*[T](upstream: Observable[T]): Observable[T] =
@@ -520,9 +518,9 @@ func dump*[T](upstream: Observable[T]): Observable[T] =
   construct_whenSubscribed[T]:
     newObservable[T] proc(observer: Observer[T]): Disposable =
       upstream.subscribe(
-        (v: T) => (log v; observer.onNext v),
-        (e: ref Exception) => (log e; observer.onError e),
-        () => (log "complete!"; observer.onComplete()),
+        (v: T) => (log v; observer.next v),
+        (e: ref Exception) => (log e; observer.error e),
+        () => (log "complete!"; observer.complete()),
       )
 
 # !SECTION

@@ -3,9 +3,9 @@ import sugar
 
 type
   Observer*[T] = ref object
-    onNext: T->void
-    onError: Option[ref Exception->void]
-    onComplete: Option[()->void]
+    onNext*: Option[T->void]
+    onError*: Option[ref Exception->void]
+    onComplete*: Option[()->void]
   Observable*[T] = ref object
     onSubscribe*: Observer[T]->Disposable
     hasAnyObservers*: ()->bool
@@ -40,16 +40,28 @@ proc newObserver*[T](
       onComplete= default(()->void);
     ): Observer[T] =
   Observer[T](
-    onNext: onNext,
+    onNext: option(onNext),
     onError: option(onError),
     onComplete: option(onComplete),
   )
 
-proc onNext*[T](observer: Observer[T]; x: T) {.inline.} = observer.onNext(x)
-proc onError*[T](observer: Observer[T]; e: ref Exception) {.inline.} = 
-  if observer.onError.isSome: observer.onError.get()(e)
-proc onComplete*[T](observer: Observer[T]) {.inline.} =
-  if observer.onComplete.isSome: observer.onComplete.get()()
+proc next*[T](observer: Observer[T]; x: T) {.inline.} =
+  try:
+    if observer.onNext.isSome: observer.onNext.get()(x)
+  except:
+    observer.error getCurrentException()
+template next*[T](observer: Observer[T]; xs: varargs[T]): untyped =
+  for x in xs: observer.next x
+proc error*[T](observer: Observer[T]; e: ref Exception) {.inline.} = 
+  try:
+    if observer.onError.isSome: observer.onError.get()(e)
+  except:
+    observer.error getCurrentException()
+proc complete*[T](observer: Observer[T]) {.inline.} =
+  try:
+    if observer.onComplete.isSome: observer.onComplete.get()()
+  except:
+    observer.error getCurrentException()
 
 # Observable ==========================================================================
 proc newObservable*[T](onSubscribe: (Observer[T])->Disposable): Observable[T] =
@@ -80,3 +92,5 @@ template subscribe*[T](self: Observable[T];
   ##        () => onComplete()
   ##      )
   self.subscribe(newObserver(onNext, onError, onComplete))
+
+proc hasAnyObservers*[T](this: Observable[T]): bool {.inline.} = this.hasAnyObservers()
