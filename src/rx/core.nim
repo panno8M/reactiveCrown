@@ -1,5 +1,8 @@
 import options
 import sugar
+import tickets
+
+export tickets
 
 type
   Observer*[T] = ref object
@@ -10,27 +13,22 @@ type
     onSubscribe*: Observer[T]->Disposable
     hasAnyObservers*: ()->bool
     removeObserver*: Observer[T]->void
-  Disposable* = ref object
-    dispose*: ()->void
-  Subscription[T] = ref object
+  Disposable* = DisposableTicket[void]
+  Subscription[T] = object
     disposable: Disposable
     observable: Observable[T]
     observer: Observer[T]
-    isDisposed: bool
 
 
 # Subscription ==========================================================================
-converter `toDisposable`*[T](subscription: Subscription[T]): Disposable =
+converter `toDisposable`*[T](subscription: Subscription[T]): lent Disposable =
   subscription.disposable
 
 proc newSubscription*[T](oble: Observable[T]; ober: Observer[T]): Subscription[T] =
   var sbsc = Subscription[T]( observable: oble, observer: ober )
-  sbsc.disposable = Disposable(dispose: proc() =
-    if sbsc.isDisposed or not sbsc.observable.hasAnyObservers():
-      return
-    sbsc.observable.removeObserver(sbsc.observer)
-    sbsc.isDisposed = true
-  )
+  sbsc.disposable = Disposable.issue:
+    if sbsc.observable.hasAnyObservers():
+      sbsc.observable.removeObserver(sbsc.observer)
   return sbsc
 
 # Observer ============================================================================

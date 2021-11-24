@@ -23,16 +23,16 @@ suite "core":
     var results = newSeq[string]()
     let filter = subject.filter(i => i mod 2 == 1)
     let map = filter.map(i => i.toFloat())
-    let disposable = map.subscribe testObserver[float](results)
+    var disposable = map.subscribe testObserver[float](results)
 
     subject.next 1
     subject.next 2
     subject.next 3
-    disposable.dispose()
+    consume disposable
     subject.next 4
-    let filterDisposable = filter.subscribe testObserver[int](results)
+    var filterDisposable = filter.subscribe testObserver[int](results)
     subject.next 5
-    filterDisposable.dispose()
+    consume filterDisposable
     subject.next 6
     map.subscribe testObserver[float](results)
     map.subscribe testObserver[float](results)
@@ -48,10 +48,10 @@ suite "core":
     var results = newSeq[string]()
     let subject = newPublishSubject[int]()
     subject.subscribe testObserver[int](results, prefix = "1:")
-    let disposable = subject.subscribe testObserver[int](results, prefix = "2:")
+    var disposable = subject.subscribe testObserver[int](results, prefix = "2:")
 
     subject.next 10
-    disposable.dispose()
+    consume disposable
     subject.next 20
     subject.complete()
     subject.next 30
@@ -64,16 +64,17 @@ suite "observable/operator":
     let
       subject = newPublishSubject[int]()
       filter = subject.filter(v => v mod 2 == 1)
-      disposable1 = filter.subscribe testObserver[int](results)
+
+    var disposable1 = filter.subscribe testObserver[int](results)
 
     subject.next 1
-    let disposable2 = filter.subscribe testObserver[int](results)
+    var disposable2 = filter.subscribe testObserver[int](results)
     subject.next 2
     subject.next 3
-    disposable1.dispose()
+    consume disposable1
     subject.next 4
     subject.next 5
-    disposable2.dispose()
+    consume disposable2
     subject.next 6
     subject.next 7
 
@@ -87,21 +88,21 @@ suite "observable/operator":
       map1 = subject.map(v => toFloat(v))
       map2 = subject.map(v => toFloat(v))
 
-    let disposable11 = map1.subscribe testObserver[float](results1)
+    var disposable11 = map1.subscribe testObserver[float](results1)
     subject.next 1
-    let disposable21 = map2.subscribe testObserver[float](results2)
+    var disposable21 = map2.subscribe testObserver[float](results2)
     subject.next 2
-    let disposable12 = map1.subscribe testObserver[float](results1)
+    var disposable12 = map1.subscribe testObserver[float](results1)
     subject.next 3
-    let disposable22 = map2.subscribe testObserver[float](results2)
+    var disposable22 = map2.subscribe testObserver[float](results2)
     subject.next 4
-    disposable11.dispose()
+    consume disposable11
     subject.next 5
-    disposable21.dispose()
+    consume disposable21
     subject.next 6
-    disposable12.dispose()
+    consume disposable12
     subject.next 7
-    disposable22.dispose()
+    consume disposable22
     subject.next 8
 
     check results1 == @[1, 2, 3, 3, 4, 4, 5, 6].mapIt it.float.`$`
@@ -200,19 +201,20 @@ suite "observable/operator":
         sbj1 = newPublishSubject[int]()
         sbj2 = newPublishSubject[int]()
         concat = sbj1.concat( <>sbj2 )
+      var
         disp1 = concat.subscribe testObserver[int](results)
         disp2 = concat.subscribe testObserver[int](results)
       concat.subscribe testObserver[int](results)
 
       sbj1.next 1
       sbj2.next 2
-      disp1.dispose()
+      consume disp1
       sbj1.next 3
       sbj2.next 4
       sbj1.complete()
       sbj1.next 5
       sbj2.next 6
-      disp2.dispose()
+      consume disp2
       sbj1.next 7
       sbj2.next 8
       sbj2.complete()
@@ -257,9 +259,9 @@ suite "observable/factory":
 
   test "repeat  [T](v: T; times: Natural): Observable[T]":
     var results = newSeq[string]()
-    rx.just(5).repeat(3).subscribe testObserver[int](results)
+    rx.just(5).concat(just(10)).repeat(3).subscribe testObserver[int](results)
 
-    check results == @[$5, $5, $5, "#"]
+    check results == [$5, $10, $5, $10, $5, $10, "#"]
 
 suite "Cold->Hot Conversion":
   test "can publish & connect":
@@ -287,10 +289,10 @@ suite "Cold->Hot Conversion":
     observable.subscribe testObserver[float](results)
     subject.next 1
     subject.next 2
-    let disposable = observable.connect()
+    var disposable = observable.connect()
     subject.next 3
     subject.next 4
-    disposable.dispose()
+    consume disposable
     subject.next 5
     subject.next 6
     observable.connect()
@@ -309,21 +311,21 @@ suite "Cold->Hot Conversion":
     let observable1 = map.refCount()
     let observable2 = map.refCount()
 
-    let disposable11 = observable1.subscribe testObserver[float](results1)
+    var disposable11 = observable1.subscribe testObserver[float](results1)
     subject.next 1
-    let disposable21 = observable2.subscribe testObserver[float](results2)
+    var disposable21 = observable2.subscribe testObserver[float](results2)
     subject.next 2
-    let disposable12 = observable1.subscribe testObserver[float](results1)
+    var disposable12 = observable1.subscribe testObserver[float](results1)
     subject.next 3
-    let disposable22 = observable2.subscribe testObserver[float](results2)
+    var disposable22 = observable2.subscribe testObserver[float](results2)
     subject.next 4
-    disposable11.dispose()
+    consume disposable11
     subject.next 5
-    disposable21.dispose()
+    consume disposable21
     subject.next 6
-    disposable12.dispose()
+    consume disposable12
     subject.next 7
-    disposable22.dispose()
+    consume disposable22
     subject.next 8
     observable1.subscribe testObserver[float](results1)
     subject.next 9

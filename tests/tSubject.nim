@@ -101,20 +101,20 @@ suite "Subject":
     check listB[1] == 3
     check listC[0] == 3
 
-    listASubscription.dispose()
+    consume listASubscription
     check subject.hasAnyObservers
     subject.next 4
     check listA.len == 3
     check listB[2] == 4
     check listC[1] == 4
 
-    listCSubscription.dispose()
+    consume listCSubscription
     check subject.hasAnyObservers
     subject.next 5
     check listC.len == 2
     check listB[3] == 5
 
-    listBSubscription.dispose()
+    consume listBSubscription
     check not subject.hasAnyObservers
     subject.next 6
     check listB.len == 4
@@ -304,7 +304,7 @@ suite "ReplaySubject":
 
     # replay subscription
     reset ts
-    disp.dispose()
+    consume disp
     subject.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
@@ -383,7 +383,7 @@ suite "ReplaySubject":
 
     # replay subscription
     reset ts
-    disp.dispose()
+    consume disp
     disp = subject.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
@@ -395,7 +395,7 @@ suite "ReplaySubject":
     check ts.next == [100, 1000, 10000, 20000]
 
     reset ts
-    disp.dispose()
+    consume disp
     subject.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),

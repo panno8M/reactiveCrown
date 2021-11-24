@@ -35,9 +35,6 @@ template construct_whenSubscribed*[T](mkObservable: untyped): untyped =
     (() => mkObservable)().subscribe ober
   )
 
-template combineDisposables(disps: varargs[Disposable]): Disposable =
-  Disposable(dispose: () => @disps.apply((it: Disposable) => it.dispose()))
-
 # Indicate whether operator perform a special behavior.
 template next_default[T](observer: Observer[T]): (proc(v: T) {.closure.}) =
   (v: T) => observer.next(v)
@@ -73,7 +70,8 @@ func just*[T](v: T): Observable[T] =
     retObservable.onSubscribe = proc(observer: Observer[T]): Disposable =
       observer.next v
       observer.complete()
-      newSubscription(retObservable, observer)
+      var sbsc = newSubscription(retObservable, observer)
+      sbsc.toDisposable
     return retObservable
 
 
@@ -105,10 +103,24 @@ func range*[T: Ordinal](start: T; count: Natural): Observable[T] =
       newSubscription(retObservable, observer)
     return retObservable
 
-func repeat*[T](upstream: Observable[T]; times: Natural = 0): Observable[T] =
+func repeat*[T](upstream: Observable[T]): Observable[T] =
   ## | "[Repeat](http://reactivex.io/documentation/operators/repeat.html)" from ReactiveX
-  ## | if "times" == 0: It will repeat stream infinitely.
-  ## | if "times" >= 1: It will repeat stream "times" times.
+  # TODO: To write runnable examples, need to implement take** operators.
+  # I thought about separating infinite and finite into different functions,
+  # but in any case, the finite version changes the process depending on
+  # whether times is zero or not. Then I thought it would be cleaner to combine them.
+  construct_whenSubscribed[T]:
+    proc mkRepeatObserver(observer: Observer[T]): Observer[T] =
+      return newObserver[T](
+        observer.next_default,
+        observer.error_default,
+        proc() = upstream.subscribe observer.mkRepeatObserver()
+      )
+    newObservable[T] proc(observer: Observer[T]): Disposable =
+      return upstream.subscribe observer.mkRepeatObserver()
+
+func repeat*[T](upstream: Observable[T]; times: Natural): Observable[T] =
+  ## | "[Repeat](http://reactivex.io/documentation/operators/repeat.html)" from ReactiveX
   # TODO: To write runnable examples, need to implement take** operators.
   # I thought about separating infinite and finite into different functions,
   # but in any case, the finite version changes the process depending on
@@ -121,10 +133,6 @@ func repeat*[T](upstream: Observable[T]; times: Natural = 0): Observable[T] =
         observer.error_default,
         proc() =
         case stat:
-          # Process: infinity
-          of 0:
-            upstream.subscribe observer.mkRepeatObserver()
-          # Process: finity
           of 1: # End point.
             observer.complete()
           else:
@@ -282,17 +290,15 @@ func zip*[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]):
         cache.l = cache.l[1..cache.l.high]
         cache.r = cache.r[1..cache.r.high]
     newObservable[S] proc(observer: Observer[S]): Disposable =
-      let disps = @[
-        tl.subscribe(
-          (v: Tl) => (cache.l.add v; observer.tryOnNext()),
-          observer.error_default,
-        ),
-        tr.subscribe(
-          (v: Tr) => (cache.r.add v; observer.tryOnNext()),
-          observer.error_default,
-        ),
-      ]
-      disps.combineDisposables()
+      var disp1 = tl.subscribe(
+        (v: Tl) => (cache.l.add v; observer.tryOnNext()),
+        observer.error_default,
+      )
+      var disp2 = tr.subscribe(
+        (v: Tr) => (cache.r.add v; observer.tryOnNext()),
+        observer.error_default,
+      )
+      bandle @[disp1.addr, disp2.addr]
 
 proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
                                                               Observable[seq[T]] =
@@ -337,10 +343,11 @@ proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
         observer.error_default,
       )
     newObservable[S] proc(observer: Observer[S]): Disposable =
-      var disps = newSeq[Disposable](targets.len)
+      var disps = newSeq[ptr Disposable](targets.len)
       for i, target in targets:
-        disps[i] = (target, i).trySubscribe(observer)
-      disps.combineDisposables()
+        var x = (target, i).trySubscribe(observer)
+        disps[i] = x.addr
+      disps.bandle
 
 # !SECTION
 
@@ -407,7 +414,8 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
       )
     newObservable[T] proc(observer: Observer[T]): Disposable =
       retDisp = upstream.subscribe observer.mkConcatObserver()
-      Disposable(dispose: () => retDisp.dispose())
+      Disposable.issue:
+        consume retDisp
 
 # !SECTION
 
@@ -416,7 +424,7 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
 type ConnectableObservable[T] = ref object
   subject: Subject[T]
   upstream: Observable[T]
-  disposable_isItAlreadyConnected: Disposable
+  cacheDisp: Disposable
 converter toObservable*[T](self: ConnectableObservable[T]): Observable[T] = self.subject
 template `<>`*[T](self: ConnectableObservable[T]): Observable[T] = self.toObservable
 func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
@@ -467,17 +475,15 @@ func publish*[T](upstream: Observable[T]): ConnectableObservable[T] =
 proc connect*[T](self: ConnectableObservable[T]): Disposable {.discardable.} =
   ## See `publish proc<#publish,IObservable[T]>`_ for examples.
   # Do nothing when already connected between "publish subject" to its upstream
-  if self.disposable_isItAlreadyConnected == nil:
+  if self.cacheDisp.isInvalid:
     var dispSbsc = self.upstream.subscribe(
       (v: T) => self.subject.next v,
       (e: ref Exception) => self.subject.error e,
       () => self.subject.complete(),
     )
-    self.disposable_isItAlreadyConnected = Disposable(dispose: proc() =
-      dispSbsc.dispose()
-      self.disposable_isItAlreadyConnected = nil
-    )
-  return self.disposable_isItAlreadyConnected
+    self.cacheDisp = Disposable.issue:
+      consume dispSbsc
+  return self.cacheDisp
 
 func refCount*[T](upstream: ConnectableObservable[T]): Observable[T] =
   ## NOTE: There is something wrong with this behavior.
@@ -486,16 +492,16 @@ func refCount*[T](upstream: ConnectableObservable[T]): Observable[T] =
     cntSubscribed = 0
     dispConnect: Disposable
   newObservable[T] proc(observer: Observer[T]): Disposable =
-    let dispSubscribe = upstream.subscribe observer
+    var dispSubscribe = upstream.subscribe observer
     inc cntSubscribed
     if cntSubscribed == 1:
       dispConnect = upstream.connect()
-    return Disposable(dispose: proc() =
-      dec cntSubscribed
-      if cntSubscribed == 0:
-        dispConnect.dispose()
-      dispSubscribe.dispose()
-    )
+    return Disposable.issue:
+      if cntSubscribed > 0:
+        dec cntSubscribed
+        if cntSubscribed == 0 and dispConnect.isValid:
+          consume dispConnect
+      consume dispSubscribe
 
 func share*[T](upstream: Observable[T]): Observable[T] =
   upstream.publish().refCount()
