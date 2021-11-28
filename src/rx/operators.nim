@@ -511,8 +511,8 @@ func refCount*[T](upstream: ConnectableObservable[T]): Observable[T] =
     return Disposable.issue:
       if cntSubscribed > 0:
         dec cntSubscribed
-        if cntSubscribed == 0 and dispConnect.isValid:
-          consume dispConnect
+        if cntSubscribed == 0:
+          tryConsume dispConnect
       consume dispSubscribe
 
 func share*[T](upstream: Observable[T]): Observable[T] =
