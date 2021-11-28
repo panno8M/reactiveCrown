@@ -4,7 +4,7 @@
 # the parentheses should be omitted and the description should be procedural:
 # * Observer[T].next val
 # * Observer[T].error err
-# * Observer[T].complete()
+# * Observer[T].complete
 # * IObservable[T].subscribe observer
 #
 # IObservable[T].subscribe(
@@ -41,7 +41,7 @@ template next_default[T](observer: Observer[T]): (proc(v: T) {.closure.}) =
 template error_default[T](observer: Observer[T]): (proc(e: ref Exception) {.closure.}) =
   (e: ref Exception) => observer.error(e)
 template complete_default[T](observer: Observer[T]): (proc() {.closure.}) =
-  () => observer.complete()
+  () => observer.complete
 
 # !SECTION
 
@@ -69,7 +69,7 @@ func just*[T](v: T): Observable[T] =
     let retObservable = new Observable[T]
     retObservable.onSubscribe = proc(observer: Observer[T]): Disposable =
       observer.next v
-      observer.complete()
+      observer.complete
       var sbsc = newSubscription(retObservable, observer)
       sbsc.toDisposable
     return retObservable
@@ -99,7 +99,7 @@ func range*[T: Ordinal](start: T; count: Natural): Observable[T] =
     retObservable.onSubscribe = proc(observer: Observer[T]): Disposable =
       for i in 0..<count:
         observer.next start.succ(i)
-      observer.complete()
+      observer.complete
       newSubscription(retObservable, observer)
     return retObservable
 
@@ -134,7 +134,7 @@ func repeat*[T](upstream: Observable[T]; times: Natural): Observable[T] =
         proc() =
         case stat:
           of 1: # End point.
-            observer.complete()
+            observer.complete
           else:
             dec stat
             upstream.subscribe observer.mkRepeatObserver()
@@ -192,7 +192,7 @@ func buffer*[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0):
         observer.error_default,
         (proc() =
           if cache.len != 0: observer.next cache
-          observer.complete()
+          observer.complete
         ),
       )
 
@@ -389,9 +389,9 @@ proc concat*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
     sbj1.next 1
     sbj2.next 2
     sbj1.next 1
-    sbj1.complete()
+    sbj1.complete
     sbj2.next 2
-    sbj2.complete()
+    sbj2.complete
 
     doAssert res == @[1, 1, 2, 0]
 
@@ -479,7 +479,7 @@ proc connect*[T](self: ConnectableObservable[T]): Disposable {.discardable.} =
     var dispSbsc = self.upstream.subscribe(
       (v: T) => self.subject.next v,
       (e: ref Exception) => self.subject.error e,
-      () => self.subject.complete(),
+      () => self.subject.complete,
     )
     self.cacheDisp = Disposable.issue:
       consume dispSbsc
@@ -526,7 +526,7 @@ func dump*[T](upstream: Observable[T]): Observable[T] =
       upstream.subscribe(
         (v: T) => (log v; observer.next v),
         (e: ref Exception) => (log e; observer.error e),
-        () => (log "complete!"; observer.complete()),
+        () => (log "complete!"; observer.complete),
       )
 
 # !SECTION

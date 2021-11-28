@@ -44,7 +44,7 @@ proc unitfy*[T](upstream: Observable[T]): Observable[Unit] =
       upstream.subscribe(
         (v: T) => observer.onNext unitDefault(),
         (e: ref Exception) => observer.onError e,
-        () => observer.onComplete(),
+        () => observer.onComplete,
       )
 
 template subscribeBlock*(upstream: Observable[Unit];

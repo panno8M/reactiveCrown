@@ -37,7 +37,7 @@ template execOnError[T](this: Subject[T]; e: ref Exception) =
     for observer in this.observers: observer.error(e)
 template execOnComplete[T](this: Subject[T]): untyped =
   if this.toObservable.hasAnyObservers():
-    for observer in this.observers: observer.complete()
+    for observer in this.observers: observer.complete
 
 proc addObserver[T](this: Subject[T]; ober: Observer[T]) =
   this.observers.add ober
@@ -66,7 +66,7 @@ proc newPublishSubject*[T](): PublishSubject[T] =
 
   subject.toObservable.onSubscribe = proc(ober: Observer[T]): Disposable =
     if subject.isCompleted:
-      ober.complete()
+      ober.complete
     elif subject.getLastError != nil:
       ober.error subject.getLastError
     else:
@@ -116,7 +116,7 @@ proc newReplaySubject*[T](bufferSize: Natural = Natural.high): ReplaySubject[T] 
   subject.toObservable.onSubscribe = proc(ober: Observer[T]): Disposable =
     for x in subject.cache.items: ober.next x
     if subject.isCompleted:
-      ober.complete()
+      ober.complete
     elif subject.getLastError != nil:
       ober.error subject.getLastError
     else:

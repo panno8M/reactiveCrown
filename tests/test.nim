@@ -53,7 +53,7 @@ suite "core":
     subject.next 10
     consume disposable
     subject.next 20
-    subject.complete()
+    subject.complete
     subject.next 30
 
     check results == @["1:10", "2:10", "1:20", "1:#"]
@@ -161,7 +161,7 @@ suite "observable/operator":
     subject2.next 2
     subject3.next 3
     subject2.next 20
-    subject2.complete()
+    subject2.complete
     subject3.next 30
     subject1.next 100
     subject2.next 200
@@ -184,15 +184,15 @@ suite "observable/operator":
 
       subject1.next 1
       subject2.next 10
-      subject1.complete()
+      subject1.complete
 
       subject2.next 20
-      subject3.complete()
+      subject3.complete
       subject2.next 30
-      subject2.complete()
+      subject2.complete
 
       subject4.next 100
-      subject4.complete()
+      subject4.complete
 
       check results == @[$1, $20, $30, $100, "#"]
     block:
@@ -211,13 +211,13 @@ suite "observable/operator":
       consume disp1
       sbj1.next 3
       sbj2.next 4
-      sbj1.complete()
+      sbj1.complete
       sbj1.next 5
       sbj2.next 6
       consume disp2
       sbj1.next 7
       sbj2.next 8
-      sbj2.complete()
+      sbj2.complete
       sbj1.next 9
       sbj2.next 10
 
