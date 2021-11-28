@@ -125,6 +125,16 @@ func repeat*[T](upstream: Observable[T]; times: Natural): Observable[T] =
   # I thought about separating infinite and finite into different functions,
   # but in any case, the finite version changes the process depending on
   # whether times is zero or not. Then I thought it would be cleaner to combine them.
+
+  if times == 0:
+    return construct_whenSubscribed[T]:
+      newObservable[T] proc(observer: Observer[T]): Disposable =
+        upstream.subscribe(
+          (v: T) => observer.complete,
+          (e: ref Exception) => observer.error e,
+          () => observer.complete,
+        )
+
   construct_whenSubscribed[T]:
     var stat: Natural = times
     proc mkRepeatObserver(observer: Observer[T]): Observer[T] =
@@ -356,17 +366,19 @@ proc zip*[T](upstream: Observable[T]; targets: varargs[Observable[T]]):
 func retry*[T](upstream: Observable[T]): Observable[T] =
   ## "[Retry](http://reactivex.io/documentation/operators/retry.html)" from ReactiveX
   # TODO: To write runnable examples, needs to implement replaySubject.
-  # NOTE: without this assignment, the upstream variable in retryConnection called later is not found.
-  # ...I do not know why. :-(
-  func mkRetryObserver(observer: Observer[T]): Observer[T] =
-    return newObserver[T](
-      observer.next_default,
-      proc(e: ref Exception) = (upstream.subscribe observer.mkRetryObserver()),
-      observer.complete_default,
-    )
   construct_whenSubscribed[T]:
+    var disposable: Disposable
+    func mkRetryObserver(observer: Observer[T]): Observer[T] =
+      return newObserver[T](
+        observer.next_default,
+        (proc(e: ref Exception) =
+          disposable.tryConsume()
+          disposable = upstream.subscribe observer.mkRetryObserver()
+        ),
+        observer.complete_default,
+      )
     newObservable[T] proc(observer: Observer[T]): Disposable =
-      upstream.subscribe observer.mkRetryObserver()
+      disposable = upstream.subscribe observer.mkRetryObserver()
 
 # !SECTION
 

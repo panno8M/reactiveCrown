@@ -224,20 +224,20 @@ suite "observable/operator":
       check results == @[$1, $1, $1, $3, $3, $6, $6, $8, "#"]
 
   test "retry  [T](upstream: Observable[T]): Observable[T]":
-    echo "\e[34mTODO!\e[m"
-    check false
-    # var results = newSeq[string]()
-    # let subject = newPublishSubject[string]()
-    # subject
-    #   .map(x => parseInt(x))
-    #   .retry()
-    #   .subscribe testObserver[int](results)
+    # echo "\e[34mTODO!\e[m"
+    # check false
+    var results = newSeq[string]()
+    let subject = newPublishSubject[string]()
+    subject
+      .map(x => parseInt(x))
+      .retry()
+      .subscribe testObserver[int](results)
 
-    # subject.next "10"
-    # subject.next "XXX"
-    # subject.next "20"
+    subject.next "10"
+    subject.next "XXX"
+    subject.next "20"
 
-    # check results == @[$10, $20]
+    check results == @[$10, $20]
 
 suite "observable/factory":
 
