@@ -17,7 +17,7 @@
 <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600' rel='stylesheet' type='text/css'/>
 
 <!-- CSS -->
-<title>rx</title>
+<title>reactiveCrown</title>
 <link rel="stylesheet" type="text/css" href="nimdoc.out.css">
 
 <script type="text/javascript" src="dochack.js"></script>
@@ -69,7 +69,7 @@ window.addEventListener('DOMContentLoaded', main);
 <body>
 <div class="document" id="documentId">
   <div class="container">
-    <h1 class="title">rx</h1>
+    <h1 class="title">reactiveCrown</h1>
     <div class="row">
   <div class="three columns">
   <div class="theme-switch-wrapper">
@@ -100,10 +100,10 @@ window.addEventListener('DOMContentLoaded', main);
   <ul class="simple simple-toc" id="toc-list">
 <li><a class="reference" id="simple-usage_toc" href="#simple-usage">Simple Usage</a></li>
 <li><a class="reference" id="modules_toc" href="#modules">Modules</a></li>
-<ul class="simple"><li><a class="reference" id="modules-corerxslashcoredothtml_toc" href="#modules-corerxslashcoredothtml"><a class="reference external" href="rx/core.html">core</a></a></li>
-<li><a class="reference" id="modules-subjectsrxslashsubjectsdothtml_toc" href="#modules-subjectsrxslashsubjectsdothtml"><a class="reference external" href="rx/subjects.html">subjects</a></a></li>
-<li><a class="reference" id="modules-operatorsrxslashoperatorsdothtml_toc" href="#modules-operatorsrxslashoperatorsdothtml"><a class="reference external" href="rx/operators.html">operators</a></a></li>
-<li><a class="reference" id="modules-unitutilsrxslashunitutilsdothtml_toc" href="#modules-unitutilsrxslashunitutilsdothtml"><a class="reference external" href="rx/unitUtils.html">unitUtils</a></a></li>
+<ul class="simple"><li><a class="reference" id="modules-corereactivecrownslashcoredothtml_toc" href="#modules-corereactivecrownslashcoredothtml"><a class="reference external" href="reactiveCrown/core.html">core</a></a></li>
+<li><a class="reference" id="modules-subjectsreactivecrownslashsubjectsdothtml_toc" href="#modules-subjectsreactivecrownslashsubjectsdothtml"><a class="reference external" href="reactiveCrown/subjects.html">subjects</a></a></li>
+<li><a class="reference" id="modules-operatorsreactivecrownslashoperatorsdothtml_toc" href="#modules-operatorsreactivecrownslashoperatorsdothtml"><a class="reference external" href="reactiveCrown/operators.html">operators</a></a></li>
+<li><a class="reference" id="modules-unitutilsreactivecrownslashunitutilsdothtml_toc" href="#modules-unitutilsreactivecrownslashunitutilsdothtml"><a class="reference external" href="reactiveCrown/unitUtils.html">unitUtils</a></a></li>
 </ul><li>
   <a class="reference reference-toplevel" href="#6" id="56">Imports</a>
   <ul class="simple simple-toc-section">
@@ -127,10 +127,10 @@ window.addEventListener('DOMContentLoaded', main);
   <p class="module-desc">ReactiveX implemented with Nim.
 <h1><a class="toc-backref" id="simple-usage" href="#simple-usage">Simple Usage</a></h1>
 <p><strong class="examples_text">Example:</strong></p>
-<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">rx</span>
-<span class="Comment"># import rx/[core, operators, subjects] # It is the same as.</span>
+<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">reactiveCrown</span>
+<span class="Comment"># import reactiveCrown/[core, operators, subjects] # It is the same as.</span>
 
-<span class="Keyword">import</span> <span class="Identifier">rx</span><span class="Operator">/</span><span class="Identifier">unitUtils</span>
+<span class="Keyword">import</span> <span class="Identifier">reactiveCrown</span><span class="Operator">/</span><span class="Identifier">unitUtils</span>
 <span class="Keyword">import</span> <span class="Identifier">sugar</span>
 <span class="Keyword">import</span> <span class="Identifier">times</span>
 
@@ -143,7 +143,7 @@ window.addEventListener('DOMContentLoaded', main);
 <span class="Keyword">const</span> <span class="Identifier">doubleClickBorder_sec</span> <span class="Operator">=</span> <span class="FloatNumber">0.01'f</span>
 
 <span class="Keyword">let</span>
-  <span class="Identifier">sbjOnBtnClicked</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">Unit</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
+  <span class="Identifier">sbjOnBtnClicked</span> <span class="Operator">=</span> <span class="Identifier">newPublishSubject</span><span class="Punctuation">[</span><span class="Identifier">Unit</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
 
   <span class="Identifier">dspOnBtnClicked</span> <span class="Operator">=</span>
     <span class="Identifier">sbjOnBtnClicked</span><span class="Operator">.</span><span class="Identifier">toObservable</span>
@@ -172,24 +172,24 @@ window.addEventListener('DOMContentLoaded', main);
       <span class="Punctuation">)</span>
 
 <span class="Identifier">onButtonClicked</span> <span class="Operator">=</span> <span class="Keyword">proc</span><span class="Punctuation">(</span><span class="Punctuation">)</span> <span class="Operator">=</span>
-  <span class="Identifier">sbjOnBtnClicked</span><span class="Operator">.</span><span class="Identifier">onNext</span><span class="Punctuation">(</span><span class="Punctuation">)</span></pre>
+  <span class="Identifier">sbjOnBtnClicked</span><span class="Operator">.</span><span class="Identifier">next</span><span class="Punctuation">(</span><span class="Punctuation">)</span></pre>
 <h1><a class="toc-backref" id="modules" href="#modules">Modules</a></h1>
-<h2><a class="toc-backref" id="modules-corerxslashcoredothtml" href="#modules-corerxslashcoredothtml"><a class="reference external" href="rx/core.html">core</a></a></h2><p>It is the core of this library.<br/>It is useless by itself basically but, it is necessary to use rx.<br/>It will be implicitly imported by written &quot;import rx&quot; .<br/></p>
-<h2><a class="toc-backref" id="modules-subjectsrxslashsubjectsdothtml" href="#modules-subjectsrxslashsubjectsdothtml"><a class="reference external" href="rx/subjects.html">subjects</a></a></h2><p>It will be implicitly imported by written &quot;import rx&quot; .</p>
+<h2><a class="toc-backref" id="modules-corereactivecrownslashcoredothtml" href="#modules-corereactivecrownslashcoredothtml"><a class="reference external" href="reactiveCrown/core.html">core</a></a></h2><p>It is the core of this library.<br/>It is useless by itself basically but, it is necessary to use reactiveCrown.<br/>It will be implicitly imported by written &quot;import reactiveCrown&quot; .<br/></p>
+<h2><a class="toc-backref" id="modules-subjectsreactivecrownslashsubjectsdothtml" href="#modules-subjectsreactivecrownslashsubjectsdothtml"><a class="reference external" href="reactiveCrown/subjects.html">subjects</a></a></h2><p>It will be implicitly imported by written &quot;import reactiveCrown&quot; .</p>
 
-<h2><a class="toc-backref" id="modules-operatorsrxslashoperatorsdothtml" href="#modules-operatorsrxslashoperatorsdothtml"><a class="reference external" href="rx/operators.html">operators</a></a></h2><p>It will be implicitly imported by written &quot;import rx&quot; .</p>
+<h2><a class="toc-backref" id="modules-operatorsreactivecrownslashoperatorsdothtml" href="#modules-operatorsreactivecrownslashoperatorsdothtml"><a class="reference external" href="reactiveCrown/operators.html">operators</a></a></h2><p>It will be implicitly imported by written &quot;import reactiveCrown&quot; .</p>
 
-<h2><a class="toc-backref" id="modules-unitutilsrxslashunitutilsdothtml" href="#modules-unitutilsrxslashunitutilsdothtml"><a class="reference external" href="rx/unitUtils.html">unitUtils</a></a></h2><p>To use this module, you need to explicitly import it by writing &quot;import rx/unitUtils&quot;.</p>
+<h2><a class="toc-backref" id="modules-unitutilsreactivecrownslashunitutilsdothtml" href="#modules-unitutilsreactivecrownslashunitutilsdothtml"><a class="reference external" href="reactiveCrown/unitUtils.html">unitUtils</a></a></h2><p>To use this module, you need to explicitly import it by writing &quot;import reactiveCrown/unitUtils&quot;.</p>
 </p>
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
-<a class="reference external" href="rx/core.html">rx/core</a>, <a class="reference external" href="rx/subjects.html">rx/subjects</a>, <a class="reference external" href="rx/operators.html">rx/operators</a>, <a class="reference external" href="rx/unitUtils.html">rx/unitUtils</a>
+<a class="reference external" href="reactiveCrown/core.html">reactiveCrown/core</a>, <a class="reference external" href="reactiveCrown/subjects.html">reactiveCrown/subjects</a>, <a class="reference external" href="reactiveCrown/operators.html">reactiveCrown/operators</a>, <a class="reference external" href="reactiveCrown/unitUtils.html">reactiveCrown/unitUtils</a>
 </dl></div>
 <div class="section" id="19">
 <h1><a class="toc-backref" href="#19">Exports</a></h1>
 <dl class="item">
-<a href="rx/core.html#Observable"><span class="Identifier">Observable</span></a>, <a href="rx/core.html#Observer"><span class="Identifier">Observer</span></a>, <a href="rx/core.html#subscribe.t,Observable[T],"><span class="Identifier">subscribe</span></a>, <a href="rx/core.html#Disposable"><span class="Identifier">Disposable</span></a>, <a href="rx/core.html#onError,Observer[T],ref.Exception"><span class="Identifier">onError</span></a>, <a href="rx/core.html#subscribe,Observable[T],Observer[T]"><span class="Identifier">subscribe</span></a>, <a href="rx/core.html#onComplete,Observer[T]"><span class="Identifier">onComplete</span></a>, <a href="rx/core.html#newObservable"><span class="Identifier">newObservable</span></a>, <a href="rx/core.html#newSubscription,Observable[T],Observer[T]"><span class="Identifier">newSubscription</span></a>, <a href="rx/core.html#toDisposable.c,Subscription[T]"><span class="Identifier">toDisposable</span></a>, <a href="rx/core.html#newObserver"><span class="Identifier">newObserver</span></a>, <a href="rx/core.html#onNext,Observer[T],T"><span class="Identifier">onNext</span></a>, <a href="rx/subjects.html#toObservable.c,Subject[T]"><span class="Identifier">toObservable</span></a>, <a href="rx/subjects.html#newSubject"><span class="Identifier">newSubject</span></a>, <a href="rx/subjects.html#Subject"><span class="Identifier">Subject</span></a>, <a href="rx/subjects.html#<>.t,Subject[T]"><span class="Identifier">&lt;&gt;</span></a>, <a href="rx/subjects.html#toObserver.c,Subject[T]"><span class="Identifier">toObserver</span></a>, <a href="rx/operators.html#refCount,ConnectableObservable[T]"><span class="Identifier">refCount</span></a>, <a href="rx/operators.html#construct_whenSubscribed.t,untyped"><span class="Identifier">construct_whenSubscribed</span></a>, <a href="rx/operators.html#<>.t,ConnectableObservable[T]"><span class="Identifier">&lt;&gt;</span></a>, <a href="rx/operators.html#map,Observable[T],"><span class="Identifier">map</span></a>, <a href="rx/operators.html#publish,Observable[T]"><span class="Identifier">publish</span></a>, <a href="rx/operators.html#dump,Observable[T]"><span class="Identifier">dump</span></a>, <a href="rx/operators.html#connect,ConnectableObservable[T]"><span class="Identifier">connect</span></a>, <a href="rx/operators.html#buffer,Observable[T],Natural,Natural"><span class="Identifier">buffer</span></a>, <a href="rx/operators.html#retry,Observable[T]"><span class="Identifier">retry</span></a>, <a href="rx/operators.html#share,Observable[T]"><span class="Identifier">share</span></a>, <a href="rx/operators.html#zip,Observable[Tl],Observable[Tr]"><span class="Identifier">zip</span></a>, <a href="rx/operators.html#repeat,Observable[T],Natural"><span class="Identifier">repeat</span></a>, <a href="rx/operators.html#toObservable.c,ConnectableObservable[T]"><span class="Identifier">toObservable</span></a>, <a href="rx/operators.html#filter,Observable[T],"><span class="Identifier">filter</span></a>, <a href="rx/operators.html#concat,Observable[T],varargs[Observable[T]]"><span class="Identifier">concat</span></a>, <a href="rx/operators.html#just,T"><span class="Identifier">just</span></a>, <a href="rx/operators.html#range,T,Natural"><span class="Identifier">range</span></a>, <a href="rx/operators.html#zip,Observable[T],varargs[Observable[T]]"><span class="Identifier">zip</span></a>, <a href="rx/operators.html#doThat,Observable[T],"><span class="Identifier">doThat</span></a>
+<a href="reactiveCrown/core.html#subscribe,Observable[T],Observer[T]"><span class="Identifier">subscribe</span></a>, <a href="reactiveCrown/core.html#subscribe.t,Observable[T],"><span class="Identifier">subscribe</span></a>, <a href="reactiveCrown/core.html#error,Observer[T],ref.Exception"><span class="Identifier">error</span></a>, <a href="reactiveCrown/core.html#newSubscription,Observable[T],Observer[T]"><span class="Identifier">newSubscription</span></a>, <a href="reactiveCrown/core.html#toDisposable.c,Subscription[T]"><span class="Identifier">toDisposable</span></a>, <a href="reactiveCrown/core.html#newObserver"><span class="Identifier">newObserver</span></a>, <a href="reactiveCrown/core.html#hasAnyObservers,Observable[T]"><span class="Identifier">hasAnyObservers</span></a>, <a href="reactiveCrown/core.html#Observable"><span class="Identifier">Observable</span></a>, <a href="reactiveCrown/core.html#next,Observer[T],T,varargs[T]"><span class="Identifier">next</span></a>, <a href="reactiveCrown/core.html#newObservable"><span class="Identifier">newObservable</span></a>, <a href="reactiveCrown/core.html#complete,Observer[T]"><span class="Identifier">complete</span></a>, <a href="reactiveCrown/core.html#Observer"><span class="Identifier">Observer</span></a>, <a href="reactiveCrown/core.html#Disposable"><span class="Identifier">Disposable</span></a>, <a href="reactiveCrown/subjects.html#newPublishSubject"><span class="Identifier">newPublishSubject</span></a>, <a href="reactiveCrown/subjects.html#newOperatorSubject"><span class="Identifier">newOperatorSubject</span></a>, <a href="reactiveCrown/subjects.html#toObserver.c"><span class="Identifier">toObserver</span></a>, <a href="reactiveCrown/subjects.html#toObserver.c_2"><span class="Identifier">toObserver</span></a>, <a href="reactiveCrown/subjects.html#OperatorSubject"><span class="Identifier">OperatorSubject</span></a>, <a href="reactiveCrown/subjects.html#toSubject.c"><span class="Identifier">toSubject</span></a>, <a href="reactiveCrown/subjects.html#ReplaySubject"><span class="Identifier">ReplaySubject</span></a>, <a href="reactiveCrown/subjects.html#Subject"><span class="Identifier">Subject</span></a>, <a href="reactiveCrown/subjects.html#defineBasicSubjectConverters.t,typedesc"><span class="Identifier">defineBasicSubjectConverters</span></a>, <a href="reactiveCrown/subjects.html#toObservable.c"><span class="Identifier">toObservable</span></a>, <a href="reactiveCrown/subjects.html#toObservable.c_2"><span class="Identifier">toObservable</span></a>, <a href="reactiveCrown/subjects.html#toSubject.c_2"><span class="Identifier">toSubject</span></a>, <a href="reactiveCrown/subjects.html#toObservable.c,Subject[T]"><span class="Identifier">toObservable</span></a>, <a href="reactiveCrown/subjects.html#toObserver.c_3"><span class="Identifier">toObserver</span></a>, <a href="reactiveCrown/subjects.html#<>.t,Subject[T]"><span class="Identifier">&lt;&gt;</span></a>, <a href="reactiveCrown/subjects.html#isCompleted,Subject[T]"><span class="Identifier">isCompleted</span></a>, <a href="reactiveCrown/subjects.html#getLastError,Subject[T]"><span class="Identifier">getLastError</span></a>, <a href="reactiveCrown/subjects.html#PublishSubject"><span class="Identifier">PublishSubject</span></a>, <a href="reactiveCrown/subjects.html#toObserver.c,Subject[T]"><span class="Identifier">toObserver</span></a>, <a href="reactiveCrown/subjects.html#newReplaySubject,Natural"><span class="Identifier">newReplaySubject</span></a>, <a href="reactiveCrown/subjects.html#toObservable.c_3"><span class="Identifier">toObservable</span></a>, <a href="reactiveCrown/subjects.html#toSubject.c_3"><span class="Identifier">toSubject</span></a>, <a href="reactiveCrown/operators.html#share,Observable[T]"><span class="Identifier">share</span></a>, <a href="reactiveCrown/operators.html#refCount,ConnectableObservable[T]"><span class="Identifier">refCount</span></a>, <a href="reactiveCrown/operators.html#construct_whenSubscribed.t,untyped"><span class="Identifier">construct_whenSubscribed</span></a>, <a href="reactiveCrown/operators.html#<>.t,ConnectableObservable[T]"><span class="Identifier">&lt;&gt;</span></a>, <a href="reactiveCrown/operators.html#map,Observable[T],"><span class="Identifier">map</span></a>, <a href="reactiveCrown/operators.html#repeat,Observable[T],Natural"><span class="Identifier">repeat</span></a>, <a href="reactiveCrown/operators.html#dump,Observable[T]"><span class="Identifier">dump</span></a>, <a href="reactiveCrown/operators.html#connect,ConnectableObservable[T]"><span class="Identifier">connect</span></a>, <a href="reactiveCrown/operators.html#buffer,Observable[T],Natural,Natural"><span class="Identifier">buffer</span></a>, <a href="reactiveCrown/operators.html#retry,Observable[T]"><span class="Identifier">retry</span></a>, <a href="reactiveCrown/operators.html#publish,Observable[T]"><span class="Identifier">publish</span></a>, <a href="reactiveCrown/operators.html#concat,Observable[T],varargs[Observable[T]]"><span class="Identifier">concat</span></a>, <a href="reactiveCrown/operators.html#repeat,Observable[T]"><span class="Identifier">repeat</span></a>, <a href="reactiveCrown/operators.html#toObservable.c,ConnectableObservable[T]"><span class="Identifier">toObservable</span></a>, <a href="reactiveCrown/operators.html#zip,Observable[Tl],Observable[Tr]"><span class="Identifier">zip</span></a>, <a href="reactiveCrown/operators.html#zip,Observable[T],varargs[Observable[T]]"><span class="Identifier">zip</span></a>, <a href="reactiveCrown/operators.html#just,T"><span class="Identifier">just</span></a>, <a href="reactiveCrown/operators.html#range,T,Natural"><span class="Identifier">range</span></a>, <a href="reactiveCrown/operators.html#filter,Observable[T],"><span class="Identifier">filter</span></a>, <a href="reactiveCrown/operators.html#doThat,Observable[T],"><span class="Identifier">doThat</span></a>
 </dl></div>
 
   </div>
@@ -199,7 +199,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 09:16:26 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-12-12 16:20:47 UTC</small>
       </div>
     </div>
   </div>

@@ -17,7 +17,7 @@
 <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600' rel='stylesheet' type='text/css'/>
 
 <!-- CSS -->
-<title>rx/unitUtils</title>
+<title>reactiveCrown/unitUtils</title>
 <link rel="stylesheet" type="text/css" href="../nimdoc.out.css">
 
 <script type="text/javascript" src="../dochack.js"></script>
@@ -69,7 +69,7 @@ window.addEventListener('DOMContentLoaded', main);
 <body>
 <div class="document" id="documentId">
   <div class="container">
-    <h1 class="title">rx/unitUtils</h1>
+    <h1 class="title">reactiveCrown/unitUtils</h1>
     <div class="row">
   <div class="three columns">
   <div class="theme-switch-wrapper">
@@ -116,14 +116,19 @@ window.addEventListener('DOMContentLoaded', main);
 <li>
   <a class="reference reference-toplevel" href="#12" id="62">Procs</a>
   <ul class="simple simple-toc-section">
-      <ul class="simple nested-toc-section">unitfy
-      <li><a class="reference" href="#unitfy%2CObservable%5BT%5D"
-    title="unitfy[T](upstream: Observable[T]): Observable[Unit]">unitfy[T](upstream: Observable[T]): Observable[Unit]</a></li>
+      <ul class="simple nested-toc-section">next
+      <li><a class="reference" href="#next%2CSubject%5BUnit%5D"
+    title="next(subject: Subject[Unit])">next(subject: Subject[Unit])</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">unitDefault
       <li><a class="reference" href="#unitDefault"
     title="unitDefault(): Unit">unitDefault(): Unit</a></li>
+
+  </ul>
+  <ul class="simple nested-toc-section">unitfy
+      <li><a class="reference" href="#unitfy%2CObservable%5BT%5D"
+    title="unitfy[T](upstream: Observable[T]): Observable[Unit]">unitfy[T](upstream: Observable[T]): Observable[Unit]</a></li>
 
   </ul>
 
@@ -137,11 +142,6 @@ window.addEventListener('DOMContentLoaded', main);
     title="subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable">subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable</a></li>
   <li><a class="reference" href="#subscribeBlock.t%2CObservable%5BT%5D%2Cuntyped"
     title="subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable">subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">onNext
-      <li><a class="reference" href="#onNext.t%2CSubject%5BUnit%5D"
-    title="onNext(subject: Subject[Unit]): void">onNext(subject: Subject[Unit]): void</a></li>
 
   </ul>
 
@@ -158,13 +158,13 @@ window.addEventListener('DOMContentLoaded', main);
   <p class="module-desc"><p>When using this module, please import it explicitly.<br/>This module is based on the Unit type found in UniRx, ReactiveX for Unity.<br/></p>
 <h1><a class="toc-backref" id="usage-with-using-unitutils" href="#usage-with-using-unitutils">Usage with using unitUtils</a></h1>
 <p><strong class="examples_text">Example:</strong></p>
-<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">rx</span><span class="Operator">/</span><span class="Identifier">unitUtils</span>
-<span class="Keyword">import</span> <span class="Identifier">rx</span>
-<span class="Keyword">import</span> <span class="Identifier">rx</span><span class="Operator">/</span><span class="Identifier">unitUtils</span>
+<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">reactiveCrown</span><span class="Operator">/</span><span class="Identifier">unitUtils</span>
+<span class="Keyword">import</span> <span class="Identifier">reactiveCrown</span>
+<span class="Keyword">import</span> <span class="Identifier">reactiveCrown</span><span class="Operator">/</span><span class="Identifier">unitUtils</span>
 
 <span class="Keyword">var</span> <span class="Identifier">isOnNextThrown</span><span class="Punctuation">:</span> <span class="Identifier">array</span><span class="Punctuation">[</span><span class="DecNumber">2</span><span class="Punctuation">,</span> <span class="Identifier">bool</span><span class="Punctuation">]</span>
 <span class="Keyword">let</span>
-  <span class="Identifier">sbj</span> <span class="Operator">=</span> <span class="Identifier">newSubject</span><span class="Punctuation">[</span><span class="Identifier">Unit</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
+  <span class="Identifier">sbj</span> <span class="Operator">=</span> <span class="Identifier">newPublishSubject</span><span class="Punctuation">[</span><span class="Identifier">Unit</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
   <span class="Identifier">obs</span> <span class="Operator">=</span> <span class="Identifier">sbj</span><span class="Operator">.</span><span class="Identifier">toObservable</span>
     <span class="Operator">.</span><span class="Identifier">buffer</span><span class="Punctuation">(</span><span class="DecNumber">2</span><span class="Punctuation">,</span> <span class="DecNumber">1</span><span class="Punctuation">)</span>
 
@@ -177,8 +177,8 @@ window.addEventListener('DOMContentLoaded', main);
   <span class="Operator">.</span><span class="Identifier">subscribeBlock</span><span class="Punctuation">:</span>
     <span class="Identifier">isOnNextThrown</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">]</span> <span class="Operator">=</span> <span class="Identifier">true</span>
 
-<span class="Identifier">sbj</span><span class="Operator">.</span><span class="Identifier">onNext</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
-<span class="Identifier">sbj</span><span class="Operator">.</span><span class="Identifier">onNext</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
+<span class="Identifier">sbj</span><span class="Operator">.</span><span class="Identifier">next</span>
+<span class="Identifier">sbj</span><span class="Operator">.</span><span class="Identifier">next</span>
 <span class="Identifier">doAssert</span> <span class="Identifier">isOnNextThrown</span><span class="Punctuation">[</span><span class="DecNumber">0</span><span class="Punctuation">]</span>
 <span class="Identifier">doAssert</span> <span class="Identifier">isOnNextThrown</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">]</span></pre></p>
   <div class="section" id="6">
@@ -189,58 +189,64 @@ window.addEventListener('DOMContentLoaded', main);
 <div class="section" id="7">
 <h1><a class="toc-backref" href="#7">Types</a></h1>
 <dl class="item">
-<a id="Unit"></a>
+<div id="Unit">
 <dt><pre><a href="unitUtils.html#Unit"><span class="Identifier">Unit</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span></pre></dt>
 <dd>
 
 
 
 </dd>
+</div>
 
 </dl></div>
 <div class="section" id="12">
 <h1><a class="toc-backref" href="#12">Procs</a></h1>
 <dl class="item">
-<a id="unitDefault"></a>
+<div id="next,Subject[Unit]">
+<dt><pre><span class="Keyword">proc</span> <a href="#next%2CSubject%5BUnit%5D"><span class="Identifier">next</span></a><span class="Other">(</span><span class="Identifier">subject</span><span class="Other">:</span> <a href="subjects.html#Subject"><span class="Identifier">Subject</span></a><span class="Other">[</span><a href="unitUtils.html#Unit"><span class="Identifier">Unit</span></a><span class="Other">]</span><span class="Other">)</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span></span>.}</pre></dt>
+<dd>
+
+
+
+</dd>
+</div>
+<div id="unitDefault">
 <dt><pre><span class="Keyword">proc</span> <a href="#unitDefault"><span class="Identifier">unitDefault</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="unitUtils.html#Unit"><span class="Identifier">Unit</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="unitfy,Observable[T]"></a>
+</div>
+<div id="unitfy,Observable[T]">
 <dt><pre><span class="Keyword">proc</span> <a href="#unitfy%2CObservable%5BT%5D"><span class="Identifier">unitfy</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><a href="unitUtils.html#Unit"><span class="Identifier">Unit</span></a><span class="Other">]</span></pre></dt>
 <dd>
 
 
 
 </dd>
+</div>
 
 </dl></div>
 <div class="section" id="18">
 <h1><a class="toc-backref" href="#18">Templates</a></h1>
 <dl class="item">
-<a id="subscribeBlock.t,Observable[Unit],untyped"></a>
+<div id="subscribeBlock.t,Observable[Unit],untyped">
 <dt><pre><span class="Keyword">template</span> <a href="#subscribeBlock.t%2CObservable%5BUnit%5D%2Cuntyped"><span class="Identifier">subscribeBlock</span></a><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><a href="unitUtils.html#Unit"><span class="Identifier">Unit</span></a><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">body</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Disposable"><span class="Identifier">Disposable</span></a></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="subscribeBlock.t,Observable[T],untyped"></a>
+</div>
+<div id="subscribeBlock.t,Observable[T],untyped">
 <dt><pre><span class="Keyword">template</span> <a href="#subscribeBlock.t%2CObservable%5BT%5D%2Cuntyped"><span class="Identifier">subscribeBlock</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">upstream</span><span class="Other">:</span> <a href="core.html#Observable"><span class="Identifier">Observable</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">body</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#Disposable"><span class="Identifier">Disposable</span></a></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="onNext.t,Subject[Unit]"></a>
-<dt><pre><span class="Keyword">template</span> <a href="#onNext.t%2CSubject%5BUnit%5D"><span class="Identifier">onNext</span></a><span class="Other">(</span><span class="Identifier">subject</span><span class="Other">:</span> <a href="subjects.html#Subject"><span class="Identifier">Subject</span></a><span class="Other">[</span><a href="unitUtils.html#Unit"><span class="Identifier">Unit</span></a><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
-<dd>
-
-
-
-</dd>
+</div>
 
 </dl></div>
 
@@ -251,7 +257,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 09:16:26 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-12-12 16:20:46 UTC</small>
       </div>
     </div>
   </div>

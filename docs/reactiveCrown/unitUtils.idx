@@ -1,0 +1,7 @@
+Unit	reactiveCrown/unitUtils.html#Unit	unitUtils: Unit	
+unitDefault	reactiveCrown/unitUtils.html#unitDefault	unitUtils: unitDefault(): Unit	
+unitfy	reactiveCrown/unitUtils.html#unitfy,Observable[T]	unitUtils: unitfy[T](upstream: Observable[T]): Observable[Unit]	
+subscribeBlock	reactiveCrown/unitUtils.html#subscribeBlock.t,Observable[Unit],untyped	unitUtils: subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable	
+subscribeBlock	reactiveCrown/unitUtils.html#subscribeBlock.t,Observable[T],untyped	unitUtils: subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable	
+next	reactiveCrown/unitUtils.html#next,Subject[Unit]	unitUtils: next(subject: Subject[Unit])	
+Usage with using unitUtils	reactiveCrown/unitUtils.html#usage-with-using-unitutils	 Usage with using unitUtils	

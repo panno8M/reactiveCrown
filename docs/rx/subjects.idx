@@ -1,5 +1,0 @@
-Subject	rx/subjects.html#Subject	subjects: Subject	
-toObservable	rx/subjects.html#toObservable.c,Subject[T]	subjects: toObservable[T](self: Subject[T]): Observable[T]	
-`&lt;&gt;`	rx/subjects.html#<>.t,Subject[T]	subjects: `&lt;&gt;`[T](self: Subject[T]): Observable[T]	
-toObserver	rx/subjects.html#toObserver.c,Subject[T]	subjects: toObserver[T](self: Subject[T]): Observer[T]	
-newSubject	rx/subjects.html#newSubject	subjects: newSubject[T](): Subject[T]	

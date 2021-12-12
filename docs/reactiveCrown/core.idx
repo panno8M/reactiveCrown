@@ -1,0 +1,13 @@
+Observer	reactiveCrown/core.html#Observer	core: Observer	
+Observable	reactiveCrown/core.html#Observable	core: Observable	
+Disposable	reactiveCrown/core.html#Disposable	core: Disposable	
+toDisposable	reactiveCrown/core.html#toDisposable.c,Subscription[T]	core: toDisposable[T](subscription: Subscription[T]): lent Disposable	
+newSubscription	reactiveCrown/core.html#newSubscription,Observable[T],Observer[T]	core: newSubscription[T](oble: Observable[T]; ober: Observer[T]): Subscription[T]	
+newObserver	reactiveCrown/core.html#newObserver	core: newObserver[T](onNext: T -&gt; void;\n               onError = default(proc (i0: ref Exception): void);\n               onComplete = default(proc (): void)): Observer[T]	
+next	reactiveCrown/core.html#next,Observer[T],T,varargs[T]	core: next[T](observer: Observer[T]; x: T; xs: varargs[T])	
+error	reactiveCrown/core.html#error,Observer[T],ref.Exception	core: error[T](observer: Observer[T]; e: ref Exception)	
+complete	reactiveCrown/core.html#complete,Observer[T]	core: complete[T](observer: Observer[T])	
+newObservable	reactiveCrown/core.html#newObservable	core: newObservable[T](onSubscribe: (Observer[T]) -&gt; Disposable): Observable[T]	
+subscribe	reactiveCrown/core.html#subscribe,Observable[T],Observer[T]	core: subscribe[T](self: Observable[T]; observer: Observer[T]): Disposable	
+subscribe	reactiveCrown/core.html#subscribe.t,Observable[T],	core: subscribe[T](self: Observable[T]; onNext: T -&gt; void;\n             onError = default(proc (i0: ref Exception): void);\n             onComplete = default(proc (): void)): Disposable	
+hasAnyObservers	reactiveCrown/core.html#hasAnyObservers,Observable[T]	core: hasAnyObservers[T](this: Observable[T]): bool	

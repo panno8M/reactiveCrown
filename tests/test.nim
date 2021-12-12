@@ -1,6 +1,9 @@
-import unittest
-import sugar, strformat, sequtils, strutils
-import rx
+import std/unittest
+import std/sugar
+import std/strformat
+import std/sequtils
+import std/strutils
+import reactiveCrown
 
 let testError = Exception.newException "Error"
 template nextMsg[T](r: var seq[string]; prefix, suffix: string = ""): auto =
@@ -259,7 +262,7 @@ suite "observable/factory":
 
   test "repeat  [T](v: T; times: Natural): Observable[T]":
     var results = newSeq[string]()
-    rx.just(5).concat(just(10)).repeat(3).subscribe testObserver[int](results)
+    just(5).concat(just(10)).repeat(3).subscribe testObserver[int](results)
 
     check results == [$5, $10, $5, $10, $5, $10, "#"]
 

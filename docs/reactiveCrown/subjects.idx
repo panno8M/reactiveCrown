@@ -1,0 +1,22 @@
+Subject	reactiveCrown/subjects.html#Subject	subjects: Subject	
+toObservable	reactiveCrown/subjects.html#toObservable.c,Subject[T]	subjects: toObservable[T](this: Subject[T]): Observable[T]	
+`&lt;&gt;`	reactiveCrown/subjects.html#<>.t,Subject[T]	subjects: `&lt;&gt;`[T](this: Subject[T]): Observable[T]	
+toObserver	reactiveCrown/subjects.html#toObserver.c,Subject[T]	subjects: toObserver[T](this: Subject[T]): Observer[T]	
+isCompleted	reactiveCrown/subjects.html#isCompleted,Subject[T]	subjects: isCompleted[T](this: Subject[T]): bool	
+getLastError	reactiveCrown/subjects.html#getLastError,Subject[T]	subjects: getLastError[T](this: Subject[T]): ref Exception	
+defineBasicSubjectConverters	reactiveCrown/subjects.html#defineBasicSubjectConverters.t,typedesc	subjects: defineBasicSubjectConverters(Type: typedesc): untyped	
+PublishSubject	reactiveCrown/subjects.html#PublishSubject	subjects: PublishSubject	
+toSubject	reactiveCrown/subjects.html#toSubject.c	subjects: toSubject[T](sbj`gensym2: PublishSubject[T]): Subject[T]	
+toObservable	reactiveCrown/subjects.html#toObservable.c	subjects: toObservable[T](sbj`gensym2: PublishSubject[T]): Observable[T]	
+toObserver	reactiveCrown/subjects.html#toObserver.c	subjects: toObserver[T](sbj`gensym2: PublishSubject[T]): Observer[T]	
+newPublishSubject	reactiveCrown/subjects.html#newPublishSubject	subjects: newPublishSubject[T](): PublishSubject[T]	
+ReplaySubject	reactiveCrown/subjects.html#ReplaySubject	subjects: ReplaySubject	
+toSubject	reactiveCrown/subjects.html#toSubject.c_2	subjects: toSubject[T](sbj`gensym4: ReplaySubject[T]): Subject[T]	
+toObservable	reactiveCrown/subjects.html#toObservable.c_2	subjects: toObservable[T](sbj`gensym4: ReplaySubject[T]): Observable[T]	
+toObserver	reactiveCrown/subjects.html#toObserver.c_2	subjects: toObserver[T](sbj`gensym4: ReplaySubject[T]): Observer[T]	
+newReplaySubject	reactiveCrown/subjects.html#newReplaySubject,Natural	subjects: newReplaySubject[T](bufferSize: Natural = Natural.high): ReplaySubject[T]	
+OperatorSubject	reactiveCrown/subjects.html#OperatorSubject	subjects: OperatorSubject	
+toSubject	reactiveCrown/subjects.html#toSubject.c_3	subjects: toSubject[T](sbj`gensym7: OperatorSubject[T]): Subject[T]	
+toObservable	reactiveCrown/subjects.html#toObservable.c_3	subjects: toObservable[T](sbj`gensym7: OperatorSubject[T]): Observable[T]	
+toObserver	reactiveCrown/subjects.html#toObserver.c_3	subjects: toObserver[T](sbj`gensym7: OperatorSubject[T]): Observer[T]	
+newOperatorSubject	reactiveCrown/subjects.html#newOperatorSubject	subjects: newOperatorSubject[T](): OperatorSubject[T]	

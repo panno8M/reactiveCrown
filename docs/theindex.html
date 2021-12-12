@@ -70,183 +70,241 @@ window.addEventListener('DOMContentLoaded', main);
 <div class="document" id="documentId">
   <div class="container">
     <h1 class="title">Index</h1>
-    Modules: <a href="rx.html">rx</a>, <a href="rx/core.html">rx/core</a>, <a href="rx/operators.html">rx/operators</a>, <a href="rx/subjects.html">rx/subjects</a>, <a href="rx/unitUtils.html">rx/unitUtils</a>.<br/><p /><h2>API symbols</h2>
+    Modules: <a href="reactiveCrown.html">reactiveCrown</a>, <a href="reactiveCrown/core.html">reactiveCrown/core</a>, <a href="reactiveCrown/operators.html">reactiveCrown/operators</a>, <a href="reactiveCrown/subjects.html">reactiveCrown/subjects</a>, <a href="reactiveCrown/unitUtils.html">reactiveCrown/unitUtils</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%26lt%3B%26gt%3B%60" href="#%60%26lt%3B%26gt%3B%60"><span>`&lt;&gt;`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: `&lt;&gt;`[T](self: ConnectableObservable[T]): Observable[T]" href="rx/operators.html#%3C%3E.t%2CConnectableObservable%5BT%5D">operators: `&lt;&gt;`[T](self: ConnectableObservable[T]): Observable[T]</a></li>
+          data-doc-search-tag="operators: `&lt;&gt;`[T](self: ConnectableObservable[T]): Observable[T]" href="reactiveCrown/operators.html#%3C%3E.t%2CConnectableObservable%5BT%5D">operators: `&lt;&gt;`[T](self: ConnectableObservable[T]): Observable[T]</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="subjects: `&lt;&gt;`[T](self: Subject[T]): Observable[T]" href="rx/subjects.html#%3C%3E.t%2CSubject%5BT%5D">subjects: `&lt;&gt;`[T](self: Subject[T]): Observable[T]</a></li>
+          data-doc-search-tag="subjects: `&lt;&gt;`[T](this: Subject[T]): Observable[T]" href="reactiveCrown/subjects.html#%3C%3E.t%2CSubject%5BT%5D">subjects: `&lt;&gt;`[T](this: Subject[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="buffer" href="#buffer"><span>buffer:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="operators: buffer[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0): Observable[
-    seq[T]]" href="rx/operators.html#buffer%2CObservable%5BT%5D%2CNatural%2CNatural">operators: buffer[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0): Observable[
+    seq[T]]" href="reactiveCrown/operators.html#buffer%2CObservable%5BT%5D%2CNatural%2CNatural">operators: buffer[T](upstream: Observable[T]; timeSpan: Natural; skip: Natural = 0): Observable[
     seq[T]]</a></li>
+          </ul></dd>
+<dt><a name="complete" href="#complete"><span>complete:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="core: complete[T](observer: Observer[T])" href="reactiveCrown/core.html#complete%2CObserver%5BT%5D">core: complete[T](observer: Observer[T])</a></li>
           </ul></dd>
 <dt><a name="concat" href="#concat"><span>concat:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="operators: concat[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
-    T]" href="rx/operators.html#concat%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D">operators: concat[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
+    T]" href="reactiveCrown/operators.html#concat%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D">operators: concat[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
     T]</a></li>
           </ul></dd>
 <dt><a name="connect" href="#connect"><span>connect:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: connect[T](self: ConnectableObservable[T]): Disposable" href="rx/operators.html#connect%2CConnectableObservable%5BT%5D">operators: connect[T](self: ConnectableObservable[T]): Disposable</a></li>
+          data-doc-search-tag="operators: connect[T](self: ConnectableObservable[T]): Disposable" href="reactiveCrown/operators.html#connect%2CConnectableObservable%5BT%5D">operators: connect[T](self: ConnectableObservable[T]): Disposable</a></li>
           </ul></dd>
 <dt><a name="construct_whenSubscribed" href="#construct_whenSubscribed"><span>construct_whenSubscribed:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: construct_whenSubscribed[T](mkObservable: untyped): untyped" href="rx/operators.html#construct_whenSubscribed.t%2Cuntyped">operators: construct_whenSubscribed[T](mkObservable: untyped): untyped</a></li>
+          data-doc-search-tag="operators: construct_whenSubscribed[T](mkObservable: untyped): untyped" href="reactiveCrown/operators.html#construct_whenSubscribed.t%2Cuntyped">operators: construct_whenSubscribed[T](mkObservable: untyped): untyped</a></li>
+          </ul></dd>
+<dt><a name="defineBasicSubjectConverters" href="#defineBasicSubjectConverters"><span>defineBasicSubjectConverters:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="subjects: defineBasicSubjectConverters(Type: typedesc): untyped" href="reactiveCrown/subjects.html#defineBasicSubjectConverters.t%2Ctypedesc">subjects: defineBasicSubjectConverters(Type: typedesc): untyped</a></li>
           </ul></dd>
 <dt><a name="Disposable" href="#Disposable"><span>Disposable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: Disposable" href="rx/core.html#Disposable">core: Disposable</a></li>
+          data-doc-search-tag="core: Disposable" href="reactiveCrown/core.html#Disposable">core: Disposable</a></li>
           </ul></dd>
 <dt><a name="doThat" href="#doThat"><span>doThat:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: doThat[T](upstream: Observable[T]; op: (T) -&gt; void): Observable[T]" href="rx/operators.html#doThat%2CObservable%5BT%5D%2C">operators: doThat[T](upstream: Observable[T]; op: (T) -&gt; void): Observable[T]</a></li>
+          data-doc-search-tag="operators: doThat[T](upstream: Observable[T]; op: (T) -&gt; void): Observable[T]" href="reactiveCrown/operators.html#doThat%2CObservable%5BT%5D%2C">operators: doThat[T](upstream: Observable[T]; op: (T) -&gt; void): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="dump" href="#dump"><span>dump:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: dump[T](upstream: Observable[T]): Observable[T]" href="rx/operators.html#dump%2CObservable%5BT%5D">operators: dump[T](upstream: Observable[T]): Observable[T]</a></li>
+          data-doc-search-tag="operators: dump[T](upstream: Observable[T]): Observable[T]" href="reactiveCrown/operators.html#dump%2CObservable%5BT%5D">operators: dump[T](upstream: Observable[T]): Observable[T]</a></li>
+          </ul></dd>
+<dt><a name="error" href="#error"><span>error:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="core: error[T](observer: Observer[T]; e: ref Exception)" href="reactiveCrown/core.html#error%2CObserver%5BT%5D%2Cref.Exception">core: error[T](observer: Observer[T]; e: ref Exception)</a></li>
           </ul></dd>
 <dt><a name="filter" href="#filter"><span>filter:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: filter[T](upstream: Observable[T]; op: (T) -&gt; bool): Observable[T]" href="rx/operators.html#filter%2CObservable%5BT%5D%2C">operators: filter[T](upstream: Observable[T]; op: (T) -&gt; bool): Observable[T]</a></li>
+          data-doc-search-tag="operators: filter[T](upstream: Observable[T]; op: (T) -&gt; bool): Observable[T]" href="reactiveCrown/operators.html#filter%2CObservable%5BT%5D%2C">operators: filter[T](upstream: Observable[T]; op: (T) -&gt; bool): Observable[T]</a></li>
+          </ul></dd>
+<dt><a name="getLastError" href="#getLastError"><span>getLastError:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="subjects: getLastError[T](this: Subject[T]): ref Exception" href="reactiveCrown/subjects.html#getLastError%2CSubject%5BT%5D">subjects: getLastError[T](this: Subject[T]): ref Exception</a></li>
+          </ul></dd>
+<dt><a name="hasAnyObservers" href="#hasAnyObservers"><span>hasAnyObservers:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="core: hasAnyObservers[T](this: Observable[T]): bool" href="reactiveCrown/core.html#hasAnyObservers%2CObservable%5BT%5D">core: hasAnyObservers[T](this: Observable[T]): bool</a></li>
+          </ul></dd>
+<dt><a name="isCompleted" href="#isCompleted"><span>isCompleted:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="subjects: isCompleted[T](this: Subject[T]): bool" href="reactiveCrown/subjects.html#isCompleted%2CSubject%5BT%5D">subjects: isCompleted[T](this: Subject[T]): bool</a></li>
           </ul></dd>
 <dt><a name="just" href="#just"><span>just:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: just[T](v: T): Observable[T]" href="rx/operators.html#just%2CT">operators: just[T](v: T): Observable[T]</a></li>
+          data-doc-search-tag="operators: just[T](v: T): Observable[T]" href="reactiveCrown/operators.html#just%2CT">operators: just[T](v: T): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="map" href="#map"><span>map:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: map[T, S](upstream: Observable[T]; op: (T) -&gt; S): Observable[S]" href="rx/operators.html#map%2CObservable%5BT%5D%2C">operators: map[T, S](upstream: Observable[T]; op: (T) -&gt; S): Observable[S]</a></li>
+          data-doc-search-tag="operators: map[T, S](upstream: Observable[T]; op: (T) -&gt; S): Observable[S]" href="reactiveCrown/operators.html#map%2CObservable%5BT%5D%2C">operators: map[T, S](upstream: Observable[T]; op: (T) -&gt; S): Observable[S]</a></li>
           </ul></dd>
 <dt><a name="newObservable" href="#newObservable"><span>newObservable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: newObservable[T](onSubscribe: (Observer[T]) -&gt; Disposable): Observable[T]" href="rx/core.html#newObservable">core: newObservable[T](onSubscribe: (Observer[T]) -&gt; Disposable): Observable[T]</a></li>
+          data-doc-search-tag="core: newObservable[T](onSubscribe: (Observer[T]) -&gt; Disposable): Observable[T]" href="reactiveCrown/core.html#newObservable">core: newObservable[T](onSubscribe: (Observer[T]) -&gt; Disposable): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="newObserver" href="#newObserver"><span>newObserver:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="core: newObserver[T](onNext: T -&gt; void;
                onError = default(proc (i0: ref Exception): void);
-               onComplete = default(proc (): void)): Observer[T]" href="rx/core.html#newObserver">core: newObserver[T](onNext: T -&gt; void;
+               onComplete = default(proc (): void)): Observer[T]" href="reactiveCrown/core.html#newObserver">core: newObserver[T](onNext: T -&gt; void;
                onError = default(proc (i0: ref Exception): void);
                onComplete = default(proc (): void)): Observer[T]</a></li>
           </ul></dd>
-<dt><a name="newSubject" href="#newSubject"><span>newSubject:</span></a></dt><dd><ul class="simple">
+<dt><a name="newOperatorSubject" href="#newOperatorSubject"><span>newOperatorSubject:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="subjects: newSubject[T](): Subject[T]" href="rx/subjects.html#newSubject">subjects: newSubject[T](): Subject[T]</a></li>
+          data-doc-search-tag="subjects: newOperatorSubject[T](): OperatorSubject[T]" href="reactiveCrown/subjects.html#newOperatorSubject">subjects: newOperatorSubject[T](): OperatorSubject[T]</a></li>
+          </ul></dd>
+<dt><a name="newPublishSubject" href="#newPublishSubject"><span>newPublishSubject:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="subjects: newPublishSubject[T](): PublishSubject[T]" href="reactiveCrown/subjects.html#newPublishSubject">subjects: newPublishSubject[T](): PublishSubject[T]</a></li>
+          </ul></dd>
+<dt><a name="newReplaySubject" href="#newReplaySubject"><span>newReplaySubject:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="subjects: newReplaySubject[T](bufferSize: Natural = Natural.high): ReplaySubject[T]" href="reactiveCrown/subjects.html#newReplaySubject%2CNatural">subjects: newReplaySubject[T](bufferSize: Natural = Natural.high): ReplaySubject[T]</a></li>
           </ul></dd>
 <dt><a name="newSubscription" href="#newSubscription"><span>newSubscription:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: newSubscription[T](oble: Observable[T]; ober: Observer[T]): Subscription[T]" href="rx/core.html#newSubscription%2CObservable%5BT%5D%2CObserver%5BT%5D">core: newSubscription[T](oble: Observable[T]; ober: Observer[T]): Subscription[T]</a></li>
+          data-doc-search-tag="core: newSubscription[T](oble: Observable[T]; ober: Observer[T]): Subscription[T]" href="reactiveCrown/core.html#newSubscription%2CObservable%5BT%5D%2CObserver%5BT%5D">core: newSubscription[T](oble: Observable[T]; ober: Observer[T]): Subscription[T]</a></li>
+          </ul></dd>
+<dt><a name="next" href="#next"><span>next:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="core: next[T](observer: Observer[T]; x: T; xs: varargs[T])" href="reactiveCrown/core.html#next%2CObserver%5BT%5D%2CT%2Cvarargs%5BT%5D">core: next[T](observer: Observer[T]; x: T; xs: varargs[T])</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="unitUtils: next(subject: Subject[Unit])" href="reactiveCrown/unitUtils.html#next%2CSubject%5BUnit%5D">unitUtils: next(subject: Subject[Unit])</a></li>
           </ul></dd>
 <dt><a name="Observable" href="#Observable"><span>Observable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: Observable" href="rx/core.html#Observable">core: Observable</a></li>
+          data-doc-search-tag="core: Observable" href="reactiveCrown/core.html#Observable">core: Observable</a></li>
           </ul></dd>
 <dt><a name="Observer" href="#Observer"><span>Observer:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: Observer" href="rx/core.html#Observer">core: Observer</a></li>
+          data-doc-search-tag="core: Observer" href="reactiveCrown/core.html#Observer">core: Observer</a></li>
           </ul></dd>
-<dt><a name="onComplete" href="#onComplete"><span>onComplete:</span></a></dt><dd><ul class="simple">
+<dt><a name="OperatorSubject" href="#OperatorSubject"><span>OperatorSubject:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: onComplete[T](observer: Observer[T])" href="rx/core.html#onComplete%2CObserver%5BT%5D">core: onComplete[T](observer: Observer[T])</a></li>
-          </ul></dd>
-<dt><a name="onError" href="#onError"><span>onError:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="core: onError[T](observer: Observer[T]; e: ref Exception)" href="rx/core.html#onError%2CObserver%5BT%5D%2Cref.Exception">core: onError[T](observer: Observer[T]; e: ref Exception)</a></li>
-          </ul></dd>
-<dt><a name="onNext" href="#onNext"><span>onNext:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="core: onNext[T](observer: Observer[T]; x: T)" href="rx/core.html#onNext%2CObserver%5BT%5D%2CT">core: onNext[T](observer: Observer[T]; x: T)</a></li>
-          <li><a class="reference external"
-          data-doc-search-tag="unitUtils: onNext(subject: Subject[Unit]): void" href="rx/unitUtils.html#onNext.t%2CSubject%5BUnit%5D">unitUtils: onNext(subject: Subject[Unit]): void</a></li>
+          data-doc-search-tag="subjects: OperatorSubject" href="reactiveCrown/subjects.html#OperatorSubject">subjects: OperatorSubject</a></li>
           </ul></dd>
 <dt><a name="publish" href="#publish"><span>publish:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: publish[T](upstream: Observable[T]): ConnectableObservable[T]" href="rx/operators.html#publish%2CObservable%5BT%5D">operators: publish[T](upstream: Observable[T]): ConnectableObservable[T]</a></li>
+          data-doc-search-tag="operators: publish[T](upstream: Observable[T]): ConnectableObservable[T]" href="reactiveCrown/operators.html#publish%2CObservable%5BT%5D">operators: publish[T](upstream: Observable[T]): ConnectableObservable[T]</a></li>
+          </ul></dd>
+<dt><a name="PublishSubject" href="#PublishSubject"><span>PublishSubject:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="subjects: PublishSubject" href="reactiveCrown/subjects.html#PublishSubject">subjects: PublishSubject</a></li>
           </ul></dd>
 <dt><a name="range" href="#range"><span>range:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: range[T: Ordinal](start: T; count: Natural): Observable[T]" href="rx/operators.html#range%2CT%2CNatural">operators: range[T: Ordinal](start: T; count: Natural): Observable[T]</a></li>
+          data-doc-search-tag="operators: range[T: Ordinal](start: T; count: Natural): Observable[T]" href="reactiveCrown/operators.html#range%2CT%2CNatural">operators: range[T: Ordinal](start: T; count: Natural): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="refCount" href="#refCount"><span>refCount:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: refCount[T](upstream: ConnectableObservable[T]): Observable[T]" href="rx/operators.html#refCount%2CConnectableObservable%5BT%5D">operators: refCount[T](upstream: ConnectableObservable[T]): Observable[T]</a></li>
+          data-doc-search-tag="operators: refCount[T](upstream: ConnectableObservable[T]): Observable[T]" href="reactiveCrown/operators.html#refCount%2CConnectableObservable%5BT%5D">operators: refCount[T](upstream: ConnectableObservable[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="repeat" href="#repeat"><span>repeat:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: repeat[T](upstream: Observable[T]; times: Natural = 0): Observable[T]" href="rx/operators.html#repeat%2CObservable%5BT%5D%2CNatural">operators: repeat[T](upstream: Observable[T]; times: Natural = 0): Observable[T]</a></li>
+          data-doc-search-tag="operators: repeat[T](upstream: Observable[T]): Observable[T]" href="reactiveCrown/operators.html#repeat%2CObservable%5BT%5D">operators: repeat[T](upstream: Observable[T]): Observable[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="operators: repeat[T](upstream: Observable[T]; times: Natural): Observable[T]" href="reactiveCrown/operators.html#repeat%2CObservable%5BT%5D%2CNatural">operators: repeat[T](upstream: Observable[T]; times: Natural): Observable[T]</a></li>
+          </ul></dd>
+<dt><a name="ReplaySubject" href="#ReplaySubject"><span>ReplaySubject:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="subjects: ReplaySubject" href="reactiveCrown/subjects.html#ReplaySubject">subjects: ReplaySubject</a></li>
           </ul></dd>
 <dt><a name="retry" href="#retry"><span>retry:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: retry[T](upstream: Observable[T]): Observable[T]" href="rx/operators.html#retry%2CObservable%5BT%5D">operators: retry[T](upstream: Observable[T]): Observable[T]</a></li>
+          data-doc-search-tag="operators: retry[T](upstream: Observable[T]): Observable[T]" href="reactiveCrown/operators.html#retry%2CObservable%5BT%5D">operators: retry[T](upstream: Observable[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="share" href="#share"><span>share:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: share[T](upstream: Observable[T]): Observable[T]" href="rx/operators.html#share%2CObservable%5BT%5D">operators: share[T](upstream: Observable[T]): Observable[T]</a></li>
+          data-doc-search-tag="operators: share[T](upstream: Observable[T]): Observable[T]" href="reactiveCrown/operators.html#share%2CObservable%5BT%5D">operators: share[T](upstream: Observable[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="Subject" href="#Subject"><span>Subject:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="subjects: Subject" href="rx/subjects.html#Subject">subjects: Subject</a></li>
+          data-doc-search-tag="subjects: Subject" href="reactiveCrown/subjects.html#Subject">subjects: Subject</a></li>
           </ul></dd>
 <dt><a name="subscribe" href="#subscribe"><span>subscribe:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: subscribe[T](self: Observable[T]; observer: Observer[T]): Disposable" href="rx/core.html#subscribe%2CObservable%5BT%5D%2CObserver%5BT%5D">core: subscribe[T](self: Observable[T]; observer: Observer[T]): Disposable</a></li>
+          data-doc-search-tag="core: subscribe[T](self: Observable[T]; observer: Observer[T]): Disposable" href="reactiveCrown/core.html#subscribe%2CObservable%5BT%5D%2CObserver%5BT%5D">core: subscribe[T](self: Observable[T]; observer: Observer[T]): Disposable</a></li>
           <li><a class="reference external"
           data-doc-search-tag="core: subscribe[T](self: Observable[T]; onNext: T -&gt; void;
              onError = default(proc (i0: ref Exception): void);
-             onComplete = default(proc (): void)): Disposable" href="rx/core.html#subscribe.t%2CObservable%5BT%5D%2C">core: subscribe[T](self: Observable[T]; onNext: T -&gt; void;
+             onComplete = default(proc (): void)): Disposable" href="reactiveCrown/core.html#subscribe.t%2CObservable%5BT%5D%2C">core: subscribe[T](self: Observable[T]; onNext: T -&gt; void;
              onError = default(proc (i0: ref Exception): void);
              onComplete = default(proc (): void)): Disposable</a></li>
           </ul></dd>
 <dt><a name="subscribeBlock" href="#subscribeBlock"><span>subscribeBlock:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="unitUtils: subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable" href="rx/unitUtils.html#subscribeBlock.t%2CObservable%5BT%5D%2Cuntyped">unitUtils: subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable</a></li>
+          data-doc-search-tag="unitUtils: subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable" href="reactiveCrown/unitUtils.html#subscribeBlock.t%2CObservable%5BT%5D%2Cuntyped">unitUtils: subscribeBlock[T](upstream: Observable[T]; body: untyped): Disposable</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="unitUtils: subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable" href="rx/unitUtils.html#subscribeBlock.t%2CObservable%5BUnit%5D%2Cuntyped">unitUtils: subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable</a></li>
+          data-doc-search-tag="unitUtils: subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable" href="reactiveCrown/unitUtils.html#subscribeBlock.t%2CObservable%5BUnit%5D%2Cuntyped">unitUtils: subscribeBlock(upstream: Observable[Unit]; body: untyped): Disposable</a></li>
           </ul></dd>
 <dt><a name="toDisposable" href="#toDisposable"><span>toDisposable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="core: toDisposable[T](subscription: Subscription[T]): Disposable" href="rx/core.html#toDisposable.c%2CSubscription%5BT%5D">core: toDisposable[T](subscription: Subscription[T]): Disposable</a></li>
+          data-doc-search-tag="core: toDisposable[T](subscription: Subscription[T]): lent Disposable" href="reactiveCrown/core.html#toDisposable.c%2CSubscription%5BT%5D">core: toDisposable[T](subscription: Subscription[T]): lent Disposable</a></li>
           </ul></dd>
 <dt><a name="toObservable" href="#toObservable"><span>toObservable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="operators: toObservable[T](self: ConnectableObservable[T]): Observable[T]" href="rx/operators.html#toObservable.c%2CConnectableObservable%5BT%5D">operators: toObservable[T](self: ConnectableObservable[T]): Observable[T]</a></li>
+          data-doc-search-tag="operators: toObservable[T](self: ConnectableObservable[T]): Observable[T]" href="reactiveCrown/operators.html#toObservable.c%2CConnectableObservable%5BT%5D">operators: toObservable[T](self: ConnectableObservable[T]): Observable[T]</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="subjects: toObservable[T](self: Subject[T]): Observable[T]" href="rx/subjects.html#toObservable.c%2CSubject%5BT%5D">subjects: toObservable[T](self: Subject[T]): Observable[T]</a></li>
+          data-doc-search-tag="subjects: toObservable[T](sbj`gensym2: PublishSubject[T]): Observable[T]" href="reactiveCrown/subjects.html#toObservable.c">subjects: toObservable[T](sbj`gensym2: PublishSubject[T]): Observable[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="subjects: toObservable[T](this: Subject[T]): Observable[T]" href="reactiveCrown/subjects.html#toObservable.c%2CSubject%5BT%5D">subjects: toObservable[T](this: Subject[T]): Observable[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="subjects: toObservable[T](sbj`gensym4: ReplaySubject[T]): Observable[T]" href="reactiveCrown/subjects.html#toObservable.c_2">subjects: toObservable[T](sbj`gensym4: ReplaySubject[T]): Observable[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="subjects: toObservable[T](sbj`gensym7: OperatorSubject[T]): Observable[T]" href="reactiveCrown/subjects.html#toObservable.c_3">subjects: toObservable[T](sbj`gensym7: OperatorSubject[T]): Observable[T]</a></li>
           </ul></dd>
 <dt><a name="toObserver" href="#toObserver"><span>toObserver:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="subjects: toObserver[T](self: Subject[T]): Observer[T]" href="rx/subjects.html#toObserver.c%2CSubject%5BT%5D">subjects: toObserver[T](self: Subject[T]): Observer[T]</a></li>
+          data-doc-search-tag="subjects: toObserver[T](sbj`gensym2: PublishSubject[T]): Observer[T]" href="reactiveCrown/subjects.html#toObserver.c">subjects: toObserver[T](sbj`gensym2: PublishSubject[T]): Observer[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="subjects: toObserver[T](this: Subject[T]): Observer[T]" href="reactiveCrown/subjects.html#toObserver.c%2CSubject%5BT%5D">subjects: toObserver[T](this: Subject[T]): Observer[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="subjects: toObserver[T](sbj`gensym4: ReplaySubject[T]): Observer[T]" href="reactiveCrown/subjects.html#toObserver.c_2">subjects: toObserver[T](sbj`gensym4: ReplaySubject[T]): Observer[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="subjects: toObserver[T](sbj`gensym7: OperatorSubject[T]): Observer[T]" href="reactiveCrown/subjects.html#toObserver.c_3">subjects: toObserver[T](sbj`gensym7: OperatorSubject[T]): Observer[T]</a></li>
+          </ul></dd>
+<dt><a name="toSubject" href="#toSubject"><span>toSubject:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="subjects: toSubject[T](sbj`gensym2: PublishSubject[T]): Subject[T]" href="reactiveCrown/subjects.html#toSubject.c">subjects: toSubject[T](sbj`gensym2: PublishSubject[T]): Subject[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="subjects: toSubject[T](sbj`gensym4: ReplaySubject[T]): Subject[T]" href="reactiveCrown/subjects.html#toSubject.c_2">subjects: toSubject[T](sbj`gensym4: ReplaySubject[T]): Subject[T]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="subjects: toSubject[T](sbj`gensym7: OperatorSubject[T]): Subject[T]" href="reactiveCrown/subjects.html#toSubject.c_3">subjects: toSubject[T](sbj`gensym7: OperatorSubject[T]): Subject[T]</a></li>
           </ul></dd>
 <dt><a name="Unit" href="#Unit"><span>Unit:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="unitUtils: Unit" href="rx/unitUtils.html#Unit">unitUtils: Unit</a></li>
+          data-doc-search-tag="unitUtils: Unit" href="reactiveCrown/unitUtils.html#Unit">unitUtils: Unit</a></li>
           </ul></dd>
 <dt><a name="unitDefault" href="#unitDefault"><span>unitDefault:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="unitUtils: unitDefault(): Unit" href="rx/unitUtils.html#unitDefault">unitUtils: unitDefault(): Unit</a></li>
+          data-doc-search-tag="unitUtils: unitDefault(): Unit" href="reactiveCrown/unitUtils.html#unitDefault">unitUtils: unitDefault(): Unit</a></li>
           </ul></dd>
 <dt><a name="unitfy" href="#unitfy"><span>unitfy:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="unitUtils: unitfy[T](upstream: Observable[T]): Observable[Unit]" href="rx/unitUtils.html#unitfy%2CObservable%5BT%5D">unitUtils: unitfy[T](upstream: Observable[T]): Observable[Unit]</a></li>
+          data-doc-search-tag="unitUtils: unitfy[T](upstream: Observable[T]): Observable[Unit]" href="reactiveCrown/unitUtils.html#unitfy%2CObservable%5BT%5D">unitUtils: unitfy[T](upstream: Observable[T]): Observable[Unit]</a></li>
           </ul></dd>
 <dt><a name="zip" href="#zip"><span>zip:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="operators: zip[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
-    seq[T]]" href="rx/operators.html#zip%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D">operators: zip[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
+    seq[T]]" href="reactiveCrown/operators.html#zip%2CObservable%5BT%5D%2Cvarargs%5BObservable%5BT%5D%5D">operators: zip[T](upstream: Observable[T]; targets: varargs[Observable[T]]): Observable[
     seq[T]]</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="operators: zip[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]" href="rx/operators.html#zip%2CObservable%5BTl%5D%2CObservable%5BTr%5D">operators: zip[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]</a></li>
+          data-doc-search-tag="operators: zip[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]" href="reactiveCrown/operators.html#zip%2CObservable%5BTl%5D%2CObservable%5BTr%5D">operators: zip[Tl, Tr](tl: Observable[Tl]; tr: Observable[Tr]): Observable[(Tl, Tr)]</a></li>
           </ul></dd>
 </dl>
     <div class="row">
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-20 09:16:26 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-12-12 16:20:47 UTC</small>
       </div>
     </div>
   </div>

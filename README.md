@@ -1,6 +1,6 @@
-# RxNim
+# reactiveCrown
 ReactiveX implemented with Nim.  
-See [Documents](https://panno8m.github.io/RxNim/rx.html).
+See [Documents](https://panno8m.github.io/reactiveCrown/reactiveCrown.html).
 
 ## Notes on use
 

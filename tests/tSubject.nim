@@ -1,5 +1,5 @@
 import sugar
-import rx
+import reactiveCrown
 import unittest
 
 type TestStat = object
