@@ -1,15 +1,15 @@
-import options
-import sugar
-import tickets
+import std/options
+import std/sugar
 
+import tickets
 export tickets
 
 type
-  Observer*[T] = ref object
+  Observer*[T] {.byref.} = object
     onNext*: Option[T->void]
     onError*: Option[ref Exception->void]
     onComplete*: Option[()->void]
-  Observable*[T] = ref object
+  Observable*[T] {.byref.} = object
     onSubscribe*: Observer[T]->Disposable
     hasAnyObservers*: ()->bool
     removeObserver*: Observer[T]->void

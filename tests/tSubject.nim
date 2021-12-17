@@ -10,7 +10,7 @@ type TestStat = object
 suite "Subject":
   
   test "onComplete pattern":
-    var subject = newPublishSubject[int]()
+    var subject = PublishSubject[int]()
     var ts: TestStat
     subject.subscribe(
       onnext= ((x: int) => ts.next.add x),
@@ -44,7 +44,7 @@ suite "Subject":
     check ts.cntComplete == 1
 
   test "onError pattern":
-    var subject = newPublishSubject[int]()
+    var subject = PublishSubject[int]()
     var ts: TestStat
     subject.subscribe(
       ((x: int) => ts.next.add x),
@@ -79,55 +79,55 @@ suite "Subject":
 
   test "subject subscribe":
     var
-      subject = newPublishSubject[int]()
+      subject = PublishSubject[int]()
       listA, listB, listC: seq[int]
-    check not subject.hasAnyObservers
+    check not subject.addr.hasAnyObservers
 
     var listASubscription = subject.subscribe (x: int) => listA.add x
-    check subject.hasAnyObservers
+    check subject.addr.hasAnyObservers
     subject.next 1
     check listA[0] == 1
 
     var listBSubscription = subject.subscribe (x: int) => listB.add x
-    check subject.hasAnyObservers
+    check subject.addr.hasAnyObservers
     subject.next 2
     check listA[1] == 2
     check listB[0] == 2
 
     var listCSubscription = subject.subscribe (x: int) => listC.add x
-    check subject.hasAnyObservers
+    check subject.addr.hasAnyObservers
     subject.next 3
     check listA[2] == 3
     check listB[1] == 3
     check listC[0] == 3
 
     consume listASubscription
-    check subject.hasAnyObservers
+    check subject.addr.hasAnyObservers
     subject.next 4
     check listA.len == 3
     check listB[2] == 4
     check listC[1] == 4
 
     consume listCSubscription
-    check subject.hasAnyObservers
+    check subject.addr.hasAnyObservers
     subject.next 5
     check listC.len == 2
     check listB[3] == 5
 
     consume listBSubscription
-    check not subject.hasAnyObservers
+    check not subject.addr.hasAnyObservers
     subject.next 6
     check listB.len == 4
 
     var listD, listE: seq[int]
 
     subject.subscribe (x: int) => listD.add x
-    check subject.hasAnyObservers
+    check subject.addr.hasAnyObservers
     subject.next 1
     check listD[0] == 1
 
     subject.subscribe (x: int) => listE.add x
-    check subject.hasAnyObservers
+    check subject.addr.hasAnyObservers
     subject.next 2
     check listD[1] == 2
     check listE[0] == 2
@@ -291,9 +291,9 @@ suite "Subject":
 
 suite "ReplaySubject":
   test "onComplete pattern":
-    var subject = newReplaySubject[int]()
+    var subject = newReplaySubject[int]().asSubject
     var ts: TestStat
-    var disp = subject.subscribe(
+    var disp = subject.asObservable.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
       (() => inc ts.cntComplete),
@@ -305,7 +305,7 @@ suite "ReplaySubject":
     # replay subscription
     reset ts
     consume disp
-    subject.subscribe(
+    subject.asObservable.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
       (() => inc ts.cntComplete),
@@ -325,7 +325,7 @@ suite "ReplaySubject":
 
     # ++subscription
     reset ts
-    subject.subscribe(
+    subject.asObservable.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
       (() => inc ts.cntComplete),
@@ -335,10 +335,10 @@ suite "ReplaySubject":
     check ts.cntComplete == 1
 
   test "onError pattern":
-    var subject = newReplaySubject[int]()
+    var subject = newReplaySubject[int]().asSubject
     var ts: TestStat
 
-    subject.subscribe(
+    subject.asObservable.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
       (() => inc ts.cntComplete),
@@ -360,7 +360,7 @@ suite "ReplaySubject":
 
     # ++subscription
     reset ts
-    subject.subscribe(
+    subject.asObservable.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
       (() => inc ts.cntComplete),
@@ -370,9 +370,9 @@ suite "ReplaySubject":
     check ts.cntComplete == 0
 
   test "buffer replay":
-    var subject = newReplaySubject[int](bufferSize= 3)
+    var subject = newReplaySubject[int](bufferSize= 3).asSubject
     var ts: TestStat
-    var disp = subject.subscribe(
+    var disp = subject.asObservable.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
       (() => inc ts.cntComplete),
@@ -384,7 +384,7 @@ suite "ReplaySubject":
     # replay subscription
     reset ts
     consume disp
-    disp = subject.subscribe(
+    disp = subject.asObservable.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
       (() => inc ts.cntComplete)
@@ -396,7 +396,7 @@ suite "ReplaySubject":
 
     reset ts
     consume disp
-    subject.subscribe(
+    subject.asObservable.subscribe(
       ((x: int) => ts.next.add x),
       ((x: ref Exception) => ts.exception.add x),
       (() => inc ts.cntComplete)
