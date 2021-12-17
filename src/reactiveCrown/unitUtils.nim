@@ -55,5 +55,5 @@ template subscribeBlock*[T](upstream: Observable[T];
     body: untyped): Disposable =
   upstream.unitfy().subscribe((_: Unit) => body)
 
-proc next*(subject: Subject[Unit]) {.inline.} =
+proc next*(subject: ConceptSubject[Unit]) {.inline.} =
   subject.next(unitDefault())

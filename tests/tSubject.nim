@@ -1,6 +1,9 @@
-import sugar
-import reactiveCrown
-import unittest
+import std/sugar
+import std/unittest
+import std/options
+
+import reactiveCrown/core
+import reactiveCrown/subjects
 
 type TestStat = object
   next: seq[int]
@@ -13,9 +16,9 @@ suite "Subject":
     var subject = PublishSubject[int]()
     var ts: TestStat
     subject.subscribe(
-      onnext= ((x: int) => ts.next.add x),
-      onerror= ((x: ref Exception) => ts.exception.add x),
-      oncomplete= (() => inc ts.cntComplete),
+      ((x: int) => ts.next.add x),
+      ((x: ref Exception) => ts.exception.add x),
+      (() => inc ts.cntComplete),
     )
 
     subject.next 1, 10, 100, 1000
@@ -86,20 +89,20 @@ suite "Subject":
     var listASubscription = subject.subscribe (x: int) => listA.add x
     check subject.addr.hasAnyObservers
     subject.next 1
-    check listA[0] == 1
+    check (listA[0], listA.len) == (1, 1)
 
     var listBSubscription = subject.subscribe (x: int) => listB.add x
     check subject.addr.hasAnyObservers
     subject.next 2
-    check listA[1] == 2
-    check listB[0] == 2
+    check (listA[1], listA.len) == (2, 2)
+    check (listB[0], listB.len) == (2, 1)
 
     var listCSubscription = subject.subscribe (x: int) => listC.add x
     check subject.addr.hasAnyObservers
     subject.next 3
-    check listA[2] == 3
-    check listB[1] == 3
-    check listC[0] == 3
+    check (listA[2], listA.len) == (3, 3)
+    check (listB[1], listB.len) == (3, 2)
+    check (listC[0], listC.len) == (3, 1)
 
     consume listASubscription
     check subject.addr.hasAnyObservers
@@ -289,123 +292,123 @@ suite "Subject":
 #         exception.Count.Is(1);
 #         onCompletedCallCount.Is(0);
 
-suite "ReplaySubject":
-  test "onComplete pattern":
-    var subject = newReplaySubject[int]().asSubject
-    var ts: TestStat
-    var disp = subject.asObservable.subscribe(
-      ((x: int) => ts.next.add x),
-      ((x: ref Exception) => ts.exception.add x),
-      (() => inc ts.cntComplete),
-    )
+# suite "ReplaySubject":
+#   test "onComplete pattern":
+#     var subject = newReplaySubject[int]().asSubject
+#     var ts: TestStat
+#     var disp = subject.asObservable.subscribe(
+#       ((x: int) => ts.next.add x),
+#       ((x: ref Exception) => ts.exception.add x),
+#       (() => inc ts.cntComplete),
+#     )
 
-    subject.next 1, 10, 100, 1000
-    check ts.next == [1, 10, 100, 1000]
+#     subject.next 1, 10, 100, 1000
+#     check ts.next == [1, 10, 100, 1000]
 
-    # replay subscription
-    reset ts
-    consume disp
-    subject.asObservable.subscribe(
-      ((x: int) => ts.next.add x),
-      ((x: ref Exception) => ts.exception.add x),
-      (() => inc ts.cntComplete),
-    )
-    check ts.next == [1, 10, 100, 1000]
+#     # replay subscription
+#     reset ts
+#     consume disp
+#     subject.asObservable.subscribe(
+#       ((x: int) => ts.next.add x),
+#       ((x: ref Exception) => ts.exception.add x),
+#       (() => inc ts.cntComplete),
+#     )
+#     check ts.next == [1, 10, 100, 1000]
 
-    subject.complete
-    check ts.cntComplete == 1
+#     subject.complete
+#     check ts.cntComplete == 1
 
-    subject.next 1, 10, 100
-    check ts.next.len == 4
+#     subject.next 1, 10, 100
+#     check ts.next.len == 4
 
-    subject.complete
-    subject.error Exception.newException("test Error")
-    check ts.exception.len == 0
-    check ts.cntComplete == 1
+#     subject.complete
+#     subject.error Exception.newException("test Error")
+#     check ts.exception.len == 0
+#     check ts.cntComplete == 1
 
-    # ++subscription
-    reset ts
-    subject.asObservable.subscribe(
-      ((x: int) => ts.next.add x),
-      ((x: ref Exception) => ts.exception.add x),
-      (() => inc ts.cntComplete),
-    )
-    check ts.next == [1, 10, 100, 1000]
-    check ts.exception.len == 0
-    check ts.cntComplete == 1
+#     # ++subscription
+#     reset ts
+#     subject.asObservable.subscribe(
+#       ((x: int) => ts.next.add x),
+#       ((x: ref Exception) => ts.exception.add x),
+#       (() => inc ts.cntComplete),
+#     )
+#     check ts.next == [1, 10, 100, 1000]
+#     check ts.exception.len == 0
+#     check ts.cntComplete == 1
 
-  test "onError pattern":
-    var subject = newReplaySubject[int]().asSubject
-    var ts: TestStat
+#   test "onError pattern":
+#     var subject = newReplaySubject[int]().asSubject
+#     var ts: TestStat
 
-    subject.asObservable.subscribe(
-      ((x: int) => ts.next.add x),
-      ((x: ref Exception) => ts.exception.add x),
-      (() => inc ts.cntComplete),
-    )
+#     subject.asObservable.subscribe(
+#       ((x: int) => ts.next.add x),
+#       ((x: ref Exception) => ts.exception.add x),
+#       (() => inc ts.cntComplete),
+#     )
 
-    subject.next 1, 10, 100, 1000
-    check ts.next == [1, 10, 100, 1000]
+#     subject.next 1, 10, 100, 1000
+#     check ts.next == [1, 10, 100, 1000]
 
-    subject.error Exception.newException("test Error")
-    check ts.exception.len == 1
+#     subject.error Exception.newException("test Error")
+#     check ts.exception.len == 1
 
-    subject.next 1, 10, 100
-    check ts.next.len == 4
+#     subject.next 1, 10, 100
+#     check ts.next.len == 4
 
-    subject.complete
-    subject.error Exception.newException("test Error")
-    check ts.exception.len == 1
-    check ts.cntComplete == 0
+#     subject.complete
+#     subject.error Exception.newException("test Error")
+#     check ts.exception.len == 1
+#     check ts.cntComplete == 0
 
-    # ++subscription
-    reset ts
-    subject.asObservable.subscribe(
-      ((x: int) => ts.next.add x),
-      ((x: ref Exception) => ts.exception.add x),
-      (() => inc ts.cntComplete),
-    )
-    check ts.next == [1, 10, 100, 1000]
-    check ts.exception.len == 1
-    check ts.cntComplete == 0
+#     # ++subscription
+#     reset ts
+#     subject.asObservable.subscribe(
+#       ((x: int) => ts.next.add x),
+#       ((x: ref Exception) => ts.exception.add x),
+#       (() => inc ts.cntComplete),
+#     )
+#     check ts.next == [1, 10, 100, 1000]
+#     check ts.exception.len == 1
+#     check ts.cntComplete == 0
 
-  test "buffer replay":
-    var subject = newReplaySubject[int](bufferSize= 3).asSubject
-    var ts: TestStat
-    var disp = subject.asObservable.subscribe(
-      ((x: int) => ts.next.add x),
-      ((x: ref Exception) => ts.exception.add x),
-      (() => inc ts.cntComplete),
-    )
+#   test "buffer replay":
+#     var subject = newReplaySubject[int](bufferSize= 3).asSubject
+#     var ts: TestStat
+#     var disp = subject.asObservable.subscribe(
+#       ((x: int) => ts.next.add x),
+#       ((x: ref Exception) => ts.exception.add x),
+#       (() => inc ts.cntComplete),
+#     )
 
-    subject.next 1, 10, 100, 1000, 10000
-    check ts.next == [1, 10, 100, 1000, 10000]  # cut 1, 10
+#     subject.next 1, 10, 100, 1000, 10000
+#     check ts.next == [1, 10, 100, 1000, 10000]  # cut 1, 10
 
-    # replay subscription
-    reset ts
-    consume disp
-    disp = subject.asObservable.subscribe(
-      ((x: int) => ts.next.add x),
-      ((x: ref Exception) => ts.exception.add x),
-      (() => inc ts.cntComplete)
-    )
-    check ts.next == [100, 1000, 10000]
+#     # replay subscription
+#     reset ts
+#     consume disp
+#     disp = subject.asObservable.subscribe(
+#       ((x: int) => ts.next.add x),
+#       ((x: ref Exception) => ts.exception.add x),
+#       (() => inc ts.cntComplete)
+#     )
+#     check ts.next == [100, 1000, 10000]
 
-    subject.next 20000
-    check ts.next == [100, 1000, 10000, 20000]
+#     subject.next 20000
+#     check ts.next == [100, 1000, 10000, 20000]
 
-    reset ts
-    consume disp
-    subject.asObservable.subscribe(
-      ((x: int) => ts.next.add x),
-      ((x: ref Exception) => ts.exception.add x),
-      (() => inc ts.cntComplete)
-    )
+#     reset ts
+#     consume disp
+#     subject.asObservable.subscribe(
+#       ((x: int) => ts.next.add x),
+#       ((x: ref Exception) => ts.exception.add x),
+#       (() => inc ts.cntComplete)
+#     )
 
-    check ts.next == [1000, 10000, 20000]
+#     check ts.next == [1000, 10000, 20000]
 
-    subject.complete
-    check ts.cntComplete == 1
+#     subject.complete
+#     check ts.cntComplete == 1
 
 # [Test]
 # public void ReplaySubjectWindowReplay()
