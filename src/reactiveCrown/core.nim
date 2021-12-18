@@ -1,3 +1,6 @@
+{.deadCodeElim.}
+{.experimental: "strictFuncs".}
+{.experimental: "strictEffects".}
 import std/options
 import std/sugar
 import std/typetraits
@@ -34,19 +37,25 @@ type
     ptrx.hasAnyObservers() is bool
     ptrx.removeObserver(ptr Observer[T])
 
-proc toAbstractObserver*[T](this: ptr ConceptObserver[T]): Observer[T] =
+# {.push, raises: [NilAccessDefect].}
+func toAbstractObserver*[T](observer: ptr ConceptObserver[T]): Observer[T] =
+  if observer.isNil: raise NilAccessDefect.newException("\"observer\" must be not nil")
   Observer[T](
-    OnNext: (option proc(x: T) = this[].onNext x),
-    OnError: (option proc(x: ref Exception) = this[].onError x),
-    OnComplete: (option proc() = this[].onComplete)
+    OnNext: (option proc(x: T) = observer[].onNext x),
+    OnError: (option proc(x: ref Exception) = observer[].onError x),
+    OnComplete: (option proc() = observer[].onComplete)
   )
-proc toAbstractObservable*[T](this: ptr ConceptObservable[T]): Observable[T] =
+func toAbstractObservable*[T](observable: ptr ConceptObservable[T]): Observable[T] =
+  if observable.isNil: raise NilAccessDefect.newException("\"observable\" must be not nil")
+  {.effects.}
   Observable[T](
-    onSubscribe: (proc(x: ptr Observer[T]): Disposable = this[].onSubscribe x),
-    hasAnyObservers: (proc(): bool = this.hasAnyObservers),
-    removeObserver: (proc(x: ptr Observer[T]) = this.removeObserver x)
+    onSubscribe: (proc(x: ptr Observer[T]): Disposable = observable[].onSubscribe x),
+    hasAnyObservers: (proc(): bool = observable.hasAnyObservers),
+    removeObserver: (proc(x: ptr Observer[T]) = observable.removeObserver x)
   )
+# {.pop.}
 
+{.push, raises: [].}
 proc onError*[T](observer: var Observer[T]; x: ref Exception) =
   try:
     if observer.OnError.isSome: observer.OnError.get()(x)
@@ -62,37 +71,20 @@ proc onComplete*[T](observer: var Observer[T]) =
     if observer.OnComplete.isSome: observer.OnComplete.get()()
   except:
     observer.onError getCurrentException()
+{.pop.}
 
 
 # Observer ============================================================================
-proc newObserver*[T](
+func newObserver*[T](
       onNext: T->void;
       onError= default(ref Exception->void);
       onComplete= default(()->void);
-    ): Observer[T] =
+    ): Observer[T] {.raises: [].} =
   Observer[T](
     OnNext: option(onNext),
     OnError: option(onError),
     OnComplete: option(onComplete),
   )
-
-# proc error*[T](this: var ConceptObserver[T]; x: ref Exception) =
-#   try:
-#     this.onError x
-#   except:
-#     this.error x
-# proc next*[T](this: var ConceptObserver[T]; x: T; xs: varargs[T]) =
-#   try:
-#     this.onNext x
-#     for x in xs: this.onNext x
-#   except:
-#     this.error getCurrentException()
-# proc complete*[T](this: var ConceptObserver[T]) =
-#   try:
-#     this.onComplete
-#   except:
-#     this.error getCurrentException()
-
 
 when isMainModule:
   var x = Observer[int](OnNext: option proc(x: int) {.closure.} = echo(x))
@@ -101,13 +93,15 @@ when isMainModule:
 
 
 # Observable ==========================================================================
-proc newObservable*[T](onSubscribe: (Observer[T])->Disposable): Observable[T] =
+{.push, raises: [].}
+func newObservable*[T](onSubscribe: (Observer[T])->Disposable): Observable[T] =
   Observable[T](onSubscribe: onSubscribe)
-proc hasAnyObservers*[T](this: Observable[T]): bool {.inline.} = this.hasAnyObservers()
+func hasAnyObservers*[T](this: Observable[T]): bool {.inline.} = this.hasAnyObservers()
 
 
 proc subscribe*[T](this: var ConceptObservable[T]; observer: ptr Observer[T]): Disposable {.discardable.} =
   this.onSubscribe(observer)
+{.pop.}
 template subscribe*[T](this: var ConceptObservable[T];
       onNext: T->void;
       onError= default(ref Exception->void);

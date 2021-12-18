@@ -1,3 +1,6 @@
+{.deadCodeElim.}
+{.experimental: "strictFuncs".}
+{.experimental: "strictEffects".}
 import std/options
 import std/sequtils
 import std/deques
@@ -25,7 +28,7 @@ func getLastError*[T](this: var PublishSubject[T]): ref Exception {.inline.} = t
 proc addObserver[T](this: var PublishSubject[T]; observer: ptr Observer[T]) =
   this.observers.add observer
 
-proc hasAnyObservers*[T](this: ptr PublishSubject[T]): bool =
+func hasAnyObservers*[T](this: ptr PublishSubject[T]): bool =
   this[].observers.len != 0
 proc removeObserver*[T](this: ptr PublishSubject[T]; observer: ptr Observer[T]) =
   for i in countdown(this[].observers.high, 0):
@@ -43,6 +46,7 @@ proc onSubscribe*[T](this: var PublishSubject[T]; observer: ptr Observer[T]): Di
   Disposable.issue:
     ptrthis.removeObserver observer
 
+{.push, raises: [].}
 proc onError*[T](this: var PublishSubject[T]; x: ref Exception) =
   if this.stat.isCompleted: return
   if this.stat.error != nil: return
@@ -71,7 +75,9 @@ proc onComplete*[T](this: var PublishSubject[T]) =
     except:
       this.onError getCurrentException()
   this.observers.setLen(0)
+{.pop.}
 
+{.push, raises: [].}
 proc error*[T](this: var PublishSubject[T]; x: ref Exception) =
   this.onError x
 proc next*[T](this: var PublishSubject[T]; x: T; xs: varargs[T]) =
@@ -79,6 +85,7 @@ proc next*[T](this: var PublishSubject[T]; x: T; xs: varargs[T]) =
   for x in xs: this.onNext x
 proc complete*[T](this: var PublishSubject[T]) =
   this.onComplete
+{.pop.}
 
 # =============
 # PublishSubject[int] -?-> ConceptObserver[int]
