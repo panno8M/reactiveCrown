@@ -10,6 +10,26 @@ type PublishSubject*[T] {.byref.} = object
     isCompleted: bool,
     error: ref Exception ]
 
+# == API ==
+proc onNext*[T](this: var PublishSubject[T]; x: T)
+proc onError*[T](this: var PublishSubject[T]; x: ref Exception)
+proc onComplete*[T](this: var PublishSubject[T])
+proc onSubscribe*[T](this: var PublishSubject[T]; observer: ptr Observer[T]): Disposable
+
+func hasAnyObservers*[T](this: var PublishSubject[T]): bool
+proc removeObserver*[T](this: var PublishSubject[T]; observer: ptr Observer[T])
+
+func isCompleted*[T](this: var PublishSubject[T]): bool {.inline.}
+func getLastError*[T](this: var PublishSubject[T]): ref Exception {.inline.}
+proc addObserver[T](this: var PublishSubject[T]; observer: ptr Observer[T])
+
+func isInvalid*[T](this: var PublishSubject[T]): bool
+
+proc next*[T](this: var PublishSubject[T]; x: T; xs: varargs[T])
+proc error*[T](this: var PublishSubject[T]; x: ref Exception)
+proc complete*[T](this: var PublishSubject[T])
+# == API ==
+
 func isCompleted*[T](this: var PublishSubject[T]): bool {.inline.} = this.stat.isCompleted
 func getLastError*[T](this: var PublishSubject[T]): ref Exception {.inline.} = this.stat.error
 proc addObserver[T](this: var PublishSubject[T]; observer: ptr Observer[T]) =
@@ -36,6 +56,13 @@ proc onSubscribe*[T](this: var PublishSubject[T]; observer: ptr Observer[T]): Di
 {.push, raises: [].}
 func isInvalid*[T](this: var PublishSubject[T]): bool =
   this.stat.isCompleted or this.stat.error != nil
+proc onNext*[T](this: var PublishSubject[T]; x: T) =
+  if this.isInvalid: return
+  if this.hasAnyObservers:
+    try:
+      for observer in this.observers.mitems: observer[].onNext x
+    except:
+      this.onError getCurrentException()
 proc onError*[T](this: var PublishSubject[T]; x: ref Exception) =
   if this.isInvalid: return
   this.stat.error = x
@@ -45,13 +72,6 @@ proc onError*[T](this: var PublishSubject[T]; x: ref Exception) =
     except:
       this.onError getCurrentException()
   this.observers.setLen(0)
-proc onNext*[T](this: var PublishSubject[T]; x: T) =
-  if this.isInvalid: return
-  if this.hasAnyObservers:
-    try:
-      for observer in this.observers.mitems: observer[].onNext x
-    except:
-      this.onError getCurrentException()
 proc onComplete*[T](this: var PublishSubject[T]) =
   if this.isInvalid: return
   this.stat.isCompleted = true
@@ -64,11 +84,11 @@ proc onComplete*[T](this: var PublishSubject[T]) =
 {.pop.}
 
 {.push, raises: [].}
-proc error*[T](this: var PublishSubject[T]; x: ref Exception) =
-  this.onError x
 proc next*[T](this: var PublishSubject[T]; x: T; xs: varargs[T]) =
   this.onNext x
   for x in xs: this.onNext x
+proc error*[T](this: var PublishSubject[T]; x: ref Exception) =
+  this.onError x
 proc complete*[T](this: var PublishSubject[T]) =
   this.onComplete
 {.pop.}
