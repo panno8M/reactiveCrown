@@ -47,9 +47,10 @@ proc onSubscribe*[T](this: var PublishSubject[T]; observer: ptr Observer[T]): Di
     ptrthis[].removeObserver observer
 
 {.push, raises: [].}
+func isInvalid*[T](this: var PublishSubject[T]): bool =
+  this.stat.isCompleted or this.stat.error != nil
 proc onError*[T](this: var PublishSubject[T]; x: ref Exception) =
-  if this.stat.isCompleted: return
-  if this.stat.error != nil: return
+  if this.isInvalid: return
   this.stat.error = x
   if this.hasAnyObservers:
     try:
@@ -58,16 +59,14 @@ proc onError*[T](this: var PublishSubject[T]; x: ref Exception) =
       this.onError getCurrentException()
   this.observers.setLen(0)
 proc onNext*[T](this: var PublishSubject[T]; x: T) =
-  if this.stat.isCompleted: return
-  if this.stat.error != nil: return
+  if this.isInvalid: return
   if this.hasAnyObservers:
     try:
       for observer in this.observers.mitems: observer[].onNext x
     except:
       this.onError getCurrentException()
 proc onComplete*[T](this: var PublishSubject[T]) =
-  if this.stat.isCompleted: return
-  if this.stat.error != nil: return
+  if this.isInvalid: return
   this.stat.isCompleted = true
   if this.hasAnyObservers:
     try:
