@@ -74,9 +74,9 @@ proc complete*[T](this: var PublishSubject[T]) =
 {.pop.}
 
 when isMainModule:
-  # PublishSubject[int] -?-> ConceptObserver[int]
-  # PublishSubject[int] -?-> ConceptObservable[int]
-  # PublishSubject[int] -?-> ConceptSubject[int]
+  PublishSubject[int] -?-> ConceptObserver[int]
+  PublishSubject[int] -?-> ConceptObservable[int]
+  PublishSubject[int] -?-> ConceptSubject[int]
 
   var x = PublishSubject[int]()
   discard x.addr.toAbstractObserver()

@@ -8,9 +8,9 @@ import std/typetraits
 import tickets
 export tickets
 
-# template `-?->`*(Type, Concept: typedesc): untyped =
-#   when Type is not Concept:
-#     {.error: $Type & " cannot raise to " & $Concept.}
+template `-?->`*(Type, Concept: typedesc): untyped =
+  when Type is not Concept:
+    {.error: $Type & " cannot raise to " & $Concept.}
 
 type
   Observer*[T] {.byref.} = object
