@@ -28,12 +28,12 @@ func getLastError*[T](this: var PublishSubject[T]): ref Exception {.inline.} = t
 proc addObserver[T](this: var PublishSubject[T]; observer: ptr Observer[T]) =
   this.observers.add observer
 
-func hasAnyObservers*[T](this: ptr PublishSubject[T]): bool =
-  this[].observers.len != 0
-proc removeObserver*[T](this: ptr PublishSubject[T]; observer: ptr Observer[T]) =
-  for i in countdown(this[].observers.high, 0):
-    if this[].observers[i][] == observer[]:
-      this[].observers.delete i
+func hasAnyObservers*[T](this: var PublishSubject[T]): bool =
+  this.observers.len != 0
+proc removeObserver*[T](this: var PublishSubject[T]; observer: ptr Observer[T]) =
+  for i in countdown(this.observers.high, 0):
+    if this.observers[i][] == observer[]:
+      this.observers.delete i
       break
 proc onSubscribe*[T](this: var PublishSubject[T]; observer: ptr Observer[T]): Disposable =
   if this.isCompleted:
@@ -42,16 +42,16 @@ proc onSubscribe*[T](this: var PublishSubject[T]; observer: ptr Observer[T]): Di
     observer[].onError this.getLastError
   else:
     this.addobserver observer
-  var ptrthis = addr this
+  let ptrthis = addr this
   Disposable.issue:
-    ptrthis.removeObserver observer
+    ptrthis[].removeObserver observer
 
 {.push, raises: [].}
 proc onError*[T](this: var PublishSubject[T]; x: ref Exception) =
   if this.stat.isCompleted: return
   if this.stat.error != nil: return
   this.stat.error = x
-  if this.addr.hasAnyObservers:
+  if this.hasAnyObservers:
     try:
       for observer in this.observers.mitems: observer[].onError x
     except:
@@ -60,7 +60,7 @@ proc onError*[T](this: var PublishSubject[T]; x: ref Exception) =
 proc onNext*[T](this: var PublishSubject[T]; x: T) =
   if this.stat.isCompleted: return
   if this.stat.error != nil: return
-  if this.addr.hasAnyObservers:
+  if this.hasAnyObservers:
     try:
       for observer in this.observers.mitems: observer[].onNext x
     except:
@@ -69,7 +69,7 @@ proc onComplete*[T](this: var PublishSubject[T]) =
   if this.stat.isCompleted: return
   if this.stat.error != nil: return
   this.stat.isCompleted = true
-  if this.addr.hasAnyObservers:
+  if this.hasAnyObservers:
     try:
       for observer in this.observers.mitems: observer[].onComplete
     except:

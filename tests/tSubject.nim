@@ -84,53 +84,53 @@ suite "Subject":
     var
       subject = PublishSubject[int]()
       listA, listB, listC: seq[int]
-    check not subject.addr.hasAnyObservers
+    check not subject.hasAnyObservers
 
     var listASubscription = subject.subscribe (x: int) => listA.add x
-    check subject.addr.hasAnyObservers
+    check subject.hasAnyObservers
     subject.next 1
     check (listA[0], listA.len) == (1, 1)
 
     var listBSubscription = subject.subscribe (x: int) => listB.add x
-    check subject.addr.hasAnyObservers
+    check subject.hasAnyObservers
     subject.next 2
     check (listA[1], listA.len) == (2, 2)
     check (listB[0], listB.len) == (2, 1)
 
     var listCSubscription = subject.subscribe (x: int) => listC.add x
-    check subject.addr.hasAnyObservers
+    check subject.hasAnyObservers
     subject.next 3
     check (listA[2], listA.len) == (3, 3)
     check (listB[1], listB.len) == (3, 2)
     check (listC[0], listC.len) == (3, 1)
 
     consume listASubscription
-    check subject.addr.hasAnyObservers
+    check subject.hasAnyObservers
     subject.next 4
     check listA.len == 3
     check listB[2] == 4
     check listC[1] == 4
 
     consume listCSubscription
-    check subject.addr.hasAnyObservers
+    check subject.hasAnyObservers
     subject.next 5
     check listC.len == 2
     check listB[3] == 5
 
     consume listBSubscription
-    check not subject.addr.hasAnyObservers
+    check not subject.hasAnyObservers
     subject.next 6
     check listB.len == 4
 
     var listD, listE: seq[int]
 
     subject.subscribe (x: int) => listD.add x
-    check subject.addr.hasAnyObservers
+    check subject.hasAnyObservers
     subject.next 1
     check listD[0] == 1
 
     subject.subscribe (x: int) => listE.add x
-    check subject.addr.hasAnyObservers
+    check subject.hasAnyObservers
     subject.next 2
     check listD[1] == 2
     check listE[0] == 2

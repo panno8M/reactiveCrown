@@ -31,11 +31,10 @@ type
     x.onComplete()
   ConceptObservable*[T] = concept var x
     type X = genericHead typeof x
-    type ptrx = ptr typeof(x)
     x is X[T]
     x.onSubscribe(ptr Observer[T]) is Disposable
-    ptrx.hasAnyObservers() is bool
-    ptrx.removeObserver(ptr Observer[T])
+    x.hasAnyObservers() is bool
+    x.removeObserver(ptr Observer[T])
 
 # {.push, raises: [NilAccessDefect].}
 func toAbstractObserver*[T](observer: ptr ConceptObserver[T]): Observer[T] =
@@ -50,8 +49,8 @@ func toAbstractObservable*[T](observable: ptr ConceptObservable[T]): Observable[
   {.effects.}
   Observable[T](
     onSubscribe: (proc(x: ptr Observer[T]): Disposable = observable[].onSubscribe x),
-    hasAnyObservers: (proc(): bool = observable.hasAnyObservers),
-    removeObserver: (proc(x: ptr Observer[T]) = observable.removeObserver x)
+    hasAnyObservers: (proc(): bool = observable[].hasAnyObservers),
+    removeObserver: (proc(x: ptr Observer[T]) = observable[].removeObserver x)
   )
 # {.pop.}
 
