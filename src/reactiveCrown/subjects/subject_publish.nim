@@ -5,7 +5,7 @@ import ../core
 import subject_concept
 
 type PublishSubject*[T] {.byref.} = object
-  observers: seq[ptr Observer[T]]
+  observers*: seq[Observer[T]]
   stat: tuple[
     isCompleted: bool,
     error: ref Exception ]
@@ -14,14 +14,14 @@ type PublishSubject*[T] {.byref.} = object
 proc onNext*[T](this: var PublishSubject[T]; x: T)
 proc onError*[T](this: var PublishSubject[T]; x: ref Exception)
 proc onComplete*[T](this: var PublishSubject[T])
-proc onSubscribe*[T](this: var PublishSubject[T]; observer: ptr Observer[T]): Disposable
+proc onSubscribe*[T](this: var PublishSubject[T]; observer: Observer[T]): Disposable
 
 func hasAnyObservers*[T](this: var PublishSubject[T]): bool
-proc removeObserver*[T](this: var PublishSubject[T]; observer: ptr Observer[T])
+proc removeObserver*[T](this: var PublishSubject[T]; observer: Observer[T])
 
 func isCompleted*[T](this: var PublishSubject[T]): bool {.inline.}
 func getLastError*[T](this: var PublishSubject[T]): ref Exception {.inline.}
-proc addObserver[T](this: var PublishSubject[T]; observer: ptr Observer[T])
+proc addObserver[T](this: var PublishSubject[T]; observer: Observer[T])
 
 func isInvalid*[T](this: var PublishSubject[T]): bool
 
@@ -32,21 +32,21 @@ proc complete*[T](this: var PublishSubject[T])
 
 func isCompleted*[T](this: var PublishSubject[T]): bool {.inline.} = this.stat.isCompleted
 func getLastError*[T](this: var PublishSubject[T]): ref Exception {.inline.} = this.stat.error
-proc addObserver[T](this: var PublishSubject[T]; observer: ptr Observer[T]) =
+proc addObserver[T](this: var PublishSubject[T]; observer: Observer[T]) =
   this.observers.add observer
 
 func hasAnyObservers*[T](this: var PublishSubject[T]): bool =
   this.observers.len != 0
-proc removeObserver*[T](this: var PublishSubject[T]; observer: ptr Observer[T]) =
+proc removeObserver*[T](this: var PublishSubject[T]; observer: Observer[T]) =
   for i in countdown(this.observers.high, 0):
-    if this.observers[i][] == observer[]:
+    if this.observers[i] == observer:
       this.observers.delete i
       break
-proc onSubscribe*[T](this: var PublishSubject[T]; observer: ptr Observer[T]): Disposable =
+proc onSubscribe*[T](this: var PublishSubject[T]; observer: Observer[T]): Disposable =
   if this.isCompleted:
-    observer[].onComplete
+    observer.onComplete
   elif this.getLastError != nil:
-    observer[].onError this.getLastError
+    observer.onError this.getLastError
   else:
     this.addobserver observer
   let ptrthis = addr this
@@ -60,7 +60,7 @@ proc onNext*[T](this: var PublishSubject[T]; x: T) =
   if this.isInvalid: return
   if this.hasAnyObservers:
     try:
-      for observer in this.observers.mitems: observer[].onNext x
+      for observer in this.observers.mitems: observer.onNext x
     except:
       this.onError getCurrentException()
 proc onError*[T](this: var PublishSubject[T]; x: ref Exception) =
@@ -68,7 +68,7 @@ proc onError*[T](this: var PublishSubject[T]; x: ref Exception) =
   this.stat.error = x
   if this.hasAnyObservers:
     try:
-      for observer in this.observers.mitems: observer[].onError x
+      for observer in this.observers.mitems: observer.onError x
     except:
       this.onError getCurrentException()
   this.observers.setLen(0)
@@ -77,7 +77,7 @@ proc onComplete*[T](this: var PublishSubject[T]) =
   this.stat.isCompleted = true
   if this.hasAnyObservers:
     try:
-      for observer in this.observers.mitems: observer[].onComplete
+      for observer in this.observers.mitems: observer.onComplete
     except:
       this.onError getCurrentException()
   this.observers.setLen(0)

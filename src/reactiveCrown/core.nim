@@ -18,7 +18,7 @@ type
     OnError*: Option[ref Exception->void]
     OnComplete*: Option[()->void]
   Observable*[T] {.byref.} = object
-    onSubscribe*: ptr Observer[T]->Disposable
+    onSubscribe*: Observer[T]->Disposable
   Disposable* = DisposableTicket[void]
 
   ConceptObserver*[T] = concept var x
@@ -28,9 +28,9 @@ type
     x.onError(ref Exception)
     x.onComplete()
   ConceptObservable*[T] = concept var x
-    type X = genericHead typeof x
-    x is X[T]
-    x.onSubscribe(ptr Observer[T]) is Disposable
+    # type X = genericHead typeof x
+    # x is X[T]
+    x.onSubscribe(Observer[T]) is Disposable
 
 # {.push, raises: [NilAccessDefect].}
 func toAbstractObserver*[T](observer: ptr ConceptObserver[T]): Observer[T] =
@@ -44,22 +44,22 @@ func toAbstractObservable*[T](observable: ptr ConceptObservable[T]): Observable[
   if observable.isNil: raise NilAccessDefect.newException("\"observable\" must be not nil")
   {.effects.}
   Observable[T](
-    onSubscribe: (proc(x: ptr Observer[T]): Disposable = observable[].onSubscribe x),
+    onSubscribe: (proc(x: Observer[T]): Disposable = observable[].onSubscribe x),
   )
 # {.pop.}
 
 {.push, raises: [].}
-proc onError*[T](observer: var Observer[T]; x: ref Exception) =
+proc onError*[T](observer: Observer[T]; x: ref Exception) =
   try:
     if observer.OnError.isSome: observer.OnError.get()(x)
   except:
     observer.onError getCurrentException()
-proc onNext*[T](observer: var Observer[T]; x: T) =
+proc onNext*[T](observer: Observer[T]; x: T) =
   try:
     if observer.OnNext.isSome: observer.OnNext.get()(x)
   except:
     observer.onError getCurrentException()
-proc onComplete*[T](observer: var Observer[T]) =
+proc onComplete*[T](observer: Observer[T]) =
   try:
     if observer.OnComplete.isSome: observer.OnComplete.get()()
   except:
@@ -90,11 +90,11 @@ when isMainModule:
 func newObservable*[T](onSubscribe: (Observer[T])->Disposable): Observable[T] =
   Observable[T](onSubscribe: onSubscribe)
 func hasAnyObservers*[T](this: Observable[T]): bool {.inline.} = this.hasAnyObservers()
-
-
-proc subscribe*[T](this: var ConceptObservable[T]; observer: ptr Observer[T]): Disposable {.discardable.} =
-  this.onSubscribe(observer)
 {.pop.}
+
+proc subscribe*[T](this: var ConceptObservable[T]; observer: Observer[T]): Disposable {.discardable.} =
+  this.onSubscribe(observer)
+
 template subscribe*[T](this: var ConceptObservable[T];
       onNext: T->void;
       onError= default(ref Exception->void);
@@ -117,5 +117,5 @@ template subscribe*[T](this: var ConceptObservable[T];
   ##        (e: Error) => onError(e),
   ##        () => onComplete()
   ##      )
-  var observer = newObserver(onNext, onError, onComplete)
-  this.subscribe(observer.addr)
+  this.subscribe( newObserver(onNext, onError, onComplete)
+  )
