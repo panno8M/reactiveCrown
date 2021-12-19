@@ -10,7 +10,7 @@ proc onSubscribe*[T](observable: var MapObservable[T]; observer: Observer[T]): D
   observable.observer = observer
   observable.OnSubscribe(observable.addr)
 
-proc map_immutable*[T, S](upstream: ptr ConceptObservable[T]; predicate: T->S): MapObservable[S] =
+proc map*[T, S](upstream: ptr ConceptObservable[T]; predicate: T->S): MapObservable[S] =
   proc OnSubscribe(observable: ptr MapObservable[S]): Disposable =
     upstream[].subscribe(
       ((x:             T) => observable[].observer.onNext x.predicate),
@@ -19,10 +19,10 @@ proc map_immutable*[T, S](upstream: ptr ConceptObservable[T]; predicate: T->S): 
   MapObservable[S](
     OnSubscribe: OnSubscribe
     )
-proc map_immutable*[T, S](upstream: var ConceptObservable[T]; predicate: T->S): MapObservable[S] =
-  upstream.addr.map_immutable(predicate)
+proc map*[T, S](upstream: var ConceptObservable[T]; predicate: T->S): MapObservable[S] =
+  upstream.addr.map(predicate)
 
-proc map_immutable*[T, S](upstream: ptr ConceptObservable[T]; predicate: (T, int)->S): MapObservable[S] =
+proc map*[T, S](upstream: ptr ConceptObservable[T]; predicate: (T, int)->S): MapObservable[S] =
   var i: int
   proc OnSubscribe(observable: ptr MapObservable[S]): Disposable =
     upstream[].subscribe(
@@ -32,12 +32,9 @@ proc map_immutable*[T, S](upstream: ptr ConceptObservable[T]; predicate: (T, int
   MapObservable[S](
     OnSubscribe: OnSubscribe
     )
-proc map_immutable*[T, S](upstream: var ConceptObservable[T]; predicate: (T, int)->S): MapObservable[S] =
-  upstream.addr.map_immutable(predicate)
+proc map*[T, S](upstream: var ConceptObservable[T]; predicate: (T, int)->S): MapObservable[S] =
+  upstream.addr.map(predicate)
 
-template map*[T](upstream: var ConceptObservable[T]; predicate: proc): untyped =
-  var observable {.gensym.} = upstream.map_immutable(predicate)
-  observable
 
 
 template test(): untyped {.used.} =
@@ -50,7 +47,7 @@ template test(): untyped {.used.} =
       var subject: PublishSubject[int]
 
       subject
-        .map(x => x * x)
+        .map(x => x * x){}
         .subscribe((x: int) => results.add x)
 
       subject.next 100, 200, 300
@@ -64,7 +61,7 @@ template test(): untyped {.used.} =
       var subject: PublishSubject[int]
 
       subject
-        .map((x, i) => x * i)
+        .map((x, i) => x * i){}
         .subscribe((x: int) => results.add x)
 
       subject.next 100, 200, 300
@@ -78,8 +75,8 @@ template test(): untyped {.used.} =
       var subject: PublishSubject[int]
 
       subject
-        .map(x => x * x)
-        .map(x => x * x)
+        .map(x => x * x){}
+        .map(x => x * x){}
         .subscribe((x: int) => results.add x)
 
       subject.next 2, 4, 8
@@ -93,8 +90,8 @@ template test(): untyped {.used.} =
       var subject: PublishSubject[int]
 
       subject
-        .map((x, i) => x * i)
-        .map(x => x * 10)
+        .map((x, i) => x * i){}
+        .map(x => x * 10){}
         .subscribe((x: int) => results.add x)
 
       subject.next 100, 200, 300

@@ -1,6 +1,7 @@
 {.deadCodeElim.}
 {.experimental: "strictFuncs".}
 {.experimental: "strictEffects".}
+{.experimental: "dotOperators".}
 import std/options
 import std/sugar
 import std/typetraits
@@ -31,6 +32,10 @@ type
     # type X = genericHead typeof x
     # x is X[T]
     x.onSubscribe(Observer[T]) is Disposable
+
+template `{}`*[T](upstream: ConceptObservable[T]): untyped =
+  var observable {.gensym.} = upstream
+  observable
 
 # {.push, raises: [NilAccessDefect].}
 func toAbstractObserver*[T](observer: ptr ConceptObserver[T]): Observer[T] =
