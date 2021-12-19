@@ -22,13 +22,13 @@ type
     onSubscribe*: Observer[T]->Disposable
   Disposable* = DisposableTicket[void]
 
-  ConceptObserver*[T] = concept var x
+  ConceptObserver*[T] {.explain.} = concept var x
     type X = genericHead typeof x
     x is X[T]
     x.onNext(T)
     x.onError(ref Exception)
     x.onComplete()
-  ConceptObservable*[T] = concept var x
+  ConceptObservable*[T] {.explain.} = concept var x
     # type X = genericHead typeof x
     # x is X[T]
     x.onSubscribe(Observer[T]) is Disposable

@@ -10,7 +10,8 @@ proc onSubscribe*[T](observable: var MapObservable[T]; observer: Observer[T]): D
   observable.observer = observer
   observable.OnSubscribe(observable.addr)
 
-proc map*[T, S](upstream: ptr ConceptObservable[T]; predicate: T->S): MapObservable[S] =
+proc map*[T, S](upstream: var ConceptObservable[T]; predicate: T->S): MapObservable[S] =
+  let upstream = upstream.addr
   proc OnSubscribe(observable: ptr MapObservable[S]): Disposable =
     upstream[].subscribe(
       ((x:             T) => observable[].observer.onNext x.predicate),
@@ -19,10 +20,9 @@ proc map*[T, S](upstream: ptr ConceptObservable[T]; predicate: T->S): MapObserva
   MapObservable[S](
     OnSubscribe: OnSubscribe
     )
-proc map*[T, S](upstream: var ConceptObservable[T]; predicate: T->S): MapObservable[S] =
-  upstream.addr.map(predicate)
 
-proc map*[T, S](upstream: ptr ConceptObservable[T]; predicate: (T, int)->S): MapObservable[S] =
+proc map*[T, S](upstream: var ConceptObservable[T]; predicate: (T, int)->S): MapObservable[S] =
+  let upstream = upstream.addr
   var i: int
   proc OnSubscribe(observable: ptr MapObservable[S]): Disposable =
     upstream[].subscribe(
@@ -32,8 +32,6 @@ proc map*[T, S](upstream: ptr ConceptObservable[T]; predicate: (T, int)->S): Map
   MapObservable[S](
     OnSubscribe: OnSubscribe
     )
-proc map*[T, S](upstream: var ConceptObservable[T]; predicate: (T, int)->S): MapObservable[S] =
-  upstream.addr.map(predicate)
 
 
 
