@@ -93,9 +93,14 @@ proc complete*[T](this: var PublishSubject[T]) =
   this.onComplete
 {.pop.}
 
+
+# =================== #
+#      Unit Test      #
+# =================== #
+
 template test(): untyped {.used.} =
-  suite "Subject - publish subject":
-    test "concept":
+  suite "Subject - PublishSubject":
+    test "concept conversion":
       check PublishSubject[int] is ConceptObserver[int]
       check PublishSubject[int] is ConceptObservable[int]
       check PublishSubject[int] is ConceptSubject[int]
