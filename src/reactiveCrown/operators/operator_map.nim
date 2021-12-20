@@ -14,9 +14,9 @@ proc map*[T, S](upstream: var ConceptObservable[T]; predicate: T->S): MapObserva
   let upstream = upstream.addr
   proc OnSubscribe(observable: ptr MapObservable[S]): Disposable =
     upstream[].subscribe(
-      ((x:             T) => observable[].observer.onNext x.predicate),
-      ((x: ref Exception) => observable[].observer.onError x),
-      ((                ) => observable[].observer.onComplete))
+      (x:             T) => (observable[].observer.onNext x.predicate),
+      (x: ref Exception) => (observable[].observer.onError x),
+      (                ) => (observable[].observer.onComplete))
   MapObservable[S](
     OnSubscribe: OnSubscribe
     )

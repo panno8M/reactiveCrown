@@ -113,9 +113,9 @@ template test(): untyped {.used.} =
       var ts: tuple[ n: seq[int]; e: seq[ref Exception]; c: int]
 
       subject.subscribe(
-        ((x: int) => ts.n.add x),
-        ((x: ref Exception) => ts.e.add x),
-        (() => inc ts.c),
+        (x: int) => (ts.n.add x),
+        (x: ref Exception) => (ts.e.add x),
+        () => (inc ts.c),
       )
 
       subject.next 1, 10, 100, 1000
@@ -135,9 +135,9 @@ template test(): untyped {.used.} =
       # ++subscription
       reset ts
       subject.subscribe(
-        ((x: int) => ts.n.add x),
-        ((x: ref Exception) => ts.e.add x),
-        (() => inc ts.c),
+        (x: int) => (ts.n.add x),
+        (x: ref Exception) => (ts.e.add x),
+        () => (inc ts.c),
       )
       check ts.n.len == 0
       check ts.e.len == 0
@@ -147,9 +147,9 @@ template test(): untyped {.used.} =
       var subject = PublishSubject[int]()
       var ts: tuple[ n: seq[int]; e: seq[ref Exception]; c: int]
       subject.subscribe(
-        ((x: int) => ts.n.add x),
-        ((x: ref Exception) => ts.e.add x),
-        (() => inc ts.c),
+        (x: int) => (ts.n.add x),
+        (x: ref Exception) => (ts.e.add x),
+        () => (inc ts.c),
       )
 
       subject.next 1, 10, 100, 1000
@@ -169,9 +169,9 @@ template test(): untyped {.used.} =
       # ++subscription
       reset ts
       subject.subscribe(
-        ((x: int) => ts.n.add x),
-        ((x: ref Exception) => ts.e.add x),
-        (() => inc ts.c),
+        (x: int) => (ts.n.add x),
+        (x: ref Exception) => (ts.e.add x),
+        () => (inc ts.c),
       )
       check ts.n.len == 0
       check ts.e.len == 1
