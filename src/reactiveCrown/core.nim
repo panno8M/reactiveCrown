@@ -53,23 +53,12 @@ func toAbstractObservable*[T](observable: ptr ConceptObservable[T]): Observable[
   )
 # {.pop.}
 
-{.push, raises: [].}
-proc onError*[T](observer: Observer[T]; x: ref Exception) =
-  try:
-    if observer.OnError.isSome: observer.OnError.get()(x)
-  except:
-    observer.onError getCurrentException()
 proc onNext*[T](observer: Observer[T]; x: T) =
-  try:
-    if observer.OnNext.isSome: observer.OnNext.get()(x)
-  except:
-    observer.onError getCurrentException()
+  if observer.OnNext.isSome: observer.OnNext.get()(x)
+proc onError*[T](observer: Observer[T]; x: ref Exception) =
+  if observer.OnError.isSome: observer.OnError.get()(x)
 proc onComplete*[T](observer: Observer[T]) =
-  try:
-    if observer.OnComplete.isSome: observer.OnComplete.get()()
-  except:
-    observer.onError getCurrentException()
-{.pop.}
+  if observer.OnComplete.isSome: observer.OnComplete.get()()
 
 
 # Observer ============================================================================

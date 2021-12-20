@@ -1,50 +1,95 @@
 {.deadCodeElim.}
 import std/sugar
+import std/importutils
+import std/macros
 import ../core
+import operator_concept {.all.}
 
-type FilterObservable[T] = object
-  observer: Observer[T]
-  OnSubscribe: (ptr FilterObservable[T]) -> Disposable
+template finallyConsume(body) =
+  try: body
+  finally: consume observable[].disposable
 
-proc onSubscribe*[T](observable: var FilterObservable[T]; observer: Observer[T]): Disposable =
-  observable.observer = observer
-  observable.OnSubscribe(observable.addr)
+template filter_onError = 
+  (e: ref Exception) => finallyConsume( observer.onError e )
+template filter_onComplete = 
+  () => finallyConsume( observer.onComplete )
 
-proc filter*[T](upstream: var ConceptObservable[T]; predicate: T->bool): FilterObservable[T] =
+proc filter*[T](upstream: var ConceptObservable[T]; predicate: T->bool): OperatorObservable[T] =
+  privateAccess OperatorObservable
   let upstream = upstream.addr
-  proc OnSubscribe(observable: ptr FilterObservable[T]): Disposable =
-    upstream[].subscribe(
-      (x:             T) => (if x.predicate: observable[].observer.onNext x),
-      (x: ref Exception) => (observable[].observer.onError x),
-      (                ) => (observable[].observer.onComplete))
-  FilterObservable[T](
-    OnSubscribe: OnSubscribe
-    )
+  result.OnSubscribe = proc(observable: ptr OperatorObservable[T]; observer: Observer[T]): Disposable =
+    observable[].disposable = upstream[].subscribe(
+      (x : T) => (
+        try:
+          if predicate(x): observer.onNext x
+        except: finallyConsume( observer.onError getCurrentException() )
+      ),
+      filter_onError,
+      filter_onComplete)
+    return observable[].disposable
 
-proc filter*[T](upstream: var ConceptObservable[T]; predicate: (T, int)->bool): FilterObservable[T] =
+proc filter*[T](upstream: var ConceptObservable[T]; predicate: (T, int)->bool): OperatorObservable[T] =
+  privateAccess OperatorObservable
   let upstream = upstream.addr
-  var i: int
-  proc OnSubscribe(observable: ptr FilterObservable[T]): Disposable =
-    upstream[].subscribe(
-      (x:             T) => (
-        if x.predicate(i): observable[].observer.onNext x
-        inc i),
-      (x: ref Exception) => (observable[].observer.onError x),
-      (                ) => (observable[].observer.onComplete))
-  FilterObservable[T](
-    OnSubscribe: OnSubscribe
-    )
+  result.OnSubscribe = proc(observable: ptr OperatorObservable[T]; observer: Observer[T]): Disposable =
+    var i: int
+    observable[].disposable = upstream[].subscribe(
+      (x : T) => (
+        try:
+          if predicate(x, ^++i): observer.onNext x
+        except: finallyConsume( observer.onError getCurrentException() )
+      ),
+      filter_onError,
+      filter_onComplete)
+    return observable[].disposable
 
 
 # =================== #
 #      Unit Test      #
 # =================== #
 
-template test(): untyped {.used.} =
-  suite "Operator - Filter":
-    test "concept conversion":
-      check FilterObservable[int] is ConceptObservable[int]
+template test_error =
+  setup:
+    var
+      results, expects: seq[string]
+      subject: PublishSubject[string]
+  teardown:
+      check results == expects
 
+  test "error":
+    expects = @["0", "Error"]
+    subject
+      .filter( proc(x: string): bool =
+        try: parseInt(x) == 0
+        except: raise ReraiseDefect.newException("Error")
+      ){}
+      .subscribe(
+        (x: string) => (results.add x),
+        (x: ref Exception) => (results.add x.msg)
+      )
+    subject.next "0"
+    subject.next "X"
+    subject.next "0"
+    check not subject.hasAnyObservers
+
+template test_multiSubscribing =
+  setup:
+    var
+      results, expects: seq[int]
+      subject: PublishSubject[int]
+  teardown:
+    check results == expects
+
+  test "multi-subscribe":
+    expects = @[1, 1, 3, 3]
+    var filtered = subject.filter((x, i) => i mod 2 == 0)
+    filtered.subscribe((x: int) => results.add x)
+    filtered.subscribe((x: int) => results.add x)
+
+    subject.next 1, 2, 3
+
+template test {.used.} =
+  suite "Operator - Filter":
     setup:
       var
         results, expects: seq[int]
@@ -93,7 +138,11 @@ template test(): untyped {.used.} =
       subject.next 3, 5, 7, 9, 300
       subject.complete
 
+    block: test_error
+    block: test_multiSubscribing
+
 when isMainModule:
   import std/unittest
+  import std/strutils
   import reactiveCrown/subjects
   test

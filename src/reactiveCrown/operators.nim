@@ -1,3 +1,7 @@
+import operators/operator_concept
 import operators/operator_map
+import operators/operator_filter
 
+export operator_concept
 export operator_map
+export operator_filter

@@ -1,37 +1,47 @@
 {.deadCodeElim.}
 import std/sugar
+import std/importutils
+import std/macros
 import ../core
+import operator_concept {.all.}
 
-type MapObservable[T] = object
-  observer: Observer[T]
-  OnSubscribe: (ptr MapObservable[T]) -> Disposable
+template finallyConsume(body) =
+  try: body
+  finally: consume observable[].disposable
 
-proc onSubscribe*[T](observable: var MapObservable[T]; observer: Observer[T]): Disposable =
-  observable.observer = observer
-  observable.OnSubscribe(observable.addr)
+template map_onError = 
+  (e: ref Exception) => finallyConsume( observer.onError e )
+template map_onComplete = 
+  () => finallyConsume( observer.onComplete )
 
-proc map*[T, S](upstream: var ConceptObservable[T]; predicate: T->S): MapObservable[S] =
+proc map*[T, S](upstream: var ConceptObservable[T]; predicate: T->S): OperatorObservable[S] =
+  privateAccess OperatorObservable
   let upstream = upstream.addr
-  proc OnSubscribe(observable: ptr MapObservable[S]): Disposable =
-    upstream[].subscribe(
-      (x:             T) => (observable[].observer.onNext x.predicate),
-      (x: ref Exception) => (observable[].observer.onError x),
-      (                ) => (observable[].observer.onComplete))
-  MapObservable[S](
-    OnSubscribe: OnSubscribe
-    )
+  result.OnSubscribe =
+    proc(observable: ptr OperatorObservable[S]; observer: Observer[S]): Disposable =
+      observable[].disposable = upstream[].subscribe(
+        (x: T) => (
+          try: observer.onNext predicate(x)
+          except: finallyConsume( observer.onError getCurrentException() )
+        ),
+        map_onError,
+        map_onComplete)
+      return observable[].disposable
 
-proc map*[T, S](upstream: var ConceptObservable[T]; predicate: (T, int)->S): MapObservable[S] =
+proc map*[T, S](upstream: var ConceptObservable[T]; predicate: (T, int)->S): OperatorObservable[S] =
+  privateAccess OperatorObservable
   let upstream = upstream.addr
-  var i: int
-  proc OnSubscribe(observable: ptr MapObservable[S]): Disposable =
-    upstream[].subscribe(
-      (x:             T) => (observable[].observer.onNext x.predicate(i); inc i),
-      (x: ref Exception) => (observable[].observer.onError x),
-      (                ) => (observable[].observer.onComplete))
-  MapObservable[S](
-    OnSubscribe: OnSubscribe
-    )
+  result.OnSubscribe =
+    proc(observable: ptr OperatorObservable[S]; observer: Observer[S]): Disposable =
+      var i: int
+      observable[].disposable = upstream[].subscribe(
+        (x: T) => (
+          try: observer.onNext predicate(x, ^++i)
+          except: finallyConsume( observer.onError getCurrentException() )
+        ),
+        map_onError,
+        map_onComplete)
+      return observable[].disposable
 
 
 # =================== #
@@ -133,19 +143,57 @@ template test_changeType(): untyped =
     subject.next 100, 200, 300
     subject.complete
 
+template test_error(): untyped =
+  setup:
+    var
+      results, expects: seq[int]
+      subject: PublishSubject[string]
+  teardown:
+      check results == expects
+
+  test "error":
+    expects = @[0, -1]
+    subject
+      .map( proc(x: string): int =
+        try: parseInt(x)
+        except: raise ReraiseDefect.newException("Error")
+      ){}
+      .subscribe(
+        (x: int) => (results.add x),
+        (x: ref Exception) => (results.add -1)
+      )
+    subject.next "0"
+    subject.next "X"
+    subject.next "1"
+    check not subject.hasAnyObservers
+
+template test_multiSubscribing(): untyped =
+  setup:
+    var
+      results, expects: seq[int]
+      subject: PublishSubject[int]
+  teardown:
+    check results == expects
+
+  test "multi-subscribe":
+    expects = @[0, 0, 2, 2]
+    var mapped = subject.map((x, i) => x * i)
+    mapped.subscribe((x: int) => results.add x)
+    mapped.subscribe((x: int) => results.add x)
+
+    subject.next 1, 2
+
+
 template test(): untyped {.used.} =
   suite "Operator - Map":
-    test "concept conversion":
-      check MapObservable[int] is ConceptObservable[int]
-
     block: test_dontChangeType
     block: test_changeType
+    block: test_error
+    block: test_multiSubscribing
 
 when isMainModule:
-  MapObservable[int] -?-> ConceptObservable[int]
-  var x: MapObservable[int]
-  discard x.addr.toAbstractObservable
   import std/unittest
+  import std/strutils
   import reactiveCrown/subjects
 
   test
