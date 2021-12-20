@@ -98,7 +98,7 @@ proc complete*[T](this: var PublishSubject[T]) =
 #      Unit Test      #
 # =================== #
 
-template test(): untyped {.used.} =
+template test {.used.} =
   suite "Subject - PublishSubject":
     test "concept conversion":
       check PublishSubject[int] is ConceptObserver[int]

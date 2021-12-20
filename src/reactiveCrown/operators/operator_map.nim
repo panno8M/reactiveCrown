@@ -48,7 +48,7 @@ proc map*[T, S](upstream: var ConceptObservable[T]; predicate: (T, int)->S): Ope
 #      Unit Test      #
 # =================== #
 
-template test_dontChangeType(): untyped =
+template test_dontChangeType =
   setup:
     var
       results, expects: seq[int]
@@ -96,7 +96,7 @@ template test_dontChangeType(): untyped =
     subject.complete
 
 
-template test_changeType(): untyped =
+template test_changeType =
   setup:
     var
       results, expects: seq[string]
@@ -143,7 +143,7 @@ template test_changeType(): untyped =
     subject.next 100, 200, 300
     subject.complete
 
-template test_error(): untyped =
+template test_error =
   setup:
     var
       results, expects: seq[int]
@@ -167,7 +167,7 @@ template test_error(): untyped =
     subject.next "1"
     check not subject.hasAnyObservers
 
-template test_multiSubscribing(): untyped =
+template test_multiSubscribing =
   setup:
     var
       results, expects: seq[int]
@@ -184,7 +184,7 @@ template test_multiSubscribing(): untyped =
     subject.next 1, 2
 
 
-template test(): untyped {.used.} =
+template test {.used.} =
   suite "Operator - Map":
     block: test_dontChangeType
     block: test_changeType
